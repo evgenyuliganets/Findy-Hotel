@@ -86,7 +86,7 @@ class HomeState extends State<Home> {
                   ))),
 
             Expanded(child: expandedChild)
-          ],
+          ], 
         ));
   }
 
