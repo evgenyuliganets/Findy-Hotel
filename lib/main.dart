@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:find_hotel/place_detail_widget.dart';
+import 'package:find_hotel/app.dart';
+import 'package:authentication_repository/authentication_repository.dart';
+import 'package:user_repository/user_repository.dart';
+import 'package:find_hotel/home/view/place_detail_widget.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter/material.dart';
@@ -11,17 +14,17 @@ const kGoogleApiKey = "AIzaSyDRrbd-AJN0bph6zCa8Yd6l7pADEJIuptA";
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey,);
 
 void main() {
-  runApp(MaterialApp(
-    title: "Find Hotel",
-    home: Home(),
-    debugShowCheckedModeBanner: false,
-  ));
+  runApp(App(authenticationRepository:AuthenticationRepository(),
+    userRepository: UserRepository(),));
 }
 
 class Home extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
     return HomeState();
+  }
+  static Route route() {
+    return MaterialPageRoute<void>(builder: (_) => Home());
   }
 }
 
