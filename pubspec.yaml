@@ -37,6 +37,8 @@ dev_dependencies:
   google_maps_flutter: 1.2.0
   flutter_google_places: 0.2.6
   location: 3.2.4
+  path_provider: 1.6.28
+  sqflite: ^1.0.0
   flutter_bloc: ^6.1.0
   carousel_slider: 3.0.0
   json_serializable: 3.5.1
@@ -62,7 +64,6 @@ flutter:
     - assets/pic2.jpg
     - assets/pic3.jpg
     - assets/pic4.jpg
-    - assets/pic5.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

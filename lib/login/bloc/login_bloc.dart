@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:authentication_repository/authentication_repository.dart';
+import 'package:find_hotel/database/authentication/model.dart';
+import 'package:find_hotel/database/authentication/users_repository.dart';
 import 'package:formz/formz.dart';
 import 'package:meta/meta.dart';
 import 'package:find_hotel/login/model/username.dart';
@@ -16,7 +18,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   })  : assert(authenticationRepository != null),
         _authenticationRepository = authenticationRepository,
         super(const LoginState());
-
+  final _userRepository = UsersRepository();
   final AuthenticationRepository _authenticationRepository;
   @override
   Stream<LoginState> mapEventToState(
@@ -50,6 +52,8 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           username: state.username.value,
         );
         yield state.copyWith(status: FormzStatus.submissionSuccess);
+        await _userRepository.deleteAllUsers();
+        await _userRepository.insertUser(UserModel(id: 1,username: state.username.value));
       } on Error catch (_) {
         yield state.copyWith(status: FormzStatus.submissionFailure);
         print(_.toString());

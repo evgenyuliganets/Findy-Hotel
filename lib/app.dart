@@ -5,10 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:find_hotel/authentication/bloc/authentication_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 
+import 'database/authentication/users_repository.dart';
+import 'home/view/main_navbar.dart';
 import 'login/bloc/login_bloc.dart';
 import 'login/view/login_page.dart';
-import 'main.dart';
-
 class App extends StatelessWidget {
   const App({
     Key key,
@@ -45,20 +45,32 @@ class _AppViewState extends State<AppView> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   final AuthenticationRepository _authenticationRepository= AuthenticationRepository();
   LoginEvent loginEvent;
+  final _userRepository = UsersRepository();
   NavigatorState get _navigator => _navigatorKey.currentState;
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       navigatorKey: _navigatorKey,
       builder: (context, child) {
         return
           BlocListener<AuthenticationBloc, AuthenticationState>(
           listener: (context, state) async {
+            try {
+              await _authenticationRepository.logIn(
+                   username: await _userRepository.getAllUser().then((value) =>
+                      value.first.username.toString()).timeout(Duration(seconds: 2),onTimeout: ()=>throw Error())).timeout(Duration(seconds: 2),onTimeout: ()=>throw Error());
+              User user=User('1');
+              state=AuthenticationState.authenticated(user);
+            }
+            catch (Error){
+              print (Error);
+            }
             switch (state.status) {
               case AuthenticationStatus.authenticated:
                 _navigator.pushAndRemoveUntil<void>(
-                  Home.route(),
+                  MainNavbar.route(),
                       (route) => false,
                 );
                 break;
