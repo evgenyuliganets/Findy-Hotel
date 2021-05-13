@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:find_hotel/home/data_repository/home_repository.dart';
+import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/map/repository/map_repository.dart';
 import 'package:find_hotel/profile/repository/profile_repository.dart';
 import 'package:meta/meta.dart';
@@ -18,7 +19,7 @@ class BottomNavigationBloc
         assert(profileRepository != null),
         super(PageLoading());
 
-  final HomeRepository homeRepository;
+  final HomeDataRepository homeRepository;
   final MapRepository mapRepository;
   final ProfileRepository profileRepository;
   int currentIndex = 0;
@@ -31,11 +32,8 @@ class BottomNavigationBloc
     if (event is PageTapped) {
       this.currentIndex = event.index;
       yield CurrentIndexChanged(currentIndex: this.currentIndex);
-      yield PageLoading();
-
       if (this.currentIndex == 0) {
-        String data = await _getHomePageData();
-        yield HomePageLoaded(text: data);
+        yield HomePageStarted();
       }
       if (this.currentIndex == 1) {
         int data = await _getMapPageData();
@@ -52,14 +50,6 @@ class BottomNavigationBloc
 
   }
 
-  Future<String> _getHomePageData() async {
-    String data = homeRepository.data;
-    if (data == null) {
-      await homeRepository.fetchData();
-      data = homeRepository.data;
-    }
-    return data;
-  }
 
   Future<int> _getMapPageData() async {
     int data = mapRepository.data;

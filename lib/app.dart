@@ -6,7 +6,7 @@ import 'package:find_hotel/authentication/bloc/authentication_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 
 import 'database/authentication/users_repository.dart';
-import 'home/view/main_navbar.dart';
+import 'bottom_navigation/view/main_navbar.dart';
 import 'login/bloc/login_bloc.dart';
 import 'login/view/login_page.dart';
 class App extends StatelessWidget {

@@ -21,13 +21,8 @@ class PageLoading extends BottomNavigationState {
   String toString() => 'PageLoading';
 }
 
-class HomePageLoaded extends BottomNavigationState {
-  final String text;
-
-  HomePageLoaded({@required this.text});
-
-  @override
-  String toString() => 'HomePageLoaded with text: $text';
+class HomePageStarted extends BottomNavigationState {
+  const HomePageStarted();
 }
 
 class MapPageLoaded extends BottomNavigationState {

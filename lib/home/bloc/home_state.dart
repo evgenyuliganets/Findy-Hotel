@@ -16,8 +16,9 @@ class HomeLoading extends HomeState {
 class HomeLoaded extends HomeState {
   final List<PlacesSearchResult> places;
   final String message;
+  final String googleApiKey;
 
-  const HomeLoaded({this.places, this.message});
+  const HomeLoaded({this.places, this.googleApiKey,this.message});
 }
 
 class HomeError extends HomeState {

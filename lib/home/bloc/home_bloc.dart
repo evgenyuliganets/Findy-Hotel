@@ -19,9 +19,10 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ) async* {
     if (event is GetPlaces) {           //Get nearby Places or Places from dataBase
       try {
-        yield (HomeInitial());
+        yield (HomeLoading());
         final places = await homeRepo.fetchPlacesFromNetwork(event.latlng).timeout(Duration(seconds: 2));
-        yield (HomeLoaded(places:places));
+        final apiKey = await homeRepo.loadAsset();
+        yield (HomeLoaded(places:places,googleApiKey: apiKey));
       }
 
       on TimeoutException {
@@ -29,6 +30,27 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         try {
           yield (HomeLoading());
           final places = await homeRepo.fetchPlacesFromDataBase(event.latlng);
+          yield (HomeLoaded(places: places,message: "Places was loaded from database"));
+        }
+        on PlacesNotFoundException{
+          yield (HomeError(error.error));
+        }
+      }
+    }
+    if (event is GetUserPlaces) {           //Get nearby UserPlaces or UserPlaces from dataBase
+      try {
+        yield (HomeLoading());
+        final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
+        final places = await homeRepo.fetchPlacesFromNetwork(LatLng(userLocation.latitude,userLocation.longitude)).timeout(Duration(seconds: 2));
+        final apiKey = await homeRepo.loadAsset();
+        yield (HomeLoaded(places:places, googleApiKey: apiKey));
+      }
+
+      on TimeoutException {
+        yield (HomeError("No Internet Connection"));
+        try {
+          yield (HomeLoading());
+          final places = await homeRepo.fetchPlacesFromDataBase(LatLng(0,0));
           yield (HomeLoaded(places: places,message: "Places was loaded from database"));
         }
         on PlacesNotFoundException{

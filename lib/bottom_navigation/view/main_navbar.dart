@@ -1,5 +1,8 @@
 import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
+import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/data_repository/home_repository.dart';
+import 'package:find_hotel/home/data_repository/places_data.dart';
+import 'package:find_hotel/home/view/home_page.dart';
 import 'package:find_hotel/main.dart';
 import 'package:find_hotel/map/map_page.dart';
 import 'package:find_hotel/map/repository/map_repository.dart';
@@ -19,7 +22,7 @@ class MainNavbar extends StatelessWidget {
   Widget build(BuildContext context) {
    return BlocProvider<BottomNavigationBloc>(
       create: (context) => BottomNavigationBloc(
-          homeRepository: HomeRepository(),
+          homeRepository: HomeDataRepository(),
           mapRepository: MapRepository(),
           profileRepository: ProfileRepository())..add(AppStarted()),
       child:Scaffold(
@@ -28,8 +31,14 @@ class MainNavbar extends StatelessWidget {
           if (state is PageLoading) {
             return Center(child: CircularProgressIndicator());
           }
-          if (state is HomePageLoaded) {
-            return Home();
+          if (state is HomePageStarted) {
+            return Scaffold(
+              body: BlocProvider(
+                create: (context) => HomeBloc(HomeDataRepository()),
+                child: HomePage(),
+              ),
+
+            );
           }
           if (state is MapPageLoaded) {
             return MapPage(number: state.number);
