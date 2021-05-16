@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:find_hotel/database/authentication/database.dart';
+import 'package:find_hotel/database/database.dart';
 import 'package:find_hotel/database/authentication/model.dart';
 
 class UserDao {

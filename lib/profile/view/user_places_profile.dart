@@ -6,7 +6,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
-ListView buildUserProfile(List<PlacesDetail> places) {
+ListView buildUserProfilePlaces(List<PlacesDetail> places) {
   return ListView.builder(//ListView
     shrinkWrap: true,
     itemCount: places.length,
@@ -30,12 +30,15 @@ ListView buildUserProfile(List<PlacesDetail> places) {
                     loadingBuilder: (BuildContext context, Widget child, ImageChunkEvent loadingProgress) {
                       if (loadingProgress == null)
                         return child;
-                      return Center(
-                        child: CircularProgressIndicator(
+                      return Container(color: Colors.black12, height: 150,width: 150,
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.black26),
                           value: loadingProgress.expectedTotalBytes != null
                               ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes
                               : null,
                         ),
+                      )
                       );
                     },
                   ),

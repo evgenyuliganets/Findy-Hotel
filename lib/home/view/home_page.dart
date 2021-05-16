@@ -14,7 +14,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        height: 650,
+        height: 800,
         child: BlocConsumer<HomeBloc, HomeState>(
           builder: (context, state) {
             if (state is HomeInitial)

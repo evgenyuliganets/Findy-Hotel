@@ -14,7 +14,7 @@ class HomeLoading extends HomeState {
 }
 
 class HomeLoaded extends HomeState {
-  final List<PlacesSearchResult> places;
+  final List<PlacesDetail> places;
   final String message;
   final String googleApiKey;
 

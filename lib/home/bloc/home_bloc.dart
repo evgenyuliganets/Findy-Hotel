@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:find_hotel/home/data_repository/places_data.dart';
+import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:bloc/bloc.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:meta/meta.dart';
 
 part 'home_event.dart';

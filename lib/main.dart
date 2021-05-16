@@ -144,7 +144,7 @@ class HomeState extends State<Home> {
       this.errorMessage = null;
     });
 
-    final location = Location(center.latitude, center.longitude);
+    final location = Location(lat:center.latitude, lng:center.longitude);
     final result = await _places.searchNearbyWithRadius(location, 2500 ,type:"lodging",language: defaultLocale);
     setState(() {
       this.isLoading = false;
@@ -186,7 +186,7 @@ class HomeState extends State<Home> {
           language: defaultLocale,
           location: center == null
               ? null
-              : Location(center.latitude, center.longitude),
+              : Location(lat:center.latitude, lng:center.longitude),
           radius: center == null ? null : 1000000);
 
       showDetailPlace(p.placeId);

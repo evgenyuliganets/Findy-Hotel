@@ -25,22 +25,19 @@ class HomePageStarted extends BottomNavigationState {
   const HomePageStarted();
 }
 
-class MapPageLoaded extends BottomNavigationState {
+class MapPageStarted extends BottomNavigationState {
   final int number;
 
-  MapPageLoaded({@required this.number});
+  MapPageStarted({@required this.number});
 
   @override
   String toString() => 'MapPageLoaded with number: $number';
 }
 
-class ProfilePageLoaded extends BottomNavigationState {
-  final int number;
+class ProfilePageStarted extends BottomNavigationState {
 
-  ProfilePageLoaded({@required this.number});
+  ProfilePageStarted();
 
-  @override
-  String toString() => 'ProfilePageLoaded with number: $number';
 }
 class PageError extends BottomNavigationState {
 

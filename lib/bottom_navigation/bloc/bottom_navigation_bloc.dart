@@ -1,27 +1,19 @@
 import 'dart:async';
-import 'package:find_hotel/home/data_repository/home_repository.dart';
-import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/map/repository/map_repository.dart';
-import 'package:find_hotel/profile/repository/profile_repository.dart';
+import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
 
 part 'bottom_navigation_event.dart';
 part 'bottom_navigation_state.dart';
 
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
-  BottomNavigationBloc({this.homeRepository, this.mapRepository, this.profileRepository, })
-      : assert(homeRepository != null),
-        assert(mapRepository != null),
-        assert(profileRepository != null),
+  BottomNavigationBloc({ this.mapRepository,})
+      :assert(mapRepository != null),
         super(PageLoading());
-
-  final HomeDataRepository homeRepository;
   final MapRepository mapRepository;
-  final ProfileRepository profileRepository;
   int currentIndex = 0;
 
   @override
@@ -37,11 +29,10 @@ class BottomNavigationBloc
       }
       if (this.currentIndex == 1) {
         int data = await _getMapPageData();
-        yield MapPageLoaded(number: data);
+        yield MapPageStarted(number: data);
       }
       if (this.currentIndex == 2) {
-        int data = await _getProfilePageData();
-        yield ProfilePageLoaded(number: data);
+        yield ProfilePageStarted();
       }
       else if(this.currentIndex==null){
         yield PageError('Unknown error');
@@ -60,12 +51,4 @@ class BottomNavigationBloc
     return data;
   }
 
-  Future<int> _getProfilePageData() async {
-    int data = mapRepository.data;
-    if (data == null) {
-      await mapRepository.fetchData();
-      data = mapRepository.data;
-    }
-    return data;
-  }
 }

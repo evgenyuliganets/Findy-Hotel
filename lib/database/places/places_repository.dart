@@ -1,12 +1,12 @@
-import 'package:find_hotel/database/authentication/model.dart';
-import 'package:find_hotel/database/authentication/user_dao.dart';
+import 'package:find_hotel/database/places/places_dao.dart';
+import 'package:find_hotel/database/places/places_db_model.dart';
 
-class UsersRepository {
-  final userDao = UserDao();
+class PlacesRepository {
+  final placesDao = PlacesDao();
 
-  Future<List<UserModel>> getAllUser({String  query}) => userDao.getUsers(query: query);
+  Future<List<PlacesDbDetail>> getAllUser({String  query}) => placesDao.getPlaces(query: query);
 
-  Future insertUser(UserModel user) => userDao.createUser(user);
+  Future insertUser(PlacesDbDetail user) => placesDao.createPlaces(user);
 
-  Future deleteAllUsers() => userDao.deleteAllUsers();
+  Future deleteAllUsers() => placesDao.deleteAllPlaces();
 }

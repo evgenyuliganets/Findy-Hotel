@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'package:find_hotel/database/database.dart';
-import 'package:find_hotel/database/authentication/model.dart';
 import 'package:find_hotel/database/places/places_db_model.dart';
-import 'package:find_hotel/home/model/places_detail_model.dart';
-
-class UserDao {
+class PlacesDao {
   final dbProvider = DatabaseProvider.dbProvider;
 
   Future<int> createPlaces(PlacesDbDetail placesDbDetail) async {
@@ -24,10 +21,10 @@ class UserDao {
       result = await db.query(placesTABLE, columns: columns);
     }
 
-    List<PlacesDbDetail> users = result.isNotEmpty
+    List<PlacesDbDetail> places = result.isNotEmpty
         ? result.map((item) => PlacesDbDetail.fromDatabaseJson(item)).toList()
         : [];
-    return users;
+    return places;
   }
 
   Future deleteAllPlaces() async {

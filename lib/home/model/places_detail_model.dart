@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-class PlacesSearch {
+class PlacesDetail{
   final String icon;
   final String name;
   final bool openingHours;
@@ -11,10 +11,14 @@ class PlacesSearch {
   final String vicinity;
   final String formattedAddress;
   final bool permanentlyClosed;
-  final String id;
   final String reference;
+  final String website;
+  final num utcOffset;
+  final String formattedPhoneNumber;
+  final String internationalPhoneNumber;
 
-  PlacesSearch({
+
+  PlacesDetail({
     this.icon,
     this.name,
     this.openingHours,
@@ -26,7 +30,10 @@ class PlacesSearch {
     this.vicinity,
     this.formattedAddress,
     this.permanentlyClosed,
-    this.id,
     this.reference,
+    this.website,
+    this.utcOffset,
+    this.formattedPhoneNumber,
+    this.internationalPhoneNumber,
   });
 }
