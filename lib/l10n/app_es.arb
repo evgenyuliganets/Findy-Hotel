@@ -1,0 +1,13 @@
+{
+    "@@locale": "es",
+    "helloWorld": "Hola Mundo!",
+    "welcomeAppLogin": "Bienvenidos a Findy Hotel!",
+    "firstSlide": "Encuentra hoteles a través de la búsqueda",
+    "secondSlide": "Obtenga información completa sobre el hotel seleccionado",
+    "thirdSlide": "Agregue los hoteles seleccionados a su lista de favoritos para verlos sin conexión!",
+    "fourthSlide": "Buscar hoteles cercanos en el mapa",
+    "headerInput": "Escriba su nombre y comencemos!",
+    "inputHint": "Nombre",
+    "loginButton": "Acceder",
+    "errorInput": "Nombre inválido"
+}

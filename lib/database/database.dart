@@ -51,7 +51,7 @@ class DatabaseProvider {
         "types BLOB, "
         "vicinity TEXT, "
         "formattedAddress TEXT, "
-        "permanentlyClosed BLOB, "
+        "weekday BLOB, "
         "reference TEXT, "
         "utcOffset REAL, "
         "formattedPhoneNumber TEXT, "

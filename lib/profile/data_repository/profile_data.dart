@@ -29,7 +29,7 @@ class ProfileRepository {
           list[j]= PlacesDetail(
             icon:result.results[j].icon,
             name:result.results[j].name,
-            openingHours:result.results[j].openingHours==null?null:result.results[j].openingHours.openNow,
+            openNow:result.results[j].openingHours==null?null:result.results[j].openingHours.openNow,
             photos:photos,
             placeId:result.results[j].placeId,
             priceLevel:result.results[j].priceLevel.toString(),
@@ -37,7 +37,6 @@ class ProfileRepository {
             types:result.results[j].types,
             vicinity:result.results[j].vicinity,
             formattedAddress:result.results[j].formattedAddress,
-            permanentlyClosed:result.results[j].permanentlyClosed,
             reference:result.results[j].reference,
           );j++;});
         return list;

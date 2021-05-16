@@ -1,6 +1,15 @@
 {
+    "@@locale": "en",
     "helloWorld": "Hello World!",
     "@helloWorld": {
-      "description": "The conventional newborn programmer greeting"
-    }
+      "description": "The conventional newborn programmer greeting"},
+    "welcomeAppLogin": "Welcome to Findy Hotel!",
+    "firstSlide": "Find hotels through search",
+    "secondSlide": "Get complete information about the selected hotel",
+    "thirdSlide": "Add selected hotels to your favorites list to view them offline!",
+    "fourthSlide": "Browse hotels near you on the map",
+    "headerInput": "Write your Name and lets get started!",
+    "inputHint": "Name",
+    "loginButton": "Login",
+    "errorInput": "Invalid name"
 }

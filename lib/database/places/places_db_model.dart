@@ -2,7 +2,7 @@ import 'dart:typed_data';
 class PlacesDbDetail{
   final String icon;
   final String name;
-  final bool openingHours;
+  final bool openNow;
   final List<Uint8List> photos;
   final String placeId;
   final String priceLevel;
@@ -10,7 +10,7 @@ class PlacesDbDetail{
   final List<String> types;
   final String vicinity;
   final String formattedAddress;
-  final bool permanentlyClosed;
+  final bool weekday;
   final String reference;
   final String website;
   final num utcOffset;
@@ -22,7 +22,7 @@ class PlacesDbDetail{
   PlacesDbDetail({
     this.icon,
     this.name,
-    this.openingHours,
+    this.openNow,
     this.photos,
     this.placeId,
     this.priceLevel,
@@ -30,7 +30,7 @@ class PlacesDbDetail{
     this.types,
     this.vicinity,
     this.formattedAddress,
-    this.permanentlyClosed,
+    this.weekday,
     this.reference,
     this.website,
     this.utcOffset,
@@ -42,7 +42,7 @@ class PlacesDbDetail{
     id: data['id'],
     icon:data['icon'],
     name:data['name'],
-    openingHours:data['openingHours'],
+    openNow:data['openNow'],
     photos:data['photos'],
     placeId:data['placeId'],
     priceLevel:data['priceLevel'],
@@ -50,7 +50,7 @@ class PlacesDbDetail{
     types:data['types'],
     vicinity:data['vicinity'],
     formattedAddress:data['formattedAddress'],
-    permanentlyClosed:data['permanentlyClosed'],
+    weekday:data['weekday'],
     reference:data['reference'],
     website:data['website'],
     utcOffset:data['utcOffset'],
@@ -61,7 +61,7 @@ class PlacesDbDetail{
     "id": this.id,
     "icon": this.icon,
     "name": this.name,
-    "openingHours": this.openingHours,
+    "openNow": this.openNow,
     "photos": this.photos,
     "placeId": this.placeId,
     "priceLevel": this.priceLevel,
@@ -69,7 +69,7 @@ class PlacesDbDetail{
     "types": this.types,
     "vicinity": this.vicinity,
     "formattedAddress": this.formattedAddress,
-    "permanentlyClosed": this.permanentlyClosed,
+    "weekday": this.weekday,
     "reference": this.reference,
     "website": this.website,
     "utcOffset": this.utcOffset,

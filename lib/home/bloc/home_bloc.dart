@@ -58,5 +58,26 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
       }
     }
+
+    if (event is GetDetailedPlace) {          //Get DetailedPlace or DetailedPlace from database
+      try {
+        yield (PlaceLoading());
+        final place = await homeRepo.fetchDetailedPlaceFromNetwork(event.placeId).timeout(Duration(seconds: 10));
+        final apiKey = await homeRepo.loadAsset();
+        yield (PlaceLoaded(placesDetail:place, googleApiKey: apiKey));
+      }
+
+      on TimeoutException {
+        yield (PlaceError("No Internet Connection"));
+        try {
+          yield (HomeLoading());
+          final places = await homeRepo.fetchPlaceDetailFromDataBase(LatLng(0,0));
+          yield (PlaceLoaded(placesDetail: places,message: "Places was loaded from database"));
+        }
+        on PlacesNotFoundException{
+          yield (PlaceError(error.error));
+        }
+      }
+    }
   }
 }

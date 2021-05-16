@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 class PlacesDetail{
   final String icon;
   final String name;
-  final bool openingHours;
+  final bool openNow;
+  final List weekDay;
   final List<ImageProvider> photos;
   final String placeId;
   final String priceLevel;
@@ -10,7 +11,6 @@ class PlacesDetail{
   final List<String> types;
   final String vicinity;
   final String formattedAddress;
-  final bool permanentlyClosed;
   final String reference;
   final String website;
   final num utcOffset;
@@ -21,7 +21,7 @@ class PlacesDetail{
   PlacesDetail({
     this.icon,
     this.name,
-    this.openingHours,
+    this.openNow,
     this.photos,
     this.placeId,
     this.priceLevel,
@@ -29,7 +29,7 @@ class PlacesDetail{
     this.types,
     this.vicinity,
     this.formattedAddress,
-    this.permanentlyClosed,
+    this.weekDay,
     this.reference,
     this.website,
     this.utcOffset,

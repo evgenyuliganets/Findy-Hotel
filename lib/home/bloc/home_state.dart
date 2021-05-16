@@ -4,7 +4,7 @@ part of 'home_bloc.dart';
 abstract class HomeState {
   const HomeState();
 }
-
+//PlacesList
 class HomeInitial extends HomeState {
   const HomeInitial();
 }
@@ -24,4 +24,23 @@ class HomeLoaded extends HomeState {
 class HomeError extends HomeState {
   final String error;
   const HomeError(this.error);
+}
+
+
+
+class PlaceLoading extends HomeState {
+  const PlaceLoading();
+}
+
+class PlaceLoaded extends HomeState {
+  final PlacesDetail placesDetail;
+  final String message;
+  final String googleApiKey;
+
+  const PlaceLoaded({this.placesDetail, this.googleApiKey,this.message});
+}
+
+class PlaceError extends HomeState {
+  final String error;
+  const PlaceError(this.error);
 }
