@@ -4,12 +4,55 @@
     "@helloWorld": {
       "description": "The conventional newborn programmer greeting"},
     "welcomeAppLogin": "Welcome to Findy Hotel!",
+    "@welcomeAppLogin": {
+          "description": ""},
     "firstSlide": "Find hotels through search",
+    "@firstSlide": {
+              "description": ""},
     "secondSlide": "Get complete information about the selected hotel",
+    "@secondSlide": {
+              "description": ""},
     "thirdSlide": "Add selected hotels to your favorites list to view them offline!",
+    "@thirdSlide": {
+              "description": ""},
     "fourthSlide": "Browse hotels near you on the map",
+    "@fourthSlide": {
+              "description": ""},
     "headerInput": "Write your Name and lets get started!",
+    "@headerInput": {
+              "description": ""},
     "inputHint": "Name",
+    "@inputHint": {
+              "description": ""},
     "loginButton": "Login",
-    "errorInput": "Invalid name"
+    "@loginButton": {
+              "description": ""},
+    "errorInput": "Invalid name",
+    "@errorInput": {
+              "description": ""},
+    "homeTab": "Home",
+        "@homeTab": {
+                  "description": ""},
+    "mapTab": "Map",
+        "@mapTab": {
+                  "description": ""},
+    "profileTab": "Profile",
+        "@profileTab": {
+                  "description": ""},
+    "headerProfile": "Hello,",
+        "@headerProfile": {
+                  "description": ""},
+    "logout": "Logout",
+            "@logout": {
+                      "description": ""},
+    "cancelButton": "Cancel",
+                "@cancelButton": {
+                          "description": ""},
+    "warningProfile": "You sure you want to logout? All local data will be erased!",
+                "@warningProfile": {
+                          "description": ""},
+    "profileError": "Sorry, your nearby places was not found.",
+                    "@profileError": {
+                              "description": ""}
+
 }

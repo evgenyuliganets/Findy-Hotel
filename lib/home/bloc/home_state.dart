@@ -17,15 +17,17 @@ class HomeLoaded extends HomeState {
   final List<PlacesDetail> places;
   final String message;
   final String googleApiKey;
+  final LatLng loc;
+  final String textFieldText;
 
-  const HomeLoaded({this.places, this.googleApiKey,this.message});
+  const HomeLoaded({this.textFieldText,this.places, this.googleApiKey,this.message,this.loc});
 }
 
 class HomeError extends HomeState {
+  final String apiKey;
   final String error;
-  const HomeError(this.error);
+  const HomeError(this.error, this.apiKey);
 }
-
 
 
 class PlaceLoading extends HomeState {

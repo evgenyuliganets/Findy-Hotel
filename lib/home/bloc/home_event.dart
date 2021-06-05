@@ -4,7 +4,8 @@ part of 'home_bloc.dart';
 abstract class HomeEvent {}
 class GetPlaces extends HomeEvent {
   final LatLng latlng;
-  GetPlaces(this.latlng);
+  final String textFieldText;
+  GetPlaces(this.latlng,this.textFieldText);
 }
 
 class GetUserPlaces extends HomeEvent {

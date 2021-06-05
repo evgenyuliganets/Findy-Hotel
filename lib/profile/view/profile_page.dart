@@ -5,6 +5,7 @@ import 'package:find_hotel/login/view/login_page.dart';
 import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/view/user_places_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -68,7 +69,7 @@ class _ProfilePage extends State<ProfilePage> {
 
   Widget buildGreeting(String user)  {
       return Container(
-       child:user!=null? Text('Welcome, $user!',style: TextStyle(fontSize: 25,fontFamily: 'Times New Roman'),):Text('UnknownUser')
+       child:user!=null? Text('${AppLocalizations.of(context).headerProfile} $user!',style: TextStyle(fontSize: 25,fontFamily: 'Times New Roman'),):Text('UnknownUser')
     );
   }
 
@@ -91,7 +92,7 @@ class _ProfilePage extends State<ProfilePage> {
 
   Widget buildLogout(){
     return  OutlinedButton(
-      child: const Text('Logout'),
+      child: Text(AppLocalizations.of(context).logout),
       onPressed: () {
         _showDialog();
       },
@@ -102,11 +103,17 @@ class _ProfilePage extends State<ProfilePage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Logout"),
-          content: new Text("You sure you want to logout? All local data will be erased!"),
+          title: new Text(AppLocalizations.of(context).logout),
+          content: new Text(AppLocalizations.of(context).warningProfile),
           actions: <Widget>[
             new TextButton(
-              child: new Text("Logout"),
+              child: new Text(AppLocalizations.of(context).cancelButton),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new TextButton(
+              child: new Text(AppLocalizations.of(context).logout),
               onPressed: () {
                 Navigator.of(context).pop();
                 context
@@ -135,7 +142,7 @@ class _ProfilePage extends State<ProfilePage> {
               color: Color(0xff878787),
               size: 150,),
             Container(height: 10,),
-            Text('Sorry your nearby places was not found!',
+            Text(AppLocalizations.of(context).profileError,
               style: TextStyle(color: Color(0xff616161), fontSize: 20),)
           ])
         ],

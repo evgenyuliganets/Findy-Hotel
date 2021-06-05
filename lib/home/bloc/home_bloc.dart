@@ -17,45 +17,54 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> mapEventToState(
     HomeEvent event,
   ) async* {
+    final apiKey = await homeRepo.loadAsset();
     if (event is GetPlaces) {           //Get nearby Places or Places from dataBase
       try {
         yield (HomeLoading());
         final places = await homeRepo.fetchPlacesFromNetwork(event.latlng).timeout(Duration(seconds: 2));
         final apiKey = await homeRepo.loadAsset();
-        yield (HomeLoaded(places:places,googleApiKey: apiKey));
+        yield (HomeLoaded(places:places,googleApiKey: apiKey,textFieldText: event.textFieldText));
       }
 
       on TimeoutException {
-        yield (HomeError("No Internet Connection"));
+        yield (HomeError("No Internet Connection",apiKey));
         try {
           yield (HomeLoading());
           final places = await homeRepo.fetchPlacesFromDataBase(event.latlng);
           yield (HomeLoaded(places: places,message: "Places was loaded from database"));
         }
         on PlacesNotFoundException{
-          yield (HomeError(error.error));
+          yield (HomeError(error.error,apiKey));
         }
+      }
+      catch (PlacesNotFoundException){
+        print(PlacesNotFoundException.error);
+        yield (HomeError(PlacesNotFoundException.error,apiKey));
       }
     }
     if (event is GetUserPlaces) {           //Get nearby UserPlaces or UserPlaces from dataBase
       try {
         yield (HomeLoading());
+        print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
         final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
+        print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
         final places = await homeRepo.fetchPlacesFromNetwork(LatLng(userLocation.latitude,userLocation.longitude)).timeout(Duration(seconds: 2));
-        final apiKey = await homeRepo.loadAsset();
-        yield (HomeLoaded(places:places, googleApiKey: apiKey));
-      }
-
-      on TimeoutException {
-        yield (HomeError("No Internet Connection"));
+        print( places.toString());
+        yield (HomeLoaded(places:places, googleApiKey: apiKey,loc: userLocation));
+      } on TimeoutException {
+        yield (HomeError("No Internet Connection",apiKey));
         try {
           yield (HomeLoading());
           final places = await homeRepo.fetchPlacesFromDataBase(LatLng(0,0));
           yield (HomeLoaded(places: places,message: "Places was loaded from database"));
         }
         on PlacesNotFoundException{
-          yield (HomeError(error.error));
+          yield (HomeError(error.getError,apiKey));
         }
+      }
+      catch (PlacesNotFoundException){
+        print(PlacesNotFoundException.error);
+        yield (HomeError(PlacesNotFoundException.error,apiKey));
       }
     }
 
@@ -63,7 +72,6 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       try {
         yield (PlaceLoading());
         final place = await homeRepo.fetchDetailedPlaceFromNetwork(event.placeId).timeout(Duration(seconds: 10));
-        final apiKey = await homeRepo.loadAsset();
         yield (PlaceLoaded(placesDetail:place, googleApiKey: apiKey));
       }
 

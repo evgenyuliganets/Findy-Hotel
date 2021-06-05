@@ -19,7 +19,7 @@ class LoginForm extends StatelessWidget {
     return BlocListener<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.status.isSubmissionFailure) {
-          Scaffold.of(context)
+          ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
               const SnackBar(content: Text('Authentication Failure')),
@@ -67,7 +67,7 @@ class _WelcomeView extends StatelessWidget {
             fontFamily: 'Times New Roman',
             fontWeight: FontWeight.bold,
             color: Color(0xff424242),
-            fontSize: 25.0,
+            fontSize: 22,
           ),
         ),
       ]),
@@ -217,10 +217,10 @@ class _UsernameInput extends StatelessWidget {
               context.read<LoginBloc>().add(LoginUsernameChanged(username)),
           decoration: InputDecoration(
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.greenAccent, width: 1.5),
+              borderSide: BorderSide(color: Colors.greenAccent, width: 1.0),
             ),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.black26, width: 1.5),
+              borderSide: BorderSide(color: Colors.black26, width: 1.0),
             ),
             prefixIcon: Icon(Icons.edit_outlined,color: Color(0xff212121),),
             labelText: AppLocalizations.of(context).inputHint,

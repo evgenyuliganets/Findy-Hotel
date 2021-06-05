@@ -37,10 +37,21 @@ class HomeDataRepository {
           );
         return list;
       }
-      else{throw result.errorMessage;}
+      else{result.errorMessage != null
+          ? throw result.errorMessage
+          : result.status == 'ZERO_RESULTS'
+          ? throw PlacesNotFoundException("No results found")
+          : throw 'UnknownError';}
     }
     catch(Error){
-      throw PlacesNotFoundException(Error.toString());
+      if (Error is PlacesNotFoundException) {
+        print(Error.error + 'MY');
+        PlacesNotFoundException placesNotFoundException = PlacesNotFoundException(
+            Error.error);
+        placesNotFoundException.returnError(Error.error);
+        throw placesNotFoundException;
+      }
+      else throw Error;
     }
   }
 
@@ -48,11 +59,14 @@ class HomeDataRepository {
   Future<List<PlacesDetail>> fetchPlacesFromNetwork(LatLng latLng) async {
     try{
       String defaultLocale = Platform.localeName;
+      print(defaultLocale.toString());
       var kGoogleApiKey = await loadAsset();
       GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey,);
       final location = Location(lat:latLng.latitude, lng:latLng.longitude);
-      final result = await _places.searchNearbyWithRadius(location, 2500 ,type:"lodging",language: defaultLocale);
-        if (result.status == "OK"&&result.results.isNotEmpty) {
+      final result = await _places.searchNearbyWithRadius(location, 50000 ,type:"lodging",language: defaultLocale,keyword: 'spa');
+      print(result.toJson().toString());
+        if (result.status == "OK"&&result.hasNoResults!=true&&result.isNotFound!=true) {
+          print(result.results.first.toJson());
           var j = 0;
           List<PlacesDetail> list= new List<PlacesDetail>(result.results.length);
           list.forEach((element) {
@@ -76,12 +90,24 @@ class HomeDataRepository {
               formattedAddress:result.results[j].formattedAddress,
               reference:result.results[j].reference,
             );j++;});
+          print (list.toString());
             return list;
-        }
-        else{throw result.errorMessage;}
-    }
-    catch(Error){
-      throw PlacesNotFoundException(Error.toString());
+        } else {
+        result.errorMessage != null
+            ? throw result.errorMessage
+            : result.status == 'ZERO_RESULTS'
+                ? throw PlacesNotFoundException("No results found")
+                : throw 'UnknownError';
+      }
+    } catch(Exception){
+      if (Exception is PlacesNotFoundException) {
+        print(Exception.error + 'MY');
+        PlacesNotFoundException placesNotFoundException = PlacesNotFoundException(
+            Exception.error);
+        placesNotFoundException.returnError(Exception.error);
+        throw placesNotFoundException;
+      }
+      else throw Exception;
     }
    }
 
@@ -89,18 +115,21 @@ class HomeDataRepository {
     var currentLocation;
     final location = LocationManager.Location();
     try {
-      currentLocation = await Future.any([
-        location.getLocation(),
-        Future.delayed(Duration(seconds: 3), () => null),
-      ]).timeout(Duration(seconds: 3));
-      if (currentLocation == null) {
-        currentLocation = await location.getLocation();
-      }
+      currentLocation = await location.getLocation();
       final center = LatLng(currentLocation.latitude, currentLocation.longitude);
+      print(center.toString());
       return center;
-    } on Exception {
+    } catch (Exception) {
+      print (Exception.toString());
+      var permissionStatus =await location.hasPermission();
+      print (permissionStatus.toString());
+      if(permissionStatus== LocationManager.PermissionStatus.granted){
+      currentLocation = await location.getLocation();
+      return LatLng(currentLocation.latitude, currentLocation.longitude);
+      }
+      else{
       currentLocation = null;
-      return null;
+      return null;}
     }
   }
 
@@ -111,7 +140,7 @@ class HomeDataRepository {
 
   }
   String buildPhotoURL(String photoReference, String googleApiKey) {
-    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=700&photoreference=$photoReference&key=$googleApiKey";
+    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=$photoReference&key=$googleApiKey";
   }
 
 /*If you are using this app u should create your own asset file with text instance of ApiKey for GooglePlaces
@@ -121,7 +150,16 @@ class HomeDataRepository {
   }
 
 }
+
 class PlacesNotFoundException implements Exception {
   final String error;
+
   PlacesNotFoundException(this.error);
+
+  void returnError(error) {
+    return error;
+  }
+   get getError{
+      return error;
+  }
 }

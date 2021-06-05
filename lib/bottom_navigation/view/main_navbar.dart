@@ -8,7 +8,7 @@ import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:find_hotel/profile/view/profile_page.dart';
 import 'package:flutter/material.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
@@ -53,7 +53,7 @@ class MainNavbar extends StatelessWidget {
           },
           listener: (context, state) {
             if (state is PageError) {
-              Scaffold.of(context).showSnackBar(
+              ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(duration: const Duration(seconds: 1),
                   content: Text(state.error),
                 ),
@@ -67,18 +67,18 @@ class MainNavbar extends StatelessWidget {
             return BottomNavigationBar(
               currentIndex:
               context.select((BottomNavigationBloc bloc) => bloc.currentIndex),
-              items: const <BottomNavigationBarItem>[
+              items: <BottomNavigationBarItem>[
                 BottomNavigationBarItem(
                   icon: Icon(Icons.home, color: Colors.black87),
-                  label: 'Home',
+                  label: AppLocalizations.of(context).homeTab,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.map, color: Colors.black87),
-                  label: 'Map',
+                  label: AppLocalizations.of(context).mapTab,
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Icons.person, color: Colors.black87),
-                  label: 'Profile',
+                  label: AppLocalizations.of(context).profileTab,
                 ),
               ],
               onTap: (index) => context

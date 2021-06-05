@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 import 'package:find_hotel/app.dart';
 import 'package:authentication_repository/authentication_repository.dart';
-import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:user_repository/user_repository.dart';
 import 'package:find_hotel/home/view/place_detail_widget.dart';
 import 'package:google_maps_webservice/places.dart';
@@ -10,7 +9,6 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart' as LocationManager;
-import 'package:flutter_bloc/flutter_bloc.dart';
 const kGoogleApiKey = "AIzaSyDRrbd-AJN0bph6zCa8Yd6l7pADEJIuptA";
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey,);
 
@@ -183,6 +181,7 @@ class HomeState extends State<Home> {
           apiKey: kGoogleApiKey,
           onError: onError,
           mode: Mode.fullscreen,
+          types: ['locality'],
           language: defaultLocale,
           location: center == null
               ? null
