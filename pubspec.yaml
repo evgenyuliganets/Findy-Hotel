@@ -18,7 +18,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -70,6 +70,29 @@ flutter:
     - assets/pic3.jpg
     - assets/pic4.jpg
     - assets/no_image.jpg
+    - assets/airport.png
+    - assets/bar.png
+    - assets/cafe.png
+    - assets/campground.png
+    - assets/generic_business.png
+    - assets/generic_recreational.png
+    - assets/geocode.png
+    - assets/golf.png
+    - assets/hospital.png
+    - assets/library.png
+    - assets/lodging.png
+    - assets/movie.png
+    - assets/parking.png
+    - assets/pharmacy.png
+    - assets/restaurant.png
+    - assets/tourist_destination.png
+    - assets/ski.png
+    - assets/shopping.png
+    - assets/point_of_interest.png
+    - assets/establishment.png
+    - assets/spa.png
+    - assets/food.png
+    - assets/health.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

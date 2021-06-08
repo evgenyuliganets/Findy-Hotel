@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
+import 'package:find_hotel/home/view/filters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -12,16 +12,20 @@ class HomeTextField extends StatefulWidget{
   final String apiKey;
   final String textFieldText;
   final SearchFilterModel searchFilterModel;
-  HomeTextField(this.apiKey,{this.textFieldText='',this.searchFilterModel});
+  final bool checkMainSearchMode;
+  HomeTextField(this.apiKey,{this.textFieldText='',this.searchFilterModel, this.checkMainSearchMode=false});
 
   _HomeTextFieldState createState() => _HomeTextFieldState();
 }
 class _HomeTextFieldState extends State<HomeTextField> {
   TextEditingController controller;
+  SearchFilterModel filters;
   @override
   void initState() {
     super.initState();
     controller= TextEditingController(text: widget.textFieldText);
+    filters = widget.searchFilterModel;
+
   }
 
   @override
@@ -45,20 +49,47 @@ class _HomeTextFieldState extends State<HomeTextField> {
             IconButton(
               color: Colors.black45,
               icon: Icon(Icons.search),
-              onPressed: null,
+              onPressed: (){
+                if(widget.checkMainSearchMode==true){
+                  _handleSearchByName(widget.apiKey,controller.text);
+                }
+                else print (null);
+              },
             ),
             Expanded(
-                child: Padding(
-              child: TextField(
-                onTap: () {
-                  _handleSearch(widget.apiKey,widget.textFieldText);
-                },
-                decoration: InputDecoration(hintText: 'Search'),
-                controller: controller,
-                readOnly: true,
-              ),
-              padding: const EdgeInsets.only(left:5.0,right: 5.0),
-            )),
+                child: TextField(
+                  onTap: () {
+                    if(widget.checkMainSearchMode==false){
+                      _handleSearchByPlace(widget.apiKey,widget.textFieldText,widget.checkMainSearchMode);
+                    }
+                    else print (null);
+                  },
+                  decoration: InputDecoration(hintText: 'Search'),
+                  controller: controller,
+                  readOnly: !widget.checkMainSearchMode,
+                )),
+            Spacer(),
+            Ink(
+
+                decoration: const ShapeDecoration(
+                  color: Color(0xff636e86),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                ),
+                child: IconButton(
+                  onPressed: () async {
+                    var bloc = BlocProvider.of<HomeBloc>(context);
+                    var finalFilters = await filtersDialog(context, bloc.getFilterModel());
+                    filters= finalFilters??SearchFilterModel();
+                    bloc.setFiltersParametrs(finalFilters??SearchFilterModel());
+                  },
+                  icon: Icon(
+                    Icons.filter_list,
+                    color: Color(0xffd2d2d2),
+                  ),
+                  iconSize: 22,
+                  color: Colors.blueGrey,
+                )),
           ],
         ));
   }
@@ -67,12 +98,9 @@ class _HomeTextFieldState extends State<HomeTextField> {
       SnackBar(content: Text(response.errorMessage)),
     );
   }
-  void editMainText(text){
-      controller.text=text;
-      print(controller.text);
-  }
 
-  Future<void> _handleSearch(String apiKey, String textFieldText) async {
+
+  Future<void> _handleSearchByPlace(String apiKey, String textFieldText,bool mainSearchMode) async {
     var countryCode = Localizations.localeOf(context);
     try {
       Prediction p = await PlacesAutocomplete.show(
@@ -92,22 +120,42 @@ class _HomeTextFieldState extends State<HomeTextField> {
       PlacesDetailsResponse place = await _places.getDetailsByPlaceId(p.placeId,
           language: countryCode.languageCode);
     submitPlaceSearch(
-          context,
-          LatLng(place.result.geometry.location.lat,
+          latLng:LatLng(place.result.geometry.location.lat,
               place.result.geometry.location.lng),
-        place.result.addressComponents.first.shortName);
+        textFieldText: place.result.addressComponents.first.shortName,
+        filters: filters,
+        mainSearchMode: widget.checkMainSearchMode,
+    );
     } catch (e) {
       print(e);
       return null;
     }
   }
+  Future<void> _handleSearchByName(String apiKey, String textFieldText) async {
+    try {
+      submitNameSearch(
+        textFieldText: textFieldText,
+        mainSearchMode: widget.checkMainSearchMode,
+        filters: filters,
+      );
+    } catch (e) {
+      print('MY'+e);
+      return null;
+    }
+  }
 
-  void submitPlaceSearch(BuildContext context, LatLng latLng, String textFieldText) {
+  void submitPlaceSearch({LatLng latLng, String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
     final homeBloc = context.read<HomeBloc>();
-    homeBloc.add(GetPlaces(latLng,textFieldText));
+    homeBloc.add(GetPlaces(latlng:latLng,textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
     void dispose() {
       homeBloc.close();
     }
   }
-
+  void submitNameSearch({String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
+    final homeBloc = context.read<HomeBloc>();
+    homeBloc.add(GetPlaces(textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
+    void dispose() {
+      homeBloc.close();
+    }
+  }
 }

@@ -4,14 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'list_places.dart';
-
-// ignore: must_be_immutable
 class DetailedPlace extends StatefulWidget {
-  String placeId;
-  DetailedPlace(String placeId){
-    this.placeId=placeId;
-  }
+ final  String placeId;
+  DetailedPlace( this.placeId);
   @override
   _DetailedPlaceState createState() => _DetailedPlaceState();
 }

@@ -12,6 +12,7 @@ class PlacesDetail{
   final String vicinity;
   final String formattedAddress;
   final String reference;
+  final String openingHours;
   final String website;
   final num utcOffset;
   final String formattedPhoneNumber;
@@ -19,6 +20,7 @@ class PlacesDetail{
 
 
   PlacesDetail({
+    this.openingHours,
     this.icon,
     this.name,
     this.openNow,

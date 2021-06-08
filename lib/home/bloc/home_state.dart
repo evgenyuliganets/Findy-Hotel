@@ -10,23 +10,30 @@ class HomeInitial extends HomeState {
 }
 
 class HomeLoading extends HomeState {
-  const HomeLoading();
+  const HomeLoading({this.googleApiKey, this.loc, this.textFieldText});
+  final String googleApiKey;
+  final LatLng loc;
+  final String textFieldText;
 }
 
 class HomeLoaded extends HomeState {
   final List<PlacesDetail> places;
   final String message;
   final String googleApiKey;
-  final LatLng loc;
   final String textFieldText;
+  final LatLng loc;
+  final SearchFilterModel filters;
+  final bool mainSearchMode;
 
-  const HomeLoaded({this.textFieldText,this.places, this.googleApiKey,this.message,this.loc});
+  const HomeLoaded({this.textFieldText,this.places, this.googleApiKey,this.message,this.loc, this.filters,this.mainSearchMode});
 }
 
 class HomeError extends HomeState {
+  final String textFieldText;
   final String apiKey;
   final String error;
-  const HomeError(this.error, this.apiKey);
+
+  const HomeError(this.error, this.apiKey, {this.textFieldText});
 }
 
 
