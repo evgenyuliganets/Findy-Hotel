@@ -4,6 +4,8 @@ class PlacesDetail{
   final String name;
   final bool openNow;
   final List weekDay;
+  final num latitude;
+  final num longitude;
   final List<ImageProvider> photos;
   final String placeId;
   final String priceLevel;
@@ -11,7 +13,6 @@ class PlacesDetail{
   final List<String> types;
   final String vicinity;
   final String formattedAddress;
-  final String reference;
   final String openingHours;
   final String website;
   final num utcOffset;
@@ -20,6 +21,8 @@ class PlacesDetail{
 
 
   PlacesDetail({
+    this.longitude,
+    this.latitude,
     this.openingHours,
     this.icon,
     this.name,
@@ -32,7 +35,6 @@ class PlacesDetail{
     this.vicinity,
     this.formattedAddress,
     this.weekDay,
-    this.reference,
     this.website,
     this.utcOffset,
     this.formattedPhoneNumber,

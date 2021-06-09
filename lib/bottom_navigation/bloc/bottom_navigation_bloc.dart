@@ -28,8 +28,7 @@ class BottomNavigationBloc
         yield HomePageStarted();
       }
       if (this.currentIndex == 1) {
-        int data = await _getMapPageData();
-        yield MapPageStarted(number: data);
+        yield MapPageStarted();
       }
       if (this.currentIndex == 2) {
         yield ProfilePageStarted();
@@ -41,14 +40,5 @@ class BottomNavigationBloc
 
   }
 
-
-  Future<int> _getMapPageData() async {
-    int data = mapRepository.data;
-    if (data == null) {
-      await mapRepository.fetchData();
-      data = mapRepository.data;
-    }
-    return data;
-  }
 
 }

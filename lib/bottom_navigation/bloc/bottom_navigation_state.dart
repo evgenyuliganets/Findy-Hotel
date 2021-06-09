@@ -26,12 +26,7 @@ class HomePageStarted extends BottomNavigationState {
 }
 
 class MapPageStarted extends BottomNavigationState {
-  final int number;
-
-  MapPageStarted({@required this.number});
-
-  @override
-  String toString() => 'MapPageLoaded with number: $number';
+  const MapPageStarted();
 }
 
 class ProfilePageStarted extends BottomNavigationState {

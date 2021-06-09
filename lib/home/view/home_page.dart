@@ -7,7 +7,6 @@ import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -58,10 +57,17 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildWidget(String textFieldText, List<PlacesDetail> places, String googleApiKey,BuildContext context) {
-     return CustomScrollView(slivers: [
-       searchSliverAppBar(googleApiKey,context,textFieldText: textFieldText),
-       buildListOfPlaces(textFieldText, places, googleApiKey, context)
-     ]);
+     return RefreshIndicator(
+       onRefresh: () async {
+         var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
+       return BlocProvider.of<HomeBloc>(context).add(RefreshPage(event: lastEvent));
+       },
+       child: CustomScrollView(
+           slivers: [
+         searchSliverAppBar(googleApiKey,context,textFieldText: textFieldText),
+         buildListOfPlaces(textFieldText, places, googleApiKey, context)
+       ]),
+     );
   }
 
   Widget buildInitialStart() {
@@ -83,8 +89,14 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildErrorState({String apiKey, String textFieldText}) {
     return Center(
-      child: Scaffold(
-        body: CustomScrollView(
+        child: Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () async {
+          var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
+          return BlocProvider.of<HomeBloc>(context)
+              .add(RefreshPage(event: lastEvent));
+        },
+        child: CustomScrollView(
           slivers: [
             searchSliverAppBar(apiKey, context, textFieldText: textFieldText),
             SliverToBoxAdapter(
@@ -109,7 +121,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-    );
+    ));
   }
   Widget searchSliverAppBar(String googleApiKey,BuildContext context,{String textFieldText}){
     print("searchMode:"+checkSearchMode.toString());
@@ -129,51 +141,49 @@ class _HomePageState extends State<HomePage> {
         alignment: Alignment.bottomRight,
         child: Container(
           padding: EdgeInsets.only(right: 20,left: 20,bottom: 5),
-          child: SingleChildScrollView(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text('Search by Place'),
-                Container(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('Search by Place'),
+              Container(
+                height: 37,
+                width:60,
+                child: Switch(
+                  activeColor: Color(0xff636e86),
+                    value: checkSearchMode,
+                    onChanged: (bool value) {
+                      setState(() {
+                        checkSearchMode=value;
+                      });
+                    }),
+              ),
+              Text('Search by Name'),
+              Spacer(),
+              Ink(
                   height: 37,
-                  width:60,
-                  child: Switch(
-                    activeColor: Color(0xff636e86),
-                      value: checkSearchMode,
-                      onChanged: (bool value) {
-                        setState(() {
-                          checkSearchMode=value;
-                        });
-                      }),
-                ),
-                Text('Search by Name'),
-                Spacer(),
-                Ink(
-                    height: 37,
-                    width: 37,
-                    decoration: const ShapeDecoration(
-                      color: Color(0xff636e86),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                  width: 37,
+                  decoration: const ShapeDecoration(
+                    color: Color(0xff636e86),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                  ),
+                  child: IconButton(
+                    onPressed: () async {
+                      final homeBloc = context.read<HomeBloc>();
+                      homeBloc.add(GetUserPlaces());
+                      void dispose() {
+                        homeBloc.close();
+                      }
+                    },
+                    icon: Icon(
+                      Icons.location_on_outlined,
+                      color: Color(0xffd2d2d2),
                     ),
-                    child: IconButton(
-                      onPressed: () async {
-                        final homeBloc = context.read<HomeBloc>();
-                        homeBloc.add(GetUserPlaces());
-                        void dispose() {
-                          homeBloc.close();
-                        }
-                      },
-                      icon: Icon(
-                        Icons.location_on_outlined,
-                        color: Color(0xffd2d2d2),
-                      ),
-                      iconSize: 22,
-                      color: Colors.blueGrey,
-                    )),
+                    iconSize: 22,
+                    color: Colors.blueGrey,
+                  )),
 
-              ],
-            ),
+            ],
           ),
         ),
       ),

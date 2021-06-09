@@ -14,17 +14,13 @@ class _FiltersWidgetState extends State<FiltersWidget> {
   String _finalKeyword;
   String _finalMin;
   String _finalMax;
-  int _finalMinNum;
-  int _finalMaxNum;
   final chipsValues =
       List<String>.of(['Restaurant', 'Bar', 'Spa', 'Campground']);
-  final chipsValuesMinPrice = List<String>.of(['Null','Free', 'Inexpensive', 'Moderate', 'Expensive','Very Expensive']);
-  final chipsValuesMaxPrice = List<String>.of(['Null','Free', 'Inexpensive', 'Moderate', 'Expensive','Very Expensive']);
+  final chipsValuesMinPrice = List<String>.of(['Free', 'Inexpensive', 'Moderate', 'Expensive','Very Expensive']);
+  final chipsValuesMaxPrice = List<String>.of(['Free', 'Inexpensive', 'Moderate', 'Expensive','Very Expensive']);
   @override
   void initState() {
     super.initState();
-    _finalMinNum = 0;
-    _finalMaxNum= 0;
   }
 
   @override
@@ -64,30 +60,52 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                 SizedBox(
                   height: 10,
                 ),
-                Text(
-                  'Radius: ' +
+                Text(widget.filterModel.rankBy?
+                    'Cannot change value when distance type is selected'
+                  :'Radius: ' +
                       widget.filterModel.radius.round().toString() +
                       ' meters',
                   style: TextStyle(fontSize: 15),
                 ),
-                Slider(
-                  activeColor: Color(0xff636e86),
-                  inactiveColor: Color(0xff9baed5),
-                  value: widget.filterModel.radius.toDouble(),
-                  min: 50,
-                  max: 30000,
-                  label: widget.filterModel.radius.toString(),
-                  onChanged: (double value) {
-                    setState(() =>
-                    widget.filterModel.radius = value.toInt()
-                    );
-                  },
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(5)),
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                          color: Color(0xffdbdbdb))),
+                  padding:
+                  EdgeInsets.only(left: 5, right: 5),
+                  child: Slider(
+                    activeColor: Color(0xff636e86),
+                    inactiveColor: Color(0xff9baed5),
+                    value: widget.filterModel.radius.toDouble(),
+                    min: 50,
+                    max: 30000,
+                    label: widget.filterModel.radius.toString(),
+                    onChanged: (double value) {
+                      if(widget.filterModel.rankBy){
+
+                      }else{
+                      setState(() =>
+                      widget.filterModel.radius = value.toInt()
+                      );
+                    }},
+                  ),
                 ),
                 SizedBox(
                   height: 10,
                 ),
                 Text('Additional type of search'),
                 Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(5)),
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                          color: Color(0xffdbdbdb))),
+                  padding:
+                  EdgeInsets.only(left: 5, right: 5),
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
@@ -104,9 +122,14 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                                     Radius.circular(5.0))),
                             onSelected: (bool selected) {
                               setState(() {
-                                if (selected)
-                                  _finalKeyword=chipsValues[index];
-                                widget.filterModel.keyword=_finalKeyword;
+                                if (selected) {
+                                  _finalKeyword = chipsValues[index];
+                                  widget.filterModel.keyword = _finalKeyword;
+
+                                } else {
+                                  widget.filterModel.keyword = null;
+                                  _finalKeyword = null;
+                                }
                               });
                             },
                             selected: widget.filterModel.keyword==(chipsValues[index]),
@@ -120,11 +143,19 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                 ),
                 Text('Minimum Price'),
                 Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(5)),
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                          color: Color(0xffdbdbdb))),
+                  padding:
+                  EdgeInsets.only(left: 5, right: 5),
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemCount: 6,
+                      itemCount: 5,
                       itemBuilder: (BuildContext context, int index) {
                         return Padding(
                           padding: const EdgeInsets.all(4.0),
@@ -137,19 +168,17 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                             onSelected: (bool selected) {
                               setState(() {
                                 if (selected) {
-                                  if (_finalMinNum <= _finalMaxNum) {
-                                    _finalMin = chipsValuesMinPrice[index];
-                                    _finalMinNum = index;
-                                    widget.filterModel.minprice= _finalMin;
-                                  } else {
-                                    _finalMin = chipsValuesMinPrice[0];
-                                    _finalMinNum = 0;
-                                    widget.filterModel.minprice= _finalMin;
+                                  widget.filterModel.minprice = index;
+                                  print(index);
+                                }
+                                else {
+                                    widget.filterModel.minprice= null;
+                                    print(widget.filterModel.minprice);
                                   }
                                 }
-                              });
+                              );
                             },
-                            selected: widget.filterModel.minprice==chipsValuesMinPrice[index]&&_finalMinNum<=_finalMaxNum,
+                            selected: widget.filterModel.minprice==index,
                             selectedColor: Color(0xff9baed5),
                           ),
                         );
@@ -160,11 +189,19 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                 ),
                 Text('Maximum Price'),
                 Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(5)),
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                          color: Color(0xffdbdbdb))),
+                  padding:
+                  EdgeInsets.only(left: 5, right: 5),
                   height: 50,
                   child: ListView.builder(
                       scrollDirection: Axis.horizontal,
                       shrinkWrap: true,
-                      itemCount: 6,
+                      itemCount: 5,
                       itemBuilder: (BuildContext context, int index) {
                         return Padding(
                           padding: const EdgeInsets.all(4.0),
@@ -177,24 +214,52 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                             onSelected: (bool selected) {
                               setState(() {
                                 if (selected) {
-                                  if (_finalMaxNum >= _finalMinNum) {
-                                    _finalMax = chipsValuesMaxPrice[index];
-                                    _finalMaxNum = index;
-                                    widget.filterModel.maxprice= _finalMax;
-                                  }
-                                  else {
-                                    _finalMax = chipsValuesMaxPrice[0];
-                                    _finalMaxNum = 0;
-                                    widget.filterModel.maxprice= _finalMax;
-                                  }
+                                  {
+                                    widget.filterModel.maxprice= index;
+                                  print(index);}
+                                }
+                                else {
+                                  widget.filterModel.maxprice= null;
+                                  print(widget.filterModel.maxprice);
                                 }
                               });
                             },
-                            selected: widget.filterModel.maxprice==chipsValuesMaxPrice[index]&&_finalMaxNum>=_finalMinNum,
+                            selected: widget.filterModel.maxprice==index,
                             selectedColor: Color(0xff9baed5),
                           ),
                         );
                       }),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text('Search order'),
+                Container(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(5)),
+                      shape: BoxShape.rectangle,
+                      border: Border.all(
+                          color: Color(0xffdbdbdb))),
+                  padding:
+                  EdgeInsets.only(left: 5, right: 5),
+                  child: Row(
+                      children: [
+                    Text('Prominence(default)'),
+                    Container(
+                      height: 37,
+                      width: 60,
+                      child: Switch(
+                          activeColor: Color(0xff636e86),
+                          value: widget.filterModel.rankBy,
+                          onChanged: (bool value) {
+                            setState(() {
+                              widget.filterModel.rankBy = value;
+                            });
+                          }),
+                    ),
+                    Text('Distance'),
+                  ]),
                 ),
                 Spacer(),
                 Row(

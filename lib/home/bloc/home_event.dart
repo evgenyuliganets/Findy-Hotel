@@ -2,6 +2,10 @@ part of 'home_bloc.dart';
 
 @immutable
 abstract class HomeEvent {}
+class RefreshPage extends HomeEvent {
+  final HomeEvent event;
+  RefreshPage({this.event});
+}
 class GetPlaces extends HomeEvent {
   final LatLng latlng;
   final String textFieldText;

@@ -2,7 +2,7 @@ import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/view/home_page.dart';
-import 'package:find_hotel/map/map_page.dart';
+import 'package:find_hotel/map/view/map_page.dart';
 import 'package:find_hotel/map/repository/map_repository.dart';
 import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
@@ -42,7 +42,7 @@ class MainNavbar extends StatelessWidget {
               );
           }
           if (state is MapPageStarted) {
-            return MapPage(number: state.number);
+            return MapPage();
           }
           if (state is ProfilePageStarted) {
             return Scaffold(

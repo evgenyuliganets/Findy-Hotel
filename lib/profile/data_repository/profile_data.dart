@@ -37,7 +37,6 @@ class ProfileRepository {
             types:result.results[j].types,
             vicinity:result.results[j].vicinity,
             formattedAddress:result.results[j].formattedAddress,
-            reference:result.results[j].reference,
           );j++;});
         return list;
       }

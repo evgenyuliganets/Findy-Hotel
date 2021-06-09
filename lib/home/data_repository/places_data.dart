@@ -10,6 +10,7 @@ import 'package:location/location.dart' as LocationManager;
 
 class HomeDataRepository {
   Future<PlacesDetail> fetchDetailedPlaceFromNetwork(String placeId) async {
+    var weekday = DateTime.now();
     try{
       String defaultLocale = Platform.localeName;
       var kGoogleApiKey = await loadAsset();
@@ -35,8 +36,29 @@ class HomeDataRepository {
             vicinity:result.result.vicinity,
             formattedAddress:result.result.formattedAddress,
             weekDay:result.result.openingHours==null?null:result.result.openingHours.weekdayText,
-            reference:result.result.reference,
-          );
+            utcOffset:result.result.utcOffset,
+              formattedPhoneNumber: result.result.formattedPhoneNumber,
+            openingHours: result.result.openingHours != null
+                ? result.result.openingHours.weekdayText.isNotEmpty
+                    ? result.result.openingHours.weekdayText.first ==
+                            'Monday: Open 24 hours'
+                        ? 'Open 24 hours'
+                        : result.result.openingHours != null
+                            ? result.result.openingHours.periods.isNotEmpty
+                                ? result.result.openingHours.periods.first
+                                            .close !=
+                                        null
+                                    ? result.result.openingHours.openNow
+                                        ? result.result.openingHours
+                                            .periods[weekday.weekday].close.time
+                                        : result.result.openingHours
+                                            .periods[weekday.weekday].open.time
+                                    : null
+                                : null
+                            : null
+                    : null
+                : null);
+          print(result.result.toJson().toString());
         return list;
       }
       else{result.errorMessage != null
@@ -44,17 +66,17 @@ class HomeDataRepository {
           : result.status == 'ZERO_RESULTS'
           ? throw PlacesNotFoundException("Place not found, try again later")
           : throw 'Unknown Error';}
-    }on TimeoutException{
-      throw PlacesNotFoundException('Timeout was reached, try change filters or check connection');
-    }
-    catch(Error){
-      if (Error is PlacesNotFoundException) {
-        print(Error.error + 'MY');
-        PlacesNotFoundException placesNotFoundException = PlacesNotFoundException(
-            Error.error);
+    }on TimeoutException {
+      throw PlacesNotFoundException(
+          'Timeout was reached, try reload later or check connection');
+    } catch (Exception) {
+      if (Exception is PlacesNotFoundException) {
+        print(Exception.error + 'MY');
+        PlacesNotFoundException placesNotFoundException =
+        PlacesNotFoundException(Exception.error);
         throw placesNotFoundException;
-      }
-      else throw Error;
+      } else
+        throw Exception;
     }
   }
 
@@ -69,49 +91,70 @@ class HomeDataRepository {
       GoogleMapsPlaces _places = GoogleMapsPlaces(
         apiKey: kGoogleApiKey,
       );
-      print("mainSearchMode " + mainSearchMode.toString());
-      if (mainSearchMode !=null) {
-        if (mainSearchMode == true) {
-          print('Search by text');
-          result = await _places
-              .searchByText(
-            textFieldText,
-            radius: searchFilterModel.radius,
-            type: "lodging",
-            language: defaultLocale,
-          ).timeout(
-            Duration(seconds: 5),
-          );
-          print(_places.buildTextSearchUrl(
-            query: textFieldText,
-            type: "lodging",
-            language: defaultLocale,
-          ));
-        }
-        else {
-          final location = Location(lat: latLng.latitude, lng: latLng.longitude);
-          print('Search by place');
-          result = await _places
-              .searchNearbyWithRadius(location, searchFilterModel.radius,
-              type: "lodging",
-              language: defaultLocale,
-              keyword: searchFilterModel.keyword)
-              .timeout(
-            Duration(seconds: 5),
-          );
-        }
-      }
-      else {
-        final location = Location(lat: latLng.latitude, lng: latLng.longitude);
-        print('Search by place');
+      if (searchFilterModel.rankBy) {
+        final location =
+        Location(lat: latLng.latitude, lng: latLng.longitude);
         result = await _places
-            .searchNearbyWithRadius(location, searchFilterModel.radius,
+            .searchNearbyWithRankBy(location,
+            'distance',
             type: "lodging",
+            minprice: getPriceLevel(searchFilterModel.minprice),
+            maxprice: getPriceLevel(searchFilterModel.maxprice),
             language: defaultLocale,
             keyword: searchFilterModel.keyword)
             .timeout(
           Duration(seconds: 5),
         );
+      } else {
+        print("mainSearchMode " + mainSearchMode.toString());
+        if (mainSearchMode != null) {
+          if (mainSearchMode == true) {
+            print('Search by text');
+            result = await _places
+                .searchByText(
+                  textFieldText,
+                  minprice: getPriceLevel(searchFilterModel.minprice),
+                  maxprice: getPriceLevel(searchFilterModel.maxprice),
+                  radius: searchFilterModel.radius,
+                  type: "lodging",
+                  language: defaultLocale,
+                )
+                .timeout(
+                  Duration(seconds: 5),
+                );
+            print(_places.buildTextSearchUrl(
+              query: textFieldText,
+              type: "lodging",
+              language: defaultLocale,
+            ));
+          } else {
+            final location =
+                Location(lat: latLng.latitude, lng: latLng.longitude);
+            print('Search by place');
+            result = await _places
+                .searchNearbyWithRadius(location, searchFilterModel.radius,
+                    type: "lodging",
+                    minprice: getPriceLevel(searchFilterModel.minprice),
+                    maxprice: getPriceLevel(searchFilterModel.maxprice),
+                    language: defaultLocale,
+                    keyword: searchFilterModel.keyword)
+                .timeout(
+                  Duration(seconds: 5),
+                );
+          }
+        } else {
+          final location =
+              Location(lat: latLng.latitude, lng: latLng.longitude);
+          print('Search by place');
+          result = await _places
+              .searchNearbyWithRadius(location, searchFilterModel.radius,
+                  type: "lodging",
+                  language: defaultLocale,
+                  keyword: searchFilterModel.keyword)
+              .timeout(
+                Duration(seconds: 5),
+              );
+        }
       }
       print('RESULT '+result.toJson().toString());
       if (result.status == "OK" &&
@@ -146,21 +189,9 @@ class HomeDataRepository {
             types: result.results[j].types,
             vicinity: result.results[j].vicinity,
             formattedAddress: result.results[j].formattedAddress,
-            reference: result.results[j].reference,
-            openingHours: result.results[j].openingHours != null
-                ? result.results[j].openingHours.periods.isNotEmpty
-                    ? result.results[j].openingHours.openNow
-                        ? result.results[j].openingHours
-                            .periods[weekday.weekday].close.time
-                        : result.results[j].openingHours
-                            .periods[weekday.weekday].open.time
-                    : null
-                : null,
           );
-          print(list[j].openingHours);
           j++;
         });
-        print(list.toString());
         return list;
       } else {
         result.errorMessage != null
@@ -225,7 +256,28 @@ class HomeDataRepository {
   Future<String> loadAsset() async {
   return await rootBundle.loadString('assets/sensitive.txt');
   }
-
+  PriceLevel getPriceLevel(int inputPrice) {
+    switch (inputPrice){
+      case 0:
+        return PriceLevel.free;
+        break;
+      case 1:
+        return PriceLevel.inexpensive;
+        break;
+      case 2:
+        return PriceLevel.moderate;
+        break;
+      case 3:
+        return PriceLevel.expensive;
+        break;
+      case 4:
+        return PriceLevel.veryExpensive;
+        break;
+      default:
+        return null;
+        break;
+    }
+  }
 }
 
 class PlacesNotFoundException implements Exception {

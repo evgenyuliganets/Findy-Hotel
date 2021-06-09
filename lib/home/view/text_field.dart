@@ -44,17 +44,20 @@ class _HomeTextFieldState extends State<HomeTextField> {
           bottomLeft: Radius.circular(5),
         ),
         child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            IconButton(
-              color: Colors.black45,
-              icon: Icon(Icons.search),
-              onPressed: (){
-                if(widget.checkMainSearchMode==true){
-                  _handleSearchByName(widget.apiKey,controller.text);
-                }
-                else print (null);
-              },
+            Center(
+              child: IconButton(
+                color: Colors.black45,
+                icon: Icon(Icons.search),
+                onPressed: (){
+                  if(widget.checkMainSearchMode==true){
+                    _handleSearchByName(widget.apiKey,controller.text);
+                  }
+                  else print (null);
+                },
+              ),
             ),
             Expanded(
                 child: TextField(
@@ -68,7 +71,6 @@ class _HomeTextFieldState extends State<HomeTextField> {
                   controller: controller,
                   readOnly: !widget.checkMainSearchMode,
                 )),
-            Spacer(),
             Ink(
 
                 decoration: const ShapeDecoration(

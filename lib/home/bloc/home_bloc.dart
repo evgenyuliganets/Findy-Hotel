@@ -10,6 +10,7 @@ part 'home_event.dart';
 part 'home_state.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
+  HomeEvent lastHomeEvent;
   SearchFilterModel _filterModel = SearchFilterModel();
   final HomeDataRepository homeRepo;
   final PlacesNotFoundException error;
@@ -19,9 +20,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   Stream<HomeState> mapEventToState(
     HomeEvent event,
   ) async* {
+    lastHomeEvent=event;
     final apiKey = await homeRepo.loadAsset();
-    if (event is GetPlaces) {
-      //Get nearby SearchPlaces or Places from dataBase
+
+    if (event is RefreshPage){
+      this.add(event.event);
+    }
+
+    if (event is GetPlaces) {                                   //Get nearby SearchPlaces or Places from dataBase
       try {
         yield (HomeLoading());
         print(event.latlng);
@@ -61,11 +67,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
           print(Error.error.toString());
         } else {
           print(Error.toString());
-          yield (HomeError('Unknown Error', apiKey,
+          yield (HomeError('Something went wrong, try change filters', apiKey,
               textFieldText: event.textFieldText));
         }
       }
     }
+
+
+
     if (event is GetUserPlaces) {                  //Get nearby UserPlaces or UserPlaces from dataBase
       try {
         yield (HomeLoading());
@@ -106,6 +115,9 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       }
     }
 
+
+
+
     if (event is GetDetailedPlace) {          //Get DetailedPlace or DetailedPlace from database
       try {
         yield (PlaceLoading());
@@ -122,6 +134,15 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         }
         on PlacesNotFoundException{
           yield (PlaceError(error.error));
+        }
+      }
+      catch (Error) {
+        if (Error is PlacesNotFoundException) {
+          yield (HomeError(Error.error, apiKey,));
+          print(Error.error.toString());
+        } else {
+          print(Error.toString());
+          yield (HomeError('Unknown Error', apiKey,));
         }
       }
     }

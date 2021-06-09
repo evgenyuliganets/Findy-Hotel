@@ -6,11 +6,9 @@ const kGoogleApiKey = "AIzaSyDRrbd-AJN0bph6zCa8Yd6l7pADEJIuptA";
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class PlaceDetailWidget extends StatefulWidget {
-  String placeId;
+  final String placeId;
 
-  PlaceDetailWidget(String placeId) {
-    this.placeId = placeId;
-  }
+  PlaceDetailWidget( this.placeId);
 
   @override
   State<StatefulWidget> createState() {

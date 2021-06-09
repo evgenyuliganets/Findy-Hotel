@@ -1,12 +1,12 @@
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
+import 'package:find_hotel/home/view/detail_place_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'detail_place_page.dart';
 
-SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
+SliverList buildMapListOfPlaces(String textFieldText, List<PlacesDetail> places,
     String googleApiKey, BuildContext context) {
   return SliverList(
       delegate: SliverChildBuilderDelegate(
