@@ -10,10 +10,7 @@ part 'bottom_navigation_state.dart';
 
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
-  BottomNavigationBloc({ this.mapRepository,})
-      :assert(mapRepository != null),
-        super(PageLoading());
-  final MapRepository mapRepository;
+  BottomNavigationBloc():super(PageLoading());
   int currentIndex = 0;
 
   @override

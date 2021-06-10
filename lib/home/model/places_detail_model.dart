@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 class PlacesDetail{
   final String icon;
   final String name;
-  final bool openNow;
-  final List weekDay;
-  final num latitude;
-  final num longitude;
+  final String openNow;
+  final double latitude;
+  final double longitude;
   final List<ImageProvider> photos;
   final String placeId;
   final String priceLevel;
@@ -34,7 +33,6 @@ class PlacesDetail{
     this.types,
     this.vicinity,
     this.formattedAddress,
-    this.weekDay,
     this.website,
     this.utcOffset,
     this.formattedPhoneNumber,

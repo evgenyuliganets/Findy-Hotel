@@ -24,8 +24,9 @@ class MapLoaded extends MapState {
   final LatLng loc;
   final SearchFilterModel filters;
   final bool mainSearchMode;
+  final Marker marker;
 
-  const MapLoaded({this.textFieldText,this.places, this.googleApiKey,this.message,this.loc, this.filters,this.mainSearchMode});
+  const MapLoaded({this.marker,this.textFieldText,this.places, this.googleApiKey,this.message,this.loc, this.filters,this.mainSearchMode});
 }
 
 class MapError extends MapState {

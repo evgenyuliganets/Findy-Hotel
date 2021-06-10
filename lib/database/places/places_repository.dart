@@ -4,9 +4,17 @@ import 'package:find_hotel/database/places/places_db_model.dart';
 class PlacesRepository {
   final placesDao = PlacesDao();
 
-  Future<List<PlacesDbDetail>> getAllUser({String  query}) => placesDao.getPlaces(query: query);
+  Future<List<PlacesDbDetail>> getAllPlaces({String  query}) => placesDao.getPlaces(query: query);
 
-  Future insertUser(PlacesDbDetail user) => placesDao.createPlaces(user);
+  Future insertPlace(PlacesDbDetail repo) => placesDao.createPlaces(repo);
 
-  Future deleteAllUsers() => placesDao.deleteAllPlaces();
+  Future updatePlace(PlacesDbDetail place) => placesDao.updatePlace(place);
+
+  Future deletePlace(String placeId) => placesDao.deletePlace(placeId);
+
+  Future deleteAllPlaces() => placesDao.deleteAllPlaces();
+
+  Future getPlace(String placeId) => placesDao.getPlace(placeId);
+
+  Future checkIfExist(String placeId) => placesDao.checkIfExist(placeId);
 }

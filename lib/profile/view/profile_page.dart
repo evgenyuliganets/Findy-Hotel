@@ -1,12 +1,12 @@
 import 'package:find_hotel/authentication/bloc/authentication_bloc.dart';
 import 'package:find_hotel/database/authentication/users_repository.dart';
+import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/login/view/login_page.dart';
 import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/view/user_places_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 
@@ -15,6 +15,8 @@ class ProfilePage extends StatefulWidget {
   _ProfilePage createState() => _ProfilePage();
 }
 final _userRepository = UsersRepository();
+final _placeRepository = PlacesRepository();
+final _photoRepository = PlacesRepository();
 class _ProfilePage extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
@@ -120,6 +122,8 @@ class _ProfilePage extends State<ProfilePage> {
                     .read<AuthenticationBloc>()
                     .add(AuthenticationLogoutRequested());
                 _userRepository.deleteAllUsers();
+                _placeRepository.deleteAllPlaces();
+                _photoRepository.deleteAllPlaces();
                 Navigator.pushAndRemoveUntil<void>(context,
                   LoginPage.route(),
                       (route) => false,

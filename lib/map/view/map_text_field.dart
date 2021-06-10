@@ -1,6 +1,7 @@
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:find_hotel/home/view/filters.dart';
+import 'package:find_hotel/map/bloc/map_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -8,16 +9,16 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 
 
-class HomeTextField extends StatefulWidget{
+class MapTextField extends StatefulWidget{
   final String apiKey;
   final String textFieldText;
   final SearchFilterModel searchFilterModel;
   final bool checkMainSearchMode;
-  HomeTextField(this.apiKey,{this.textFieldText='',this.searchFilterModel, this.checkMainSearchMode=false});
+  MapTextField(this.apiKey,{this.textFieldText='',this.searchFilterModel, this.checkMainSearchMode=false});
 
-  _HomeTextFieldState createState() => _HomeTextFieldState();
+  _MapTextFieldState createState() => _MapTextFieldState();
 }
-class _HomeTextFieldState extends State<HomeTextField> {
+class _MapTextFieldState extends State<MapTextField> {
   TextEditingController controller;
   SearchFilterModel filters;
   @override
@@ -27,7 +28,6 @@ class _HomeTextFieldState extends State<HomeTextField> {
     filters = widget.searchFilterModel;
 
   }
-
   @override
   void dispose() {
     super.dispose();
@@ -80,10 +80,10 @@ class _HomeTextFieldState extends State<HomeTextField> {
                 ),
                 child: IconButton(
                   onPressed: () async {
-                    var bloc = BlocProvider.of<HomeBloc>(context);
+                    var bloc = BlocProvider.of<MapBloc>(context);
                     var finalFilters = await filtersDialog(context, bloc.getFilterModel());
                     filters= finalFilters??SearchFilterModel();
-                    bloc.setFiltersParametrs(finalFilters??SearchFilterModel());
+                    bloc.setFiltersParameters(finalFilters??SearchFilterModel());
                   },
                   icon: Icon(
                     Icons.filter_list,
@@ -147,17 +147,17 @@ class _HomeTextFieldState extends State<HomeTextField> {
   }
 
   void submitPlaceSearch({LatLng latLng, String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
-    final homeBloc = context.read<HomeBloc>();
-    homeBloc.add(GetPlaces(latlng:latLng,textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters??SearchFilterModel()));
+    final mapBloc = context.read<MapBloc>();
+    mapBloc.add(GetPlacesOnMap(latlng:latLng,textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
     void dispose() {
-      homeBloc.close();
+      mapBloc.close();
     }
   }
   void submitNameSearch({String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
-    final homeBloc = context.read<HomeBloc>();
-    homeBloc.add(GetPlaces(textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters??SearchFilterModel()));
+    final mapBloc = context.read<MapBloc>();
+    mapBloc.add(GetPlacesOnMap(textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
     void dispose() {
-      homeBloc.close();
+      mapBloc.close();
     }
   }
 }

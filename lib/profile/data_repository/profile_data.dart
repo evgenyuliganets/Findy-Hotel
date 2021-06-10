@@ -9,6 +9,7 @@ import 'package:location/location.dart' as LocationManager;
 final _userRepository = UsersRepository();
 class ProfileRepository {
   Future<List<PlacesDetail>> fetchPlacesFromNetwork(LatLng latLng) async {
+
     try{
       String defaultLocale = Platform.localeName;
       var kGoogleApiKey = await loadAsset();
@@ -29,7 +30,7 @@ class ProfileRepository {
           list[j]= PlacesDetail(
             icon:result.results[j].icon,
             name:result.results[j].name,
-            openNow:result.results[j].openingHours==null?null:result.results[j].openingHours.openNow,
+            openNow:result.results[j].openingHours==null?"null":result.results[j].openingHours.openNow.toString(),
             photos:photos,
             placeId:result.results[j].placeId,
             priceLevel:result.results[j].priceLevel.toString(),

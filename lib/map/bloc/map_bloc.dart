@@ -24,6 +24,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     lastMapEvent=event;
     final apiKey = await mapRepo.loadAsset();
 
+
     if (event is RefreshPage){
       this.add(event.event);
     }
@@ -31,7 +32,6 @@ class MapBloc extends Bloc<MapEvent, MapState> {
     if (event is GetPlacesOnMap) {                                   //Get nearby SearchPlaces or Places from dataBase
       try {
         yield (MapLoading());
-        print(event.latlng);
         final places = await mapRepo
             .fetchMapPlacesFromNetwork(_filterModel,
             latLng: event.latlng ?? null,
@@ -42,10 +42,20 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         if (places.isNotEmpty) {
           print(places.toString());
           yield (MapLoaded(
+              marker: event.marker,
               places: places,
               googleApiKey: apiKey,
               textFieldText: event.textFieldText,
-              filters: event.filters));
+              filters: event.filters,
+              message: (event.textFieldText == null &&
+                      event.mainSearchMode == true &&
+                  event.filters.rankBy==false) ||
+                  (event.textFieldText == '' &&
+                              event.mainSearchMode == true &&
+                              event.filters.rankBy==false)
+                          ? 'Places was loaded from last known location, try change search mode'
+                          : null));
+          print(event.textFieldText==''&&event.mainSearchMode==true);
         } else
           throw PlacesMapNotFoundException('Places not found');
       } on TimeoutException {
@@ -105,13 +115,13 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       catch (Error){
         if(Error is PlacesMapNotFoundException) {
           yield (MapError(
-            error.error, apiKey,));
-          print(error.error.toString());
+            Error.error, apiKey,));
+          print(Error.error.toString());
         }
         else{
           print(Error.toString());
           yield (MapError(
-              'Unknown Error', apiKey));
+              'Something went wrong, try change filters', apiKey));
         }
       }
     }
@@ -131,7 +141,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         try {
           yield (MapLoading());
           final places = await mapRepo.fetchPlaceDetailFromDataBase(LatLng(0,0));
-          yield (PlaceLoaded(placesDetail: places,message: "Places was loaded from database"));
+          yield (PlaceLoaded(placesDetail: places,message: "Place was loaded from database"));
         }
         on PlacesMapNotFoundException{
           yield (PlaceError(error.error));
@@ -148,7 +158,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       }
     }
   }
-  void setFiltersParametrs(SearchFilterModel filterModel){
+  void setFiltersParameters(SearchFilterModel filterModel){
     this._filterModel=filterModel;
     print(this._filterModel.radius);
   }

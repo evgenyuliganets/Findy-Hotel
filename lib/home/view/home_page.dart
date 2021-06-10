@@ -1,5 +1,6 @@
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/view/build_list_of_places.dart';
+import 'package:find_hotel/home/view/place_detail_widget.dart';
 import 'package:find_hotel/home/view/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,7 +27,7 @@ class _HomePageState extends State<HomePage> {
           if (state is HomeInitial)
             return buildInitialStart();
           else if (state is HomeLoading)
-            return buildLoadingState();
+            return buildLoadingState(state.googleApiKey,state.textFieldText,);
           else if (state is HomeLoaded)
             return buildWidget(state.textFieldText,state.places,state.googleApiKey, context);
           else if (state is HomeError)
@@ -81,10 +82,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget buildLoadingState() {
-    return Center(
-      child: CircularProgressIndicator(),
+  Widget buildLoadingState(googleApiKey, textFieldText) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
+        return BlocProvider.of<HomeBloc>(context).add(RefreshPage(event: lastEvent));
+      },
+      child: CustomScrollView(
+          slivers: [
+            searchSliverAppBar(googleApiKey,context,textFieldText: textFieldText),
+            SliverToBoxAdapter(child: Center(child: Container(child: CircularProgressIndicator()))),
+          ]),
     );
+
   }
 
   Widget buildErrorState({String apiKey, String textFieldText}) {

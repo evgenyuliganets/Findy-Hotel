@@ -29,7 +29,7 @@ class MapRepository {
             longitude: result.result.geometry.location.lng,
             icon:result.result.icon,
             name:result.result.name,
-            openNow:result.result.openingHours==null?null:result.result.openingHours.openNow,
+            openNow:result.result.openingHours==null?"null":result.result.openingHours.openNow.toString(),
             photos:photos,
             placeId:result.result.placeId,
             priceLevel:result.result.priceLevel.toString(),
@@ -37,7 +37,6 @@ class MapRepository {
             types:result.result.types,
             vicinity:result.result.vicinity,
             formattedAddress:result.result.formattedAddress,
-            weekDay:result.result.openingHours==null?null:result.result.openingHours.weekdayText,
             utcOffset:result.result.utcOffset,
             formattedPhoneNumber: result.result.formattedPhoneNumber,
             openingHours: result.result.openingHours != null
@@ -134,7 +133,8 @@ class MapRepository {
             Location(lat: latLng.latitude, lng: latLng.longitude);
             print('Search by place');
             result = await _places
-                .searchNearbyWithRadius(location, searchFilterModel.radius,
+                .searchNearbyWithRadius(
+                location, searchFilterModel.radius,
                 type: "lodging",
                 minprice: getPriceLevel(searchFilterModel.minprice),
                 maxprice: getPriceLevel(searchFilterModel.maxprice),
@@ -158,7 +158,6 @@ class MapRepository {
           );
         }
       }
-      print('RESULT '+result.toJson().toString());
       if (result.status == "OK" &&
           result.hasNoResults != true &&
           result.isNotFound != true) {
@@ -184,8 +183,8 @@ class MapRepository {
             latitude: result.results[j].geometry.location.lat,
             longitude: result.results[j].geometry.location.lng,
             openNow: result.results[j].openingHours == null
-                ? null
-                : result.results[j].openingHours.openNow,
+                ? "null"
+                : result.results[j].openingHours.openNow.toString(),
             photos: photos,
             placeId: result.results[j].placeId,
             priceLevel: result.results[j].priceLevel.toString(),

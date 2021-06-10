@@ -12,11 +12,17 @@ class GetPlacesOnMap extends MapEvent {
   final String textFieldText;
   final SearchFilterModel filters;
   final bool mainSearchMode;
-  GetPlacesOnMap({this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
+  final Marker marker;
+  GetPlacesOnMap({this.marker, this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
 }
 class GetMapPlacesFromDB extends MapEvent {
 }
+class MapInitialAndAppBarCreation extends MapEvent {
+  final String textFieldText;
+  final String googleApiKey;
 
+  MapInitialAndAppBarCreation({this.textFieldText, this.googleApiKey});
+}
 class GetMapUserPlaces extends MapEvent {
   final bool mainSearchMode;
   final SearchFilterModel filters;

@@ -180,7 +180,7 @@ SliverList buildMapListOfPlaces(String textFieldText, List<PlacesDetail> places,
                       child: Row(
                         children: [
                           places[index].openNow != null
-                              ? places[index].openNow
+                              ? places[index].openNow=="null"
                                   ? Container(
                                       decoration: BoxDecoration(
                                           borderRadius: BorderRadius.all(

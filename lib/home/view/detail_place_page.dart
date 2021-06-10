@@ -41,7 +41,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
             listener: (context, state) {
               if (state is PlaceError) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(duration: const Duration(seconds: 1),
+                  SnackBar(duration: const Duration(seconds: 2),
                     content: Text(state.error),
                   ),
                 );
@@ -49,7 +49,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               if (state is  PlaceLoaded) {
                 if (state.message != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(duration: const Duration(seconds: 1),
+                    SnackBar(duration: const Duration(seconds: 2),
                       content: Text(state.message),
                       backgroundColor: Color(0xff779a76),
                     ),
@@ -259,16 +259,16 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       style: TextStyle(color: Color(0xff5a5a5a),fontSize: 18),
                       text: place.vicinity)),
         ),
-        if(place.types.isNotEmpty||place.types.isNotEmpty)
+        if(place.types!=null||place.types!=null)
         Container(
           height: 5,
         ),
-        place.types.isNotEmpty
+        place.types!=null
             ? Divider(
                 height: 1,
               )
             : SizedBox.shrink(),
-        place.types.isNotEmpty
+        place.types!=null
             ? Wrap(
             children: place.types.map((item) =>
                     Container(
@@ -305,7 +305,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                   child: Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     place.openNow != null
-                        ? place.openNow
+                        ? place.openNow=='true'
                             ? Container(
                                 decoration: BoxDecoration(
                                     borderRadius:
@@ -318,15 +318,16 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Row(
                                   children: [
-                                    Text('Open Now: '),
+                                    Text('Open Now: ',style: TextStyle(fontSize: 15,)),
                                     Text(
                                       'Open',
                                       style: TextStyle(
                                           color: Color(0xff4a6540),
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     if (place.openingHours != null)
-                                      Text(' | Closes In: '),
+                                      Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
                                     if (place.openingHours != null)
                                       place.openingHours != 'Open 24 hours'
                                           ? Text(
@@ -337,12 +338,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                                       .substring(2, 4),
                                               style: TextStyle(
                                                   color: Color(0xffa73636),
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold),
                                             )
                                           : Text(
                                               place.openingHours,
                                               style: TextStyle(
                                                   color: Color(0xff4a6540),
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold),
                                             )
                                   ],
@@ -360,11 +363,12 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Row(
                                   children: [
-                                    Text('Open Now: '),
+                                    Text('Open Now: ',style: TextStyle(fontSize: 15,),),
                                     Text(
                                       'Closed',
                                       style: TextStyle(
                                           color: Color(0xffa73636),
+                                          fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     if (place.openingHours != null)
@@ -421,7 +425,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Full Address: ",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 17),
                     ))
                 : SizedBox.shrink(),
             if (place.vicinity.isNotEmpty || place.formattedAddress.isNotEmpty)
@@ -434,14 +438,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                         maxLines: 2,
                         text: TextSpan(
                             style:
-                                TextStyle(color: Color(0xff5a5a5a), fontSize: 18),
+                                TextStyle(color: Color(0xff5a5a5a), fontSize: 15),
                             text: place.formattedAddress))
                     : RichText(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
                         text: TextSpan(
                             style:
-                                TextStyle(color: Color(0xff5a5a5a), fontSize: 18),
+                                TextStyle(color: Color(0xff5a5a5a), fontSize: 15),
                             text: place.vicinity)),
               ),
             if (place.internationalPhoneNumber != null ||
@@ -456,7 +460,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Phone Number: ",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 15),
                     ))
                 : SizedBox.shrink(),
             if (place.internationalPhoneNumber != null ||
@@ -471,7 +475,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 2,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff5a5a5a), fontSize: 18),
+                                      color: Color(0xff5a5a5a), fontSize: 15),
                                   text: place.internationalPhoneNumber)),
                           onLongPress: () {
                             Clipboard.setData(new ClipboardData(
@@ -489,7 +493,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 2,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff5a5a5a), fontSize: 18),
+                                      color: Color(0xff5a5a5a), fontSize: 15),
                                   text: place.formattedPhoneNumber)),
                           onLongPress: () {
                             Clipboard.setData(new ClipboardData(
@@ -511,7 +515,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       "Website: ",
-                      style: TextStyle(fontSize: 20),
+                      style: TextStyle(fontSize: 17),
                     ))
                 : SizedBox.shrink(),
             if (place.website != null)
@@ -541,7 +545,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               alignment: Alignment.centerLeft,
               child: Text(
                 "UTC: ",
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 17),
               ))
               : SizedBox.shrink(),
         if (place.utcOffset != null)
@@ -553,7 +557,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                   maxLines: 2,
                   text: TextSpan(
                       style: TextStyle(
-                          color: Color(0xff5a5a5a), fontSize: 18),
+                          color: Color(0xff5a5a5a), fontSize: 15),
                       text: (place.utcOffset<0?"":"+")+(place.utcOffset/60).round().toString()+' hours From UTC')),
 
             ),
@@ -564,6 +568,8 @@ class _DetailedPlaceState extends State<DetailedPlace> {
   }
 
   List<Widget> imageSliders(BuildContext context, List<ImageProvider> imgList) {
+    TransformationController controllerT = TransformationController();
+    var initialControllerValue;
     return imgList
         .map((item) => Center(
               child: Container(
@@ -588,6 +594,13 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                 child: InteractiveViewer(
                                   panEnabled: true,
                                   boundaryMargin: EdgeInsets.all(150),
+                                  transformationController: controllerT,
+                                  onInteractionStart: (details){
+                                    initialControllerValue = controllerT.value;
+                                  },
+                                  onInteractionEnd: (details){
+                                    controllerT.value = initialControllerValue;
+                                  },
                                   minScale: 0.5,
                                   maxScale: 3,
                                   child: Image(
