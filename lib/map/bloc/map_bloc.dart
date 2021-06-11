@@ -64,7 +64,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         if (event is GetMapPlacesFromDB) {
           try {
             yield (MapLoading());
-            final places = await mapRepo.fetchPlacesFromDataBase();
+            final places = await mapRepo.fetchAllPlacesFromDataBase();
             yield (MapLoaded(
                 places: places, message: "Places was loaded from database"));
           } on PlacesMapNotFoundException {
@@ -103,7 +103,7 @@ class MapBloc extends Bloc<MapEvent, MapState> {
         if(event is GetMapPlacesFromDB) {
           try {
             yield (MapLoading());
-            final places = await mapRepo.fetchPlacesFromDataBase();
+            final places = await mapRepo.fetchAllPlacesFromDataBase();
             yield (MapLoaded(
                 places: places, message: "Places was loaded from database"));
           }

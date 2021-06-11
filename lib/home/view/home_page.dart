@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
         listener: (context, state) {
           if (state is HomeError) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(duration: const Duration(seconds: 2),
+              SnackBar(duration: const Duration(milliseconds: 2500),
                 content: Text(state.error),
               ),
             );
@@ -83,26 +83,40 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildLoadingState(googleApiKey, textFieldText) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
-        return BlocProvider.of<HomeBloc>(context).add(RefreshPage(event: lastEvent));
-      },
-      child: CustomScrollView(
-          slivers: [
-            searchSliverAppBar(googleApiKey,context,textFieldText: textFieldText),
-            SliverToBoxAdapter(child: Center(child: Container(child: CircularProgressIndicator()))),
-          ]),
-    );
+    return LayoutBuilder(
+        builder: (context, constrains) {
+          return RefreshIndicator(
+              onRefresh: () async {
+                var lastEvent = BlocProvider
+                    .of<HomeBloc>(context)
+                    .lastHomeEvent;
+                return BlocProvider.of<HomeBloc>(context).add(
+                    RefreshPage(event: lastEvent));
+              },
+              child: CustomScrollView(
+                  slivers: [
+                    searchSliverAppBar(
+                        googleApiKey, context, textFieldText: textFieldText),
+                    SliverToBoxAdapter(child: Container(
+                      height: constrains.maxHeight-100,
+                      child: Center(
+                          child: CircularProgressIndicator()),
+                    )),
+                  ]));
+        });
 
   }
 
   Widget buildErrorState({String apiKey, String textFieldText}) {
-    return Center(
-        child: Scaffold(
-      body: RefreshIndicator(
+    return Scaffold(
+      body: LayoutBuilder(
+        builder: (context, constrains)
+    {
+      return RefreshIndicator(
         onRefresh: () async {
-          var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
+          var lastEvent = BlocProvider
+              .of<HomeBloc>(context)
+              .lastHomeEvent;
           return BlocProvider.of<HomeBloc>(context)
               .add(RefreshPage(event: lastEvent));
         },
@@ -110,28 +124,32 @@ class _HomePageState extends State<HomePage> {
           slivers: [
             searchSliverAppBar(apiKey, context, textFieldText: textFieldText),
             SliverToBoxAdapter(
-                child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.signal_cellular_connected_no_internet_4_bar,
-                      color: Color(0xff878787),
-                      size: 150,
-                    ),
-                    Container(
-                      height: 10,
-                    ),
-                    Text(
-                      'Sorry, your places was not found!',
-                      style: TextStyle(color: Color(0xff616161), fontSize: 20),
-                    )
-                  ]),
-            ))
+                child: Container(
+                  height: constrains.maxHeight-200,
+                  child: Center(
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.signal_cellular_connected_no_internet_4_bar,
+                            color: Color(0xff878787),
+                            size: 150,
+                          ),
+                          Container(
+                            height: 10,
+                          ),
+                          Text(
+                            'Sorry, your places was not found!',
+                            style: TextStyle(
+                                color: Color(0xff616161), fontSize: 20),
+                          )
+                        ]),
+                  ),
+                ))
           ],
         ),
-      ),
-    ));
+      );
+    }));
   }
   Widget searchSliverAppBar(String googleApiKey,BuildContext context,{String textFieldText}){
     print("searchMode:"+checkSearchMode.toString());

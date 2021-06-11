@@ -9,6 +9,7 @@ class PlacesDbDetail{
    String placeId;
    String priceLevel;
    num rating;
+   String types;
    String vicinity;
    String formattedAddress;
    String openingHours;
@@ -28,6 +29,7 @@ class PlacesDbDetail{
     this.placeId,
     this.priceLevel,
     this.rating,
+    this.types,
     this.vicinity,
     this.formattedAddress,
     this.openingHours,
@@ -46,6 +48,7 @@ class PlacesDbDetail{
     placeId:data['placeId'],
     priceLevel:data['priceLevel'],
     rating:data['rating'],
+    types:data['types'],
     vicinity:data['vicinity'],
     formattedAddress:data['formattedAddress'],
     openingHours: data['openingHours'],
@@ -64,6 +67,7 @@ class PlacesDbDetail{
     "placeId": this.placeId,
     "priceLevel": this.priceLevel,
     "rating": this.rating,
+    "types": this.types,
     "vicinity": this.vicinity,
     "formattedAddress": this.formattedAddress,
     "openingHours": this.openingHours,

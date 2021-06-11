@@ -129,15 +129,16 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                             style: TextStyle(color: Color(0xff5a5a5a)),
                             text: places[index].vicinity)),
               ),
+              if(places[index].types!=null)
               Container(
                 height: 5,
               ),
-              places[index].types.isNotEmpty
+              places[index].types!=null
                   ? Divider(
                       height: 1,
                     )
                   : SizedBox.shrink(),
-              places[index].types.isNotEmpty
+              places[index].types!=null
                   ? Container(
                       padding: EdgeInsets.only(left: 10, right: 10),
                       height: 50,
@@ -193,59 +194,82 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                           EdgeInsets.only(left: 5, right: 5),
                                       child: Row(
                                         children: [
-                                          Text('Open Now: '),
+                                          Text('Open Now: ',style: TextStyle(fontSize: 15,)),
                                           Text(
                                             'Open',
                                             style: TextStyle(
                                                 color: Color(0xff4a6540),
+                                                fontSize: 15,
                                                 fontWeight: FontWeight.bold),
                                           ),
-                                          if (places[index].openingHours !=
-                                              null)
-                                            Text('Closes In: '),
-                                          if (places[index].openingHours !=
-                                              null)
-                                            Text(
-                                              places[index]
-                                                      .openingHours
-                                                      .substring(0, 2) +
+                                          if (places[index].openingHours != null)
+                                            Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
+                                          if (places[index].openingHours != null)
+                                            places[index].openingHours != 'Open 24 hours'
+                                                ? Text(
+                                              places[index].openingHours
+                                                  .substring(0, 2) +
                                                   ':' +
-                                                  places[index]
-                                                      .openingHours
+                                                  places[index].openingHours
                                                       .substring(2, 4),
                                               style: TextStyle(
                                                   color: Color(0xffa73636),
+                                                  fontSize: 15,
                                                   fontWeight: FontWeight.bold),
-                                            ),
+                                            )
+                                                : Text(
+                                              places[index].openingHours,
+                                              style: TextStyle(
+                                                  color: Color(0xff4a6540),
+                                                  fontSize: 15,
+                                                  fontWeight: FontWeight.bold),
+                                            )
                                         ],
                                       ),
-                                    )
-                                  : Row(
-                                      children: [
-                                        Text('Open Now: '),
-                                        Text(
-                                          'Closed',
-                                          style: TextStyle(
-                                              color: Color(0xffa73636),
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                        if (places[index].openingHours != null)
-                                          Text('Opens In: '),
-                                        if (places[index].openingHours != null)
-                                          Text(
-                                            places[index]
-                                                    .openingHours
-                                                    .substring(0, 2) +
-                                                ':' +
-                                                places[index]
-                                                    .openingHours
-                                                    .substring(2, 4),
-                                            style: TextStyle(
-                                                color: Color(0xffa73636),
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                      ],
-                                    )
+                          )
+                              : Container(
+                            decoration: BoxDecoration(
+                                borderRadius:
+                                BorderRadius.all(Radius.circular(3)),
+                                shape: BoxShape.rectangle,
+                                border:
+                                Border.all(color: Color(0xffdbdbdb))),
+                            height: 30,
+                            margin: EdgeInsets.only(top: 10,),
+                            padding: EdgeInsets.only(left: 5, right: 5),
+                            child: Row(
+                              children: [
+                                Text('Open Now: ',style: TextStyle(fontSize: 15,),),
+                                Text(
+                                  'Closed',
+                                  style: TextStyle(
+                                      color: Color(0xffa73636),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                if (places[index].openingHours != null)
+                                  Text(' | Opens In: '),
+                                if (places[index].openingHours != null)
+                                  places[index].openingHours != 'Open 24 hours'
+                                      ? Text(
+                                    places[index].openingHours
+                                        .substring(0, 2) +
+                                        ':' +
+                                        places[index].openingHours
+                                            .substring(2, 4),
+                                    style: TextStyle(
+                                        color: Color(0xff4a6540),
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                      : Text(
+                                    places[index].openingHours,
+                                    style: TextStyle(
+                                        color: Color(0xff4a6540),
+                                        fontWeight: FontWeight.bold),
+                                  )
+                              ],
+                            ),
+                          )
                               : SizedBox.shrink(),
                           Container(width: 2,),
                           places[index].priceLevel.isNotEmpty &&

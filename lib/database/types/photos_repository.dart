@@ -1,7 +1,8 @@
-import 'dart:typed_data';
 
-import 'package:find_hotel/database/photos/photos_dao.dart';
-import 'package:find_hotel/database/photos/photos_db_model.dart';
+import 'package:find_hotel/database/types/photos_dao.dart';
+import 'package:find_hotel/database/types/photos_db_model.dart';
+
+
 
 
 
@@ -14,10 +15,13 @@ class PhotosRepository {
 
   Future insertPhoto(PhotosDbDetail photo) => photosDao.createPhoto(photo);
 
-  Future deleteSelectedPhotos(String placeId) => photosDao.deleteSelected(placeId);
+  Future updatePhoto(PhotosDbDetail photo) => photosDao.updatePhoto(photo);
+
+  Future deletePhotos(String photo) => photosDao.deletePhoto(photo);
 
   Future deleteAllPhotos() => photosDao.deleteAllPhotos();
 
   Future getPhoto(String placeId) => photosDao.getPhoto(placeId);
 
+  Future checkIfExist(String placeId, String photosReference) => photosDao.checkIfExist(placeId,photosReference);
 }

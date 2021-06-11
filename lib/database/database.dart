@@ -41,6 +41,7 @@ class DatabaseProvider {
          "placeId TEXT, "
          "priceLevel TEXT, "
          "rating REAL, "
+         "types TEXT, "
          "vicinity TEXT, "
          "formattedAddress TEXT, "
          "openingHours TEXT, "
@@ -53,8 +54,7 @@ class DatabaseProvider {
     await database.execute("CREATE TABLE $photosTABLE ("
         "id INTEGER PRIMARY KEY, "
         "placeId TEXT, "
-        "photo BLOB, "
-        "photosReference TEXT "
+        "photo BLOB "
         ")");
     print('Created photo');
   }

@@ -1,5 +1,10 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:find_hotel/database/photos/photos_db_model.dart';
+import 'package:find_hotel/database/photos/photos_repository.dart';
+import 'package:find_hotel/database/places/places_db_model.dart';
+import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,6 +14,8 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
 
 class MapRepository {
+  var _placesRepository = PlacesRepository();
+  var _photosRepository = PhotosRepository();
   Future<PlacesDetail> fetchDetailedMapPlaceFromNetwork(String placeId) async {
     var weekday = DateTime.now();
     try{
@@ -18,10 +25,13 @@ class MapRepository {
       final result = await _places.getDetailsByPlaceId(placeId,language: defaultLocale).timeout(Duration(seconds: 5));
       if (result.status == "OK" && !result.hasNoResults) {
         var k = 0;
-        List<ImageProvider> photos;
+        List<ImageProvider> photos= List<ImageProvider>(result.result.photos.length);
+        List<String> photosUrls= List<String>(result.result.photos.length);
+        List<String> photosReferences= List<String>(result.result.photos.length);
         if (result.result.photos.isNotEmpty){
-          photos= new List<ImageProvider>(result.result.photos.length);
           photos.forEach((element) {
+            photosUrls[k]=buildPhotoURL(result.result.photos[k].photoReference, kGoogleApiKey);
+            photosReferences[k]=result.result.photos[k].photoReference;
             photos[k]=Image.network(buildPhotoURL(result.result.photos[k].photoReference, kGoogleApiKey)).image;
             k++;});}
         final list= PlacesDetail(
@@ -60,6 +70,7 @@ class MapRepository {
                 : null
                 : null);
         print(result.result.toJson().toString());
+        addPlaceToDatabase(list,photosUrls,photosReferences);
         return list;
       }
       else{result.errorMessage != null
@@ -79,6 +90,54 @@ class MapRepository {
       } else
         throw Exception;
     }
+  }
+  addPlaceToDatabase(PlacesDetail place,List<String> photosUrls,List<String> photosReferences) async {
+    bool ifExist;
+    await _placesRepository.checkIfExist(place.placeId).then((value) =>
+    ifExist = value);
+    if (ifExist == true) {
+      _placesRepository.updatePlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+    }
+    else
+      _placesRepository.insertPlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+  }
+
+  Future<PlacesDbDetail> parseRepoFromDatabase(PlacesDetail place, List<String> photosUrls,List<String> photosReferences) async {
+    var responses = List(photosUrls.length);
+    var i=0;
+    for(var element in photosUrls) {
+      print(photosUrls[i].toString()+' PHOTOS URLS');
+      await NetworkAssetBundle(Uri.parse("")).load(element).then((value) => responses[i]=value);
+      i++;
+    }
+    var j=0;
+    List<Uint8List> listPhotosUint= List<Uint8List>(responses.length);
+    await _photosRepository.deleteSelectedPhotos(place.placeId);
+    for(var element in responses) {
+      listPhotosUint[j]=(element).buffer.asUint8List();
+      _photosRepository.insertPhoto(PhotosDbDetail(
+        placeId: place.placeId,
+        photo: listPhotosUint[j],
+      ));
+      j++;
+    }
+    return PlacesDbDetail(
+      icon:place.icon,
+      name:place.name,
+      openNow:place.openNow,
+      latitude: place.latitude,
+      longitude: place.longitude,
+      placeId:place.placeId,
+      priceLevel:place.priceLevel,
+      rating:place.rating,
+      vicinity:place.vicinity,
+      formattedAddress:place.formattedAddress,
+      openingHours: place.openingHours,
+      website:place.website,
+      utcOffset:place.utcOffset,
+      formattedPhoneNumber:place.formattedPhoneNumber,
+      internationalPhoneNumber:place.internationalPhoneNumber,
+    );
   }
 
 
@@ -244,10 +303,99 @@ class MapRepository {
     }
   }
 
-  fetchPlacesFromDataBase() {
+  Future <List<PlacesDetail>> fetchAllPlacesFromDataBase() async {
+    try{
+      List<PlacesDbDetail> placesDatabase = await _placesRepository.getAllPlaces();
+      List<List<PhotosDbDetail>> photoDatabase= List<List<PhotosDbDetail>>(placesDatabase.length);
+      List<List<ImageProvider>> listImages=List<List<ImageProvider>>(placesDatabase.length);
+
+
+      for(int i =0;i<photoDatabase.length;i++){
+        photoDatabase[i] = await _photosRepository.getSelectedPhotos(placesDatabase[i].placeId);
+        listImages[i]=List<ImageProvider>(photoDatabase[i].length);
+        for(int j =0;j<photoDatabase[i].length;j++){
+          listImages[i][j]=Image.memory(photoDatabase[i][j].photo).image;
+        }
+      }
+
+      if (placesDatabase.isEmpty) {
+        throw PlacesMapNotFoundException('Places in Database was not found');
+      } else {
+        var j = 0;
+        List<PlacesDetail> list= new List<PlacesDetail>(placesDatabase.length);
+        list.forEach((element) {
+          list[j]= PlacesDetail(
+            icon:placesDatabase[j].icon,
+            name:placesDatabase[j].name,
+            openNow:placesDatabase[j].openNow==null?"null":placesDatabase[j].openNow.toString(),
+            photos:listImages[j],
+            placeId:placesDatabase[j].placeId,
+            priceLevel:placesDatabase[j].priceLevel.toString(),
+            rating:placesDatabase[j].rating,
+            types:null,
+            vicinity:placesDatabase[j].vicinity,
+            formattedAddress:placesDatabase[j].formattedAddress,
+            utcOffset:placesDatabase[j].utcOffset,
+            formattedPhoneNumber:placesDatabase[j].formattedPhoneNumber,
+            openingHours: placesDatabase[j].openingHours ,
+          );
+          j++;
+        });
+        return list;
+      }
+    } catch (Exception) {
+      if (Exception is PlacesMapNotFoundException) {
+        print(Exception.error + 'MY');
+        PlacesMapNotFoundException placesNotFoundException =
+        PlacesMapNotFoundException(Exception.error);
+        throw placesNotFoundException;
+      } else
+        print(Exception.toString() + 'MY');
+      throw PlacesMapNotFoundException(Exception.toString());
+    }
 
   }
-  fetchPlaceDetailFromDataBase(placeId) {
+  Future <PlacesDetail> fetchPlaceDetailFromDataBase(placeId) async {
+    try{
+      PlacesDbDetail placeDatabase=  await _placesRepository.getPlace(placeId);
+      List<PhotosDbDetail> photoDatabase=  await _photosRepository.getSelectedPhotos(placeId);
+      List<ImageProvider> listImages=List(photoDatabase.length);
+      /*
+        List<String> listTypes=List(photoDatabase.length);
+        var i=0;
+        photoDatabase.forEach((element) {listTypes[j]=element.type; i++;});*/
+      var j=0;
+      photoDatabase.forEach((element) {listImages[j]=Image.memory(element.photo).image; j++;});
+      if (placeDatabase==null) {
+        throw PlacesMapNotFoundException('This place was not found in Database');
+      } else {
+        final place = PlacesDetail(
+          icon:placeDatabase.icon,
+          name:placeDatabase.name,
+          openNow:placeDatabase.openNow==null?"null":placeDatabase.openNow.toString(),
+          photos:listImages,
+          placeId:placeDatabase.placeId,
+          priceLevel:placeDatabase.priceLevel.toString(),
+          rating:placeDatabase.rating,
+          types:null,
+          vicinity:placeDatabase.vicinity,
+          formattedAddress:placeDatabase.formattedAddress,
+          utcOffset:placeDatabase.utcOffset,
+          formattedPhoneNumber:placeDatabase.formattedPhoneNumber,
+          openingHours: placeDatabase.openingHours ,
+        );
+        return place;
+      }
+    } catch (Exception) {
+      if (Exception is PlacesMapNotFoundException) {
+        print(Exception.error + 'MY');
+        PlacesMapNotFoundException placesNotFoundException =
+        PlacesMapNotFoundException(Exception.error);
+        throw placesNotFoundException;
+      } else
+        print(Exception.toString() + 'MY');
+      throw PlacesMapNotFoundException(Exception.toString());
+    }
 
   }
   String buildPhotoURL(String photoReference, String googleApiKey) {

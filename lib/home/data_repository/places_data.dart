@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -27,16 +28,11 @@ class HomeDataRepository {
       final result = await _places.getDetailsByPlaceId(placeId,language: defaultLocale).timeout(Duration(seconds: 5));
       if (result.status == "OK" && !result.hasNoResults) {
           var k = 0;
-          List<ImageProvider> photos;
-          List<String> photosUrls;
-          List<String> photosReferences;
+          List<ImageProvider> photos= List<ImageProvider>(result.result.photos.length);
+          List<String> photosUrls= List<String>(result.result.photos.length);
           if (result.result.photos.isNotEmpty){
-            photosReferences = new List<String>(result.result.photos.length);
-            photosUrls = new List<String>(result.result.photos.length);
-            photos= new List<ImageProvider>(result.result.photos.length);
             photos.forEach((element) {
               photosUrls[k]=buildPhotoURL(result.result.photos[k].photoReference, kGoogleApiKey);
-              photosReferences[k]=result.result.photos[k].photoReference;
               photos[k]=Image.network(buildPhotoURL(result.result.photos[k].photoReference, kGoogleApiKey)).image;
               k++;});}
           final list= PlacesDetail(
@@ -72,70 +68,67 @@ class HomeDataRepository {
                             : null
                     : null
                 : null);
-          addPlaceToDatabase(list,photosUrls,photosReferences);
+          addPlaceToDatabase(list,photosUrls);
           print(result.result.toJson().toString());
         return list;
       }
-      else{result.errorMessage != null
+      else{
+        print(1);
+        result.errorMessage != null
           ? throw result.errorMessage
           : result.status == 'ZERO_RESULTS'
           ? throw PlacesNotFoundException("Place not found, try again later")
           : throw 'Unknown Error';}
     }on TimeoutException {
+      print(2);
+
       throw PlacesNotFoundException(
           'Timeout was reached, try reload later or check connection');
     } catch (Exception) {
+      print(3);
       if (Exception is PlacesNotFoundException) {
+        print(4);
         print(Exception.error + 'MY');
         PlacesNotFoundException placesNotFoundException =
         PlacesNotFoundException(Exception.error);
         throw placesNotFoundException;
       } else
-        throw Exception;
+        print(5);
+      throw Exception;
     }
   }
 
 
-  addPlaceToDatabase(PlacesDetail place,List<String> photosUrls,List<String> photosReferences) async {
+  addPlaceToDatabase(PlacesDetail place,List<String> photosUrls) async {
     bool ifExist;
     await _placesRepository.checkIfExist(place.placeId).then((value) =>
     ifExist = value);
     if (ifExist == true) {
-      _placesRepository.updatePlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+      _placesRepository.updatePlace(await parsePlaceForDatabase(place,photosUrls));
     }
     else
-      _placesRepository.insertPlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+      _placesRepository.insertPlace(await parsePlaceForDatabase(place,photosUrls));
   }
 
-  Future<PlacesDbDetail> parseRepoFromDatabase(PlacesDetail place, List<String> photosUrls,List<String> photosReferences) async {
+  Future<PlacesDbDetail> parsePlaceForDatabase(PlacesDetail place, List<String> photosUrls) async {
     var responses = List(photosUrls.length);
+
     var i=0;
-    for(var element in photosUrls) {
+    for (var element in photosUrls) {
       print(photosUrls[i].toString()+' PHOTOS URLS');
       await NetworkAssetBundle(Uri.parse("")).load(element).then((value) => responses[i]=value);
       i++;
     }
-    bool ifExist;
+
     var j=0;
     List<Uint8List> listPhotosUint= List<Uint8List>(responses.length);
+    await _photosRepository.deleteSelectedPhotos(place.placeId);
     for(var element in responses) {
       listPhotosUint[j]=(element).buffer.asUint8List();
-      await _photosRepository.checkIfExist(place.placeId, photosReferences[j]).then((value) =>
-      ifExist = value);
-      print(ifExist.toString()+' ifExist');
-      if (ifExist == true) {
-        _photosRepository.updatePhoto(PhotosDbDetail(
-          placeId: place.placeId,
-          photo: listPhotosUint[j],
-          photosReference: photosReferences[j],
-        ));
-      }
-      else{
         _photosRepository.insertPhoto(PhotosDbDetail(
           placeId: place.placeId,
           photo: listPhotosUint[j],
-          photosReference: photosReferences[j],
-        ));}
+        ));
     j++;
     }
     return PlacesDbDetail(
@@ -147,6 +140,7 @@ class HomeDataRepository {
       placeId:place.placeId,
       priceLevel:place.priceLevel,
       rating:place.rating,
+      types: jsonEncode(place.types),
       vicinity:place.vicinity,
       formattedAddress:place.formattedAddress,
       openingHours: place.openingHours,
@@ -318,27 +312,19 @@ class HomeDataRepository {
   }
 
   Future <List<PlacesDetail>> fetchAllPlacesFromDataBase() async {
-
+    try{
         List<PlacesDbDetail> placesDatabase = await _placesRepository.getAllPlaces();
         List<List<PhotosDbDetail>> photoDatabase= List<List<PhotosDbDetail>>(placesDatabase.length);
-        List<List<ImageProvider>> listImages=List<List<ImageProvider>>(photoDatabase.length);
+        List<List<ImageProvider>> listImages=List<List<ImageProvider>>(placesDatabase.length);
 
-        var j=0;
-        placesDatabase.forEach((element) async {
-          photoDatabase[j]= await _photosRepository.getSelectedPhotos(element.placeId);j++;});
-        print(placesDatabase);
-        print(listImages);
 
         for(int i =0;i<photoDatabase.length;i++){
           photoDatabase[i] = await _photosRepository.getSelectedPhotos(placesDatabase[i].placeId);
-          print(placesDatabase.toString());
+          listImages[i]=List<ImageProvider>(photoDatabase[i].length);
           for(int j =0;j<photoDatabase[i].length;j++){
             listImages[i][j]=Image.memory(photoDatabase[i][j].photo).image;
-            print(listImages.toString());
           }
         }
-        print(placesDatabase);
-        print(listImages);
 
         if (placesDatabase.isEmpty) {
           throw PlacesNotFoundException('Places in Database was not found');
@@ -354,7 +340,7 @@ class HomeDataRepository {
               placeId:placesDatabase[j].placeId,
               priceLevel:placesDatabase[j].priceLevel.toString(),
               rating:placesDatabase[j].rating,
-              types:null,
+              types: typesFromJson(placesDatabase[j].types),
               vicinity:placesDatabase[j].vicinity,
               formattedAddress:placesDatabase[j].formattedAddress,
               utcOffset:placesDatabase[j].utcOffset,
@@ -365,23 +351,28 @@ class HomeDataRepository {
           });
           return list;
         }
-
-
+    } catch (Exception) {
+      if (Exception is PlacesNotFoundException) {
+        print(Exception.error + 'MY');
+        PlacesNotFoundException placesNotFoundException =
+        PlacesNotFoundException(Exception.error);
+        throw placesNotFoundException;
+      } else
+        print(Exception.toString() + 'MY');
+      throw PlacesNotFoundException(Exception.toString());
+    }
   }
+  List<String> typesFromJson(String str) => List<String>.from(json.decode(str).map((x) => x));
+
   Future <PlacesDetail> fetchPlaceDetailFromDataBase(placeId) async {
       try{
         PlacesDbDetail placeDatabase=  await _placesRepository.getPlace(placeId);
         List<PhotosDbDetail> photoDatabase=  await _photosRepository.getSelectedPhotos(placeId);
         List<ImageProvider> listImages=List(photoDatabase.length);
-        /*
-        List<String> listTypes=List(photoDatabase.length);
-        var i=0;
-        photoDatabase.forEach((element) {listTypes[j]=element.type; i++;});*/
         var j=0;
         photoDatabase.forEach((element) {listImages[j]=Image.memory(element.photo).image; j++;});
         if (placeDatabase==null) {
-          print('No places found in Database');
-          throw PlacesNotFoundException('No places found in Database');
+          throw PlacesNotFoundException('This place was not found in Database');
         } else {
           final place = PlacesDetail(
               icon:placeDatabase.icon,
@@ -391,7 +382,7 @@ class HomeDataRepository {
               placeId:placeDatabase.placeId,
               priceLevel:placeDatabase.priceLevel.toString(),
               rating:placeDatabase.rating,
-              types:null,
+              types:typesFromJson(placeDatabase.types),
               vicinity:placeDatabase.vicinity,
               formattedAddress:placeDatabase.formattedAddress,
               utcOffset:placeDatabase.utcOffset,

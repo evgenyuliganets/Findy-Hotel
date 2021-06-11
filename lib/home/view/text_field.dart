@@ -83,7 +83,7 @@ class _HomeTextFieldState extends State<HomeTextField> {
                     var bloc = BlocProvider.of<HomeBloc>(context);
                     var finalFilters = await filtersDialog(context, bloc.getFilterModel());
                     filters= finalFilters??SearchFilterModel();
-                    bloc.setFiltersParametrs(finalFilters??SearchFilterModel());
+                    bloc.setFiltersParameters(finalFilters??SearchFilterModel());
                   },
                   icon: Icon(
                     Icons.filter_list,

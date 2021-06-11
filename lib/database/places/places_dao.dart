@@ -76,13 +76,14 @@ class PlacesDao {
         placeId:res.first.values.elementAt(6),
         priceLevel:res.first.values.elementAt(7),
         rating:res.first.values.elementAt(8),
-        vicinity:res.first.values.elementAt(9),
-        formattedAddress:res.first.values.elementAt(10),
-        openingHours: res.first.values.elementAt(11),
-        website:res.first.values.elementAt(12),
-        utcOffset:res.first.values.elementAt(13),
-        formattedPhoneNumber:res.first.values.elementAt(14),
-        internationalPhoneNumber:res.first.values.elementAt(15),
+        types: res.first.values.elementAt(9),
+        vicinity:res.first.values.elementAt(10),
+        formattedAddress:res.first.values.elementAt(11),
+        openingHours: res.first.values.elementAt(12),
+        website:res.first.values.elementAt(13),
+        utcOffset:res.first.values.elementAt(14),
+        formattedPhoneNumber:res.first.values.elementAt(15),
+        internationalPhoneNumber:res.first.values.elementAt(16),
       );
     }
     else return PlacesDbDetail();
