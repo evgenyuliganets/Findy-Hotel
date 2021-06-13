@@ -30,56 +30,57 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (event is GetPlaces) {                                   //Get nearby SearchPlaces or Places from dataBase
       try {
         yield (HomeLoading(textFieldText: event.textFieldText));
-        print(event.latlng);
         final places = await homeRepo
-            .fetchPlacesFromNetwork(_filterModel, latLng: event.latlng ?? null,
-                textFieldText: event.textFieldText, mainSearchMode: event.mainSearchMode)
+            .fetchPlacesFromNetwork(_filterModel,
+                latLng: event.latlng ?? null,
+                textFieldText: event.textFieldText,
+                mainSearchMode: event.mainSearchMode)
             .timeout(Duration(seconds: 2));
         final apiKey = await homeRepo.loadAsset();
         if (places.isNotEmpty) {
           print(places.toString());
-          yield (HomeLoaded(places: places, googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,
+          yield (HomeLoaded(
+              places: places,
+              googleApiKey: apiKey,
+              textFieldText: event.textFieldText,
+              filters: event.filters,
               message: (event.textFieldText == null &&
-                  event.mainSearchMode == true &&
-                  event.filters.rankBy==false) ||
-                  (event.textFieldText == '' &&
-                      event.mainSearchMode == true &&
-                      event.filters.rankBy==false)
+                          event.mainSearchMode == true &&
+                          event.filters.rankBy == false) ||
+                      (event.textFieldText == '' &&
+                          event.mainSearchMode == true &&
+                          event.filters.rankBy == false)
                   ? 'Places was loaded from last known location, try change search mode'
-                  : null
-          ));
+                  : null));
         } else
           throw PlacesNotFoundException('Places not found');
       } on TimeoutException {
         yield (HomeError("Timeout was reached. No Internet Connection or GPS is not enabled", apiKey,
             textFieldText: event.textFieldText));
           try {
-            print (1);
             yield (HomeLoading(textFieldText: event.textFieldText));
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield (HomeLoaded(
                 places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
           } on PlacesNotFoundException {
-            print (2);
             yield (HomeError('No places found in database',apiKey));
           }
       } catch (error) {
         if (error is PlacesNotFoundException) {
-          print(1);
-          yield (HomeError(error.error, apiKey, textFieldText: event.textFieldText));
+          yield (HomeError(error.error, apiKey));
           try {
-            yield(HomeLoading(textFieldText: event.textFieldText));
+            yield(HomeLoading());
             final places = await homeRepo.fetchAllPlacesFromDataBase();
-            yield(HomeLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
+            yield(HomeLoaded(places: places, message: "All Places was loaded from database", filters: event.filters,));
           } on PlacesNotFoundException {
-            yield(HomeError('This place was not found in database',apiKey));
+            yield(HomeError('No places found in database',apiKey));
           }
-          catch (Error) {
-            if (Error is PlacesNotFoundException) {
-              print(Error.error.toString());
-              yield(HomeError(Error.error,apiKey));}
+          catch (error) {
+            if (error is PlacesNotFoundException) {
+              print(error.error.toString());
+              yield(HomeError(error.error.toString(),apiKey));}
             else{
-              yield(HomeError('Something went wrong, try change filters', apiKey));}
+              yield(HomeError('Something went wrong in database, try logout',apiKey));}
           }
         }
         else {
@@ -87,18 +88,18 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             yield(HomeError('No Internet Connection',apiKey));}
           else yield (HomeError('Something went wrong, try change filters', apiKey));
           try {
-            yield(HomeLoading(textFieldText: event.textFieldText));
+            yield(HomeLoading());
             final places = await homeRepo.fetchAllPlacesFromDataBase();
-            yield(HomeLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
+            yield(HomeLoaded(places: places, message: "All Places was loaded from database", filters: event.filters,));
           } on PlacesNotFoundException {
-            yield(HomeError('This place was not found in database',apiKey));
+            yield(HomeError('No places found in database',apiKey));
           }
-          catch (Error) {
-            if (Error is PlacesNotFoundException) {
-              print(Error.error.toString());
-              yield(HomeError(Error.error.toString(),apiKey));}
+          catch (error) {
+            if (error is PlacesNotFoundException) {
+              print(error.error.toString());
+              yield(HomeError(error.error.toString(),apiKey));}
             else{
-              yield(HomeError('Something went wong in database, try logout',apiKey));}
+              yield(HomeError('Something went wrong in database, try logout',apiKey));}
           }
         }
       }
@@ -110,44 +111,42 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       try {
         yield (HomeLoading());
         if(event.mainSearchMode!=null&&event.mainSearchMode){
-          final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
+          final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 3));
           yield (HomeLoaded(places:places, googleApiKey: apiKey,message: 'Places was loaded from last known location', filters: event.filters,));
         }else{
-        final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
-        final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,latLng: LatLng(userLocation.latitude,userLocation.longitude),mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
-        print( places.toString());
-        yield (HomeLoaded(places:places, googleApiKey: apiKey,loc: userLocation, filters: event.filters));
+          final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
+          final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,latLng: LatLng(userLocation.latitude,userLocation.longitude),mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
+          print( places.toString());
+          yield (HomeLoaded(places:places, googleApiKey: apiKey,loc: userLocation, filters: event.filters));
         }
       } on TimeoutException {
         yield (HomeError("Timeout was reached. No Internet Connection or GPS is not enabled", apiKey));
         try {
-          print (1);
           yield (HomeLoading());
           final places = await homeRepo.fetchAllPlacesFromDataBase();
           yield (HomeLoaded(
-              places: places, message: "All Places was loaded from database", filters: event.filters,));
+              places: places, message: "All Places was loaded from database", filters: event.filters,googleApiKey: apiKey));
         } on PlacesNotFoundException {
-          print (4);
           yield (HomeError('No places found in database',apiKey));
+        }catch (error) {
+          yield(HomeError('Something went wong in database, try logout',apiKey));
         }
       } catch (error) {
         if (error is PlacesNotFoundException) {
-          print(1);
           yield (HomeError(error.error, apiKey));
           try {
             yield(HomeLoading());
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield(HomeLoaded(places: places, message: "All Places was loaded from database", filters: event.filters,));
           } on PlacesNotFoundException {
-            yield(HomeError('This place was not found in database',apiKey));
+            yield(HomeError('No places found in database',apiKey));
           }
           catch (error) {
-            print(2);
             if (error is PlacesNotFoundException) {
               print(error.error.toString());
               yield(HomeError(error.error.toString(),apiKey));}
             else{
-              yield(HomeError('Something went wong in database, try logout',apiKey));}
+              yield(HomeError('Something went wrong in database, try logout',apiKey));}
           }
         }
         else {
@@ -159,15 +158,14 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield(HomeLoaded(places: places, message: "All Places was loaded from database", filters: event.filters,));
           } on PlacesNotFoundException {
-            yield(HomeError('This place was not found in database',apiKey));
+            yield(HomeError('No places found in database',apiKey));
           }
           catch (error) {
-            print(5);
             if (error is PlacesNotFoundException) {
               print(error.error.toString());
               yield(HomeError(error.error.toString(),apiKey));}
             else{
-              yield(HomeError('Something went wong in database, try logout',apiKey));}
+              yield(HomeError('Something went wrong in database, try logout',apiKey));}
           }
         }
       }
@@ -177,7 +175,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     if (event is GetDetailedPlace) {          //Get DetailedPlace or DetailedPlace from database
       try {
         yield (PlaceLoading());
-        final place = await homeRepo.fetchDetailedPlaceFromNetwork(event.placeId).timeout(Duration(seconds: 3));
+        final place = await homeRepo.fetchDetailedPlaceFromNetwork(event.placeId,isRecentlyViewed: true).timeout(Duration(seconds: 2));
         yield (PlaceLoaded(placesDetail:place, googleApiKey: apiKey));
       }
 
@@ -234,6 +232,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
               print(Error.error.toString());
               yield(PlaceError(Error.error));}
             else{
+              print(Error.toString()+" MY");
               yield(PlaceError('Something went wrong, try again later'));}
           }
         }

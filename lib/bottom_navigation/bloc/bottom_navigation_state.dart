@@ -30,12 +30,9 @@ class MapPageStarted extends BottomNavigationState {
 }
 
 class ProfilePageStarted extends BottomNavigationState {
-
-  ProfilePageStarted();
-
+  const ProfilePageStarted();
 }
 class PageError extends BottomNavigationState {
-
   final String error;
   const PageError(this.error);
 }

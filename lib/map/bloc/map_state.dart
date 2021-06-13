@@ -6,7 +6,9 @@ abstract class MapState {
 }
 
 class MapInitial extends MapState {
-  const MapInitial();
+  final String googleApiKey;
+  final String textFieldText;
+  const MapInitial({this.googleApiKey, this.textFieldText});
 }
 
 class MapLoading extends MapState {
@@ -24,9 +26,8 @@ class MapLoaded extends MapState {
   final LatLng loc;
   final SearchFilterModel filters;
   final bool mainSearchMode;
-  final Marker marker;
 
-  const MapLoaded({this.marker,this.textFieldText,this.places, this.googleApiKey,this.message,this.loc, this.filters,this.mainSearchMode});
+  const MapLoaded({this.textFieldText,this.places, this.googleApiKey,this.message,this.loc, this.filters,this.mainSearchMode});
 }
 
 class MapError extends MapState {
@@ -52,5 +53,6 @@ class PlaceLoaded extends MapState {
 
 class PlaceError extends MapState {
   final String error;
-  const PlaceError(this.error);
+  final String apiKey;
+  const PlaceError(this.error, this.apiKey);
 }

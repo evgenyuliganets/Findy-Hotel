@@ -3,12 +3,8 @@ import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:find_hotel/home/view/detail_place_page.dart';
-import 'package:find_hotel/home/view/text_field.dart';
 import 'package:find_hotel/map/bloc/map_bloc.dart';
-import 'package:find_hotel/map/repository/map_repository.dart';
-import 'package:find_hotel/map/view/build_map_of_places.dart';
 import 'package:find_hotel/map/view/map_text_field.dart';
-import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -32,11 +28,11 @@ class _MapPageState extends State<MapPage> {
           child: BlocConsumer<MapBloc, MapState>(
           builder: (context, state) {
             if (state is MapInitial)
-              return buildInitialStart();
+              return buildInitialStart(state.googleApiKey,state.textFieldText);
             else if (state is MapLoading)
-              return buildLoadingState();
+              return buildLoadingState(state.googleApiKey,state.textFieldText);
             else if (state is MapLoaded)
-              return buildWidget(state.textFieldText,state.googleApiKey, context,state.places,state.marker);
+              return buildWidget(state.textFieldText,state.googleApiKey, context,state.places);
             else if (state is MapError)
               return buildErrorState(apiKey:state.apiKey,textFieldText: state.textFieldText);
             else return null;
@@ -64,91 +60,114 @@ class _MapPageState extends State<MapPage> {
         ));
   }
 
-  Widget buildWidget(String textFieldText, String googleApiKey,BuildContext context,List<PlacesDetail> places,Marker marker) {
+  Widget buildWidget(String textFieldText, String googleApiKey,
+      BuildContext context, List<PlacesDetail> places) {
     var markers = List<Marker>.empty(growable: true);
-    var j=0;
-    if(places.first.longitude!=null)
-      markers.length=places.length;
-    places.forEach((places)  {
+    var j = 0;
+    print(places.toString());
+    if (places.first.latitude != null) markers.length = places.length;
+    places.forEach((places) {
       markers[j] = Marker(
           markerId: MarkerId(j.toString()),
-          position: LatLng(places.latitude, places.longitude),
+          position: LatLng(places.latitude ?? 0, places.longitude ?? 0),
           infoWindow: InfoWindow(
-            title: places.name,
-            snippet: places.formattedAddress??places.vicinity,
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider(
-                    create: (context) => Home.HomeBloc(HomeDataRepository()),
-                    child: DetailedPlace(places.placeId),
+              title: places.name,
+              snippet: places.formattedAddress ?? places.vicinity,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider(
+                      create: (context) => Home.HomeBloc(HomeDataRepository()),
+                      child: DetailedPlace(places.placeId),
+                    ),
                   ),
-                ),
-              );
-            }
-          )
-      );
+                );
+              }));
       print(markers[j].position);
-       j++;
+      j++;
     });
-    if(marker!=null){
-
-    }
     return LayoutBuilder(
-  builder: (context, constrains) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        var lastEvent = BlocProvider.of<MapBloc>(context).lastMapEvent;
-        return BlocProvider.of<MapBloc>(context).add(RefreshPage(event: lastEvent));
+      builder: (context, constrains) {
+        return CustomScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            slivers: [
+              searchSliverAppBar(googleApiKey, context,
+                  textFieldText: textFieldText),
+              SliverToBoxAdapter(
+                  child: Container(
+                height: constrains.maxHeight - 100,
+                child: GoogleMap(
+                  onTap: (LatLng point) {
+                    print(point.toString() + " Map Clicked");
+                    final mapBloc = context.read<MapBloc>();
+                    var finalFilters = mapBloc.getFilterModel();
+                    mapBloc.add(GetPlacesOnMap(
+                        latlng: point,
+                        mainSearchMode: checkSearchMode,
+                        filters: finalFilters ?? SearchFilterModel()));
+                    void dispose() {
+                      mapBloc.close();
+                    }
+                  },
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  markers: Set<Marker>.of(markers),
+                  initialCameraPosition: CameraPosition(
+                      target: LatLng(markers.first.position.latitude,
+                          markers.first.position.longitude),
+                      zoom: markers.length > 20
+                          ? 5
+                          : markers.length >= 10
+                              ? 12
+                              : markers.length >= 5
+                                  ? 13
+                                  : markers.length < 5
+                                      ? 14
+                                      : null),
+                ),
+              )),
+            ]);
       },
-      child: CustomScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          slivers: [
-        searchSliverAppBar(googleApiKey, context, textFieldText: textFieldText),
-        SliverToBoxAdapter(
-            child: Container(
-              height: constrains.maxHeight-100,
-              child: GoogleMap(
-                onTap: (LatLng point) {
-                  print(point.toString()+"Map Clicked");
-                  final mapBloc = context.read<MapBloc>();
-                  var finalFilters = mapBloc.getFilterModel();
-                  mapBloc.add(GetPlacesOnMap(latlng: point,mainSearchMode: checkSearchMode,filters:finalFilters??SearchFilterModel()));
-                  void dispose() {
-                    mapBloc.close();
-                  }
-                },
-                myLocationEnabled: true,
-                myLocationButtonEnabled: true,
-                markers: Set<Marker>.of(markers),
-                initialCameraPosition: CameraPosition(target: LatLng(markers.first.position.latitude,markers.first.position.longitude),zoom: 13),
-              ),
-            )),
-      ]),
     );
-  },
-);
   }
 
-
-
-
-  Widget buildInitialStart() {
+  Widget buildInitialStart(googleApiKey, textFieldText) {
     final mapBloc = context.read<MapBloc>();
+    print("this");
     mapBloc.add(GetMapUserPlaces(mainSearchMode: true));
     void dispose() {
       mapBloc.close();
     }
-    return Center(
-      child: CircularProgressIndicator(),
-    );
+    return LayoutBuilder(
+        builder: (context, constrains) {
+          return CustomScrollView(
+              slivers: [
+                searchSliverAppBar(
+                    googleApiKey, context, textFieldText: textFieldText),
+                SliverToBoxAdapter(child: Container(
+                  height: constrains.maxHeight-100,
+                  child: Center(
+                      child: CircularProgressIndicator()),
+                )),
+              ]);
+        });
   }
 
-  Widget buildLoadingState() {
-    return Center(
-      child: CircularProgressIndicator(),
-    );
+  Widget buildLoadingState(googleApiKey, textFieldText) {
+    return LayoutBuilder(
+        builder: (context, constrains) {
+          return CustomScrollView(
+              slivers: [
+                searchSliverAppBar(
+                    googleApiKey, context, textFieldText: textFieldText),
+                SliverToBoxAdapter(child: Container(
+                  height: constrains.maxHeight-100,
+                  child: Center(
+                      child: CircularProgressIndicator()),
+                )),
+              ]);
+        });
   }
 
   Widget buildErrorState({String apiKey, String textFieldText}) {

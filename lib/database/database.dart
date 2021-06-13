@@ -33,6 +33,9 @@ class DatabaseProvider {
     print('Created User');
      await database.execute("CREATE TABLE $placesTABLE ("
          "id INTEGER PRIMARY KEY, "
+         "isNearest TEXT,"
+         "isRecentlyViewed TEXT,"
+         "isFavorite TEXT,"
          "icon TEXT, "
          "name TEXT, "
          "openNow TEXT,"

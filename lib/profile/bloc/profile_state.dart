@@ -16,9 +16,8 @@ class ProfileLoading extends ProfileState {
 class ProfileLoaded extends ProfileState {
   final List<PlacesDetail> places;
   final String message;
-  final String username;
 
-  const ProfileLoaded({this.places, this.username,this.message});
+  const ProfileLoaded({this.places, this.message});
 }
 
 class ProfileError extends ProfileState {

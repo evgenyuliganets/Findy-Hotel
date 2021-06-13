@@ -10,7 +10,7 @@ class PlacesDao {
     return result;
   }
 
-  Future<List<PlacesDbDetail>> getPlaces({List<String> columns, String query}) async {
+  Future<List<PlacesDbDetail>> getAllPlaces({List<String> columns, String query}) async {
     final db = await dbProvider.database;
 
     List<Map<String, dynamic>> result;
@@ -27,39 +27,110 @@ class PlacesDao {
     return places;
   }
 
-  /*Future <List<PlacesDbDetail>> getUserPlaces(String owner) async {
+  Future <List<PlacesDbDetail>> getUserNearestPlaces() async {
     final db = await dbProvider.database;
-    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE owner="$owner"') ;
+    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE isNearest="true"') ;
+    var res = queryResult.toList();
+    if (queryResult!=null) {
+      var j = 0;
+      List<PlacesDbDetail> list = new List<PlacesDbDetail>(res.length);
+      res.forEach((element) {
+        list[j] = PlacesDbDetail(
+            icon:res[j].values.elementAt(1),
+            isNearest: res[j].values.elementAt(2).toString(),
+            isRecentlyViewed: res[j].values.elementAt(3).toString(),
+            isFavorite: res[j].values.elementAt(4).toString(),
+            name:res[j].values.elementAt(5),
+            openNow:res[j].values.elementAt(6),
+            latitude: res[j].values.elementAt(7),
+            longitude: res[j].values.elementAt(8),
+            placeId:res[j].values.elementAt(9),
+            priceLevel:res[j].values.elementAt(10),
+            rating:res[j].values.elementAt(11),
+            types:res[j].values.elementAt(12),
+            vicinity:res[j].values.elementAt(13),
+            formattedAddress:res[j].values.elementAt(14),
+            openingHours: res[j].values.elementAt(15),
+            website:res[j].values.elementAt(16),
+            utcOffset:res[j].values.elementAt(17),
+            formattedPhoneNumber:res[j].values.elementAt(18),
+            internationalPhoneNumber:res[j].values.elementAt(19),
+        );
+        j++;});
+      return list;
+    }
+    else return List<PlacesDbDetail>.empty(growable: true);
+  }
+
+  Future <List<PlacesDbDetail>> getUserRecentlyViewedPlaces() async {
+    final db = await dbProvider.database;
+    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE isRecentlyViewed="true"') ;
     var res = queryResult.toList();
     if (queryResult!=null) {
       var j = 0;
       List<PlacesDbDetail> list = new List<PlacesDbDetail>(res.length);
       list.forEach((element) {
         list[j] = PlacesDbDetail(
-            icon:res[j].values.elementAt(1),
-            name:res[j].values.elementAt(2),
-            openNow:res[j].values.elementAt(3),
-            weekDay: res[j].values.elementAt(4),
-            latitude: res[j].values.elementAt(5),
-            longitude: res[j].values.elementAt(6),
-            photos_and_type_:res[j].values.elementAt(7),
-            placeId:res[j].values.elementAt(8),
-            priceLevel:res[j].values.elementAt(9),
-            rating:res[j].values.elementAt(10),
-            types:res[j].values.elementAt(11),
-            vicinity:res[j].values.elementAt(12),
-            formattedAddress:res[j].values.elementAt(13),
-            openingHours: res[j].values.elementAt(14),
-            website:res[j].values.elementAt(15),
-            utcOffset:res[j].values.elementAt(16),
-            formattedPhoneNumber:res[j].values.elementAt(17),
-            internationalPhoneNumber:res[j].values.elementAt(18),
+          icon:res[j].values.elementAt(1),
+          isNearest: res[j].values.elementAt(2).toString(),
+          isRecentlyViewed: res[j].values.elementAt(3).toString(),
+          isFavorite: res[j].values.elementAt(4).toString(),
+          name:res[j].values.elementAt(5),
+          openNow:res[j].values.elementAt(6),
+          latitude: res[j].values.elementAt(7),
+          longitude: res[j].values.elementAt(8),
+          placeId:res[j].values.elementAt(9),
+          priceLevel:res[j].values.elementAt(10),
+          rating:res[j].values.elementAt(11),
+          types:res[j].values.elementAt(12),
+          vicinity:res[j].values.elementAt(13),
+          formattedAddress:res[j].values.elementAt(14),
+          openingHours: res[j].values.elementAt(15),
+          website:res[j].values.elementAt(16),
+          utcOffset:res[j].values.elementAt(17),
+          formattedPhoneNumber:res[j].values.elementAt(18),
+          internationalPhoneNumber:res[j].values.elementAt(19),
         );
         j++;});
       return list;
     }
     else return List<PlacesDbDetail>.empty(growable: true);
-  }*/
+  }
+
+  Future <List<PlacesDbDetail>> getUserFavoritePlaces() async {
+    final db = await dbProvider.database;
+    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE isFavorite="true"') ;
+    var res = queryResult.toList();
+    if (queryResult!=null) {
+      var j = 0;
+      List<PlacesDbDetail> list = new List<PlacesDbDetail>(res.length);
+      list.forEach((element) {
+        list[j] = PlacesDbDetail(
+          icon:res[j].values.elementAt(1),
+          isNearest: res[j].values.elementAt(2).toString(),
+          isRecentlyViewed: res[j].values.elementAt(3).toString(),
+          isFavorite: res[j].values.elementAt(4).toString(),
+          name:res[j].values.elementAt(5),
+          openNow:res[j].values.elementAt(6),
+          latitude: res[j].values.elementAt(7),
+          longitude: res[j].values.elementAt(8),
+          placeId:res[j].values.elementAt(9),
+          priceLevel:res[j].values.elementAt(10),
+          rating:res[j].values.elementAt(11),
+          types:res[j].values.elementAt(12),
+          vicinity:res[j].values.elementAt(13),
+          formattedAddress:res[j].values.elementAt(14),
+          openingHours: res[j].values.elementAt(15),
+          website:res[j].values.elementAt(16),
+          utcOffset:res[j].values.elementAt(17),
+          formattedPhoneNumber:res[j].values.elementAt(18),
+          internationalPhoneNumber:res[j].values.elementAt(19),
+        );
+        j++;});
+      return list;
+    }
+    else return List<PlacesDbDetail>.empty(growable: true);
+  }
 
   Future<PlacesDbDetail> getPlace(String placeId) async {
     final db = await dbProvider.database;
@@ -69,21 +140,24 @@ class PlacesDao {
       print(queryResult.toString());
       return PlacesDbDetail(
         icon:res.first.values.elementAt(1),
-        name:res.first.values.elementAt(2),
-        openNow:res.first.values.elementAt(3),
-        latitude: res.first.values.elementAt(4),
-        longitude: res.first.values.elementAt(5),
-        placeId:res.first.values.elementAt(6),
-        priceLevel:res.first.values.elementAt(7),
-        rating:res.first.values.elementAt(8),
-        types: res.first.values.elementAt(9),
-        vicinity:res.first.values.elementAt(10),
-        formattedAddress:res.first.values.elementAt(11),
-        openingHours: res.first.values.elementAt(12),
-        website:res.first.values.elementAt(13),
-        utcOffset:res.first.values.elementAt(14),
-        formattedPhoneNumber:res.first.values.elementAt(15),
-        internationalPhoneNumber:res.first.values.elementAt(16),
+        isNearest: res.first.values.elementAt(2).toString(),
+        isRecentlyViewed: res.first.values.elementAt(3).toString(),
+        isFavorite: res.first.values.elementAt(4).toString(),
+        name:res.first.values.elementAt(5),
+        openNow:res.first.values.elementAt(6),
+        latitude: res.first.values.elementAt(7),
+        longitude: res.first.values.elementAt(8),
+        placeId:res.first.values.elementAt(9),
+        priceLevel:res.first.values.elementAt(10),
+        rating:res.first.values.elementAt(11),
+        types: res.first.values.elementAt(12),
+        vicinity:res.first.values.elementAt(13),
+        formattedAddress:res.first.values.elementAt(14),
+        openingHours: res.first.values.elementAt(15),
+        website:res.first.values.elementAt(16),
+        utcOffset:res.first.values.elementAt(17),
+        formattedPhoneNumber:res.first.values.elementAt(18),
+        internationalPhoneNumber:res.first.values.elementAt(19),
       );
     }
     else return PlacesDbDetail();

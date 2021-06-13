@@ -13,8 +13,6 @@ class GetPlaces extends HomeEvent {
   final bool mainSearchMode;
   GetPlaces({this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
 }
-class GetPlacesFromDB extends HomeEvent {
-}
 
 class GetUserPlaces extends HomeEvent {
   final bool mainSearchMode;
@@ -23,7 +21,6 @@ class GetUserPlaces extends HomeEvent {
 }
 
 class GetDetailedPlace extends HomeEvent {
-
   final String placeId;
   GetDetailedPlace(this.placeId);
 }

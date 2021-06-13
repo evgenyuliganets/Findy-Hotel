@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 part 'profile_event.dart';
 part 'profile_state.dart';
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
+  ProfileEvent lastProfileEvent;
   final ProfileRepository profileRepo;
   final PlacesNotFoundException error;
   ProfileBloc(this.profileRepo, {this.error}) : super(ProfileInitial());
@@ -16,46 +17,58 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   Stream<ProfileState> mapEventToState(
       ProfileEvent event,
       ) async* {
-    if (event is GetPlaces) {           //Get nearby Places or Places from dataBase
+    lastProfileEvent=event;
+
+    if (event is RefreshPage){
+      this.add(event.event);
+    }
+
+    if (event is GetFavoritePlaces) {           //Get Favorite Places or Places from dataBase
       try {
         yield (ProfileLoading());
-        final places = await profileRepo.fetchPlacesFromNetwork(event.latlng).timeout(Duration(seconds: 2));
-        final username = await profileRepo.getUsername();
-        yield (ProfileLoaded(places:places,username: username));
+        final places = await profileRepo.fetchFavoritePlacesFromDataBase().timeout(Duration(seconds: 2));
+        yield (ProfileLoaded(places:places,));
       }
-
+      on PlacesNotFoundException{
+        yield (ProfileError("Something went wrong"));
+      }
       on TimeoutException {
         yield (ProfileError("No Internet Connection"));
-        try {
-          yield (ProfileLoading());
-          final places = await profileRepo.fetchPlacesFromDataBase(event.latlng);
-          yield (ProfileLoaded(places: places,message: "Places was loaded from database"));
-        }
-        on PlacesNotFoundException{
-          yield (ProfileError(error.error));
-        }
       }
     }
-    if (event is GetUserPlaces) {           //Get nearby UserPlaces or UserPlaces from dataBase
+
+
+    if (event is GetNearestPlaces) {           //Get nearby UserPlaces or UserPlaces from dataBase
       try {
         yield (ProfileLoading());
-        final userLocation = await profileRepo.getUserLocation().timeout(Duration(seconds: 7));
-        final places = await profileRepo.fetchPlacesFromNetwork(LatLng(userLocation.latitude,userLocation.longitude)).timeout(Duration(seconds: 2));
-        final username = await profileRepo.getUsername();
-        yield (ProfileLoaded(places:places,username: username));
+        final places = await profileRepo.fetchNearestPlacesFromDataBase();
+        yield (ProfileLoaded(places:places,));
       }
 
+      on PlacesNotFoundException{
+        yield (ProfileError("Something went wrong"));
+      }
       on TimeoutException {
+
         yield (ProfileError("No Internet Connection"));
-        try {
-          yield (ProfileLoading());
-          final places = await profileRepo.fetchPlacesFromDataBase(LatLng(0,0));
-          yield (ProfileLoaded(places: places,message: "Places was loaded from database"));
-        }
-        on PlacesNotFoundException{
-          yield (ProfileError(error.error));
-        }
       }
     }
+
+
+    if (event is GetRecentlyViewedPlaces) {           //Get nearby UserPlaces or UserPlaces from dataBase
+      try {
+        yield (ProfileLoading());
+        final places = await profileRepo.fetchRecentlyViewedPlacesFromDataBase();
+        yield (ProfileLoaded(places:places));
+      }
+
+      on PlacesNotFoundException{
+        yield (ProfileError("Something went wrong"));
+      }
+      on TimeoutException {
+        yield (ProfileError("No Internet Connection"));
+      }
+    }
+
   }
 }

@@ -1,4 +1,5 @@
 import 'package:find_hotel/home/bloc/home_bloc.dart';
+import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,10 +12,8 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
   return SliverList(
       delegate: SliverChildBuilderDelegate(
     (context, index) {
-      print(index);
-      places[index].openNow != null
-          ? print(places[index].openNow)
-          : print("null");
+      BlocProvider.of<SaveToFavoriteCubit>(context)
+          .checkIfExistInFavorite(places[index].placeId);
       return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -89,6 +88,85 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                             ' No Rating',
                             style: TextStyle(fontSize: 12),
                           ),
+                          Spacer(),
+                          Container(
+                            height: 30,
+                            child: BlocConsumer<SaveToFavoriteCubit, SaveToFavoriteState>(
+                                builder: (context, state) {
+                                  if (state is SaveToFavoriteLoading) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  }else if(state is SaveToFavoriteLoaded)
+                                    return Container(
+                                      padding: EdgeInsets.only(right: 5,bottom: 5),
+                                      child: Ink(
+                                          height: 40,
+                                          width: 45,
+                                          decoration: const ShapeDecoration(
+                                            color: Color(0xff636e86),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              state.ifExist?
+                                              BlocProvider.of<SaveToFavoriteCubit>(context)
+                                                  .deleteFromFavoriteSubmitted(places[index].placeId)
+                                              :BlocProvider.of<SaveToFavoriteCubit>(context)
+                                                  .addToFavoriteSubmitted (places[index].placeId);
+                                            },
+                                            icon: Icon(
+                                              state.ifExist?
+                                              Icons.favorite :Icons.favorite_border,
+                                              color: Color(0xffd2d2d2),
+                                            ),
+                                            iconSize: 22,
+                                            color: Colors.blueGrey,
+                                          )),
+                                    );
+                                  else
+                                    return Container(
+                                      padding: EdgeInsets.only(right: 5,bottom: 5),
+                                      child: Ink(
+                                          height: 40,
+                                          width: 45,
+                                          decoration: const ShapeDecoration(
+                                            color: Color(0xff636e86),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                              BlocProvider.of<SaveToFavoriteCubit>(context)
+                                                  .addToFavoriteSubmitted(places[index].placeId);
+                                            },
+                                            icon: Icon(
+                                              Icons.favorite_border,
+                                              color: Color(0xffd2d2d2),
+                                            ),
+                                            iconSize: 22,
+                                            color: Colors.blueGrey,
+                                          )),
+                                    );
+                                }, listener: (context, state) {
+                              if (state is SaveToFavoriteError) {
+                                if (state.error!=null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          content: Text(state.error)));
+                                }
+                              }
+                              if (state is SaveToFavoriteLoaded) {
+                                if (state.message!=null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          content: Text(state.message)));
+                                }
+                              }
+                            }),
+                          ),
                         ],
                       )
                     : Row(
@@ -109,6 +187,56 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                           ),
                           Text(places[index].rating.toString(),
                               style: TextStyle(color: Colors.black54)),
+                          Spacer(),
+                          Container(
+                            child: BlocConsumer<SaveToFavoriteCubit, SaveToFavoriteState>(
+                                builder: (context, state) {
+                                  if (state is SaveToFavoriteLoading) {
+                                    return Center(
+                                        child: CircularProgressIndicator());
+                                  } else
+                                    return Container(
+                                      padding: EdgeInsets.only(right: 5,bottom: 5),
+                                      child: Ink(
+                                          height: 40,
+                                          width: 45,
+                                          decoration: const ShapeDecoration(
+                                            color: Color(0xff636e86),
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                          ),
+                                          child: IconButton(
+                                            onPressed: () async {
+                                          BlocProvider.of<SaveToFavoriteCubit>(context)
+                                              .addToFavoriteSubmitted(places[index].placeId);
+                                        },
+                                            icon: Icon(
+                                              Icons.favorite_border,
+                                              color: Color(0xffd2d2d2),
+                                            ),
+                                            iconSize: 22,
+                                            color: Colors.blueGrey,
+                                          )),
+                                    );
+                                }, listener: (context, state) {
+                              if (state is SaveToFavoriteError) {
+                                if (state.error!=null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          content: Text(state.error)));
+                                }
+                              }
+                              if (state is SaveToFavoriteLoaded) {
+                                if (state.message!=null) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          duration: const Duration(seconds: 2),
+                                          content: Text(state.message)));
+                                }
+                              }
+                            }),
+                          ),
                         ],
                       ),
               ),
@@ -178,109 +306,114 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                       places[index].priceLevel.isNotEmpty
                   ? Container(
                       padding: EdgeInsets.only(left: 10, right: 10, bottom: 10,top:10),
-                      child: Row(
+                      child: Column(
                         children: [
-                          places[index].openNow != null
-                              ? places[index].openNow=="true"
-                                  ? Container(
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(3)),
-                                          shape: BoxShape.rectangle,
-                                          border: Border.all(
-                                              color: Color(0xffdbdbdb))),
-                                      height: 30,
-                                      padding:
-                                          EdgeInsets.only(left: 5, right: 5),
-                                      child: Row(
-                                        children: [
-                                          Text('Open Now: ',style: TextStyle(fontSize: 15,)),
-                                          Text(
-                                            'Open',
-                                            style: TextStyle(
-                                                color: Color(0xff4a6540),
-                                                fontSize: 15,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          if (places[index].openingHours != null)
-                                            Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
-                                          if (places[index].openingHours != null)
-                                            places[index].openingHours != 'Open 24 hours'
-                                                ? Text(
-                                              places[index].openingHours
-                                                  .substring(0, 2) +
-                                                  ':' +
+                          Row(
+                            children: [
+                              places[index].openNow != null
+                                  ? places[index].openNow=="true"
+                                      ? Container(
+                                          decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(3)),
+                                              shape: BoxShape.rectangle,
+                                              border: Border.all(
+                                                  color: Color(0xffdbdbdb))),
+                                          height: 30,
+                                          padding:
+                                              EdgeInsets.only(left: 5, right: 5),
+                                          child: Row(
+                                            children: [
+                                              Text('Open Now: ',style: TextStyle(fontSize: 15,)),
+                                              Text(
+                                                'Open',
+                                                style: TextStyle(
+                                                    color: Color(0xff4a6540),
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.bold),
+                                              ),
+                                              if (places[index].openingHours != null)
+                                                Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
+                                              if (places[index].openingHours != null)
+                                                places[index].openingHours != 'Open 24 hours'
+                                                    ? Text(
                                                   places[index].openingHours
-                                                      .substring(2, 4),
-                                              style: TextStyle(
-                                                  color: Color(0xffa73636),
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                                : Text(
-                                              places[index].openingHours,
-                                              style: TextStyle(
-                                                  color: Color(0xff4a6540),
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold),
-                                            )
-                                        ],
-                                      ),
-                          )
-                              : Container(
-                            decoration: BoxDecoration(
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(3)),
-                                shape: BoxShape.rectangle,
-                                border:
-                                Border.all(color: Color(0xffdbdbdb))),
-                            height: 30,
-                            margin: EdgeInsets.only(top: 10,),
-                            padding: EdgeInsets.only(left: 5, right: 5),
-                            child: Row(
-                              children: [
-                                Text('Open Now: ',style: TextStyle(fontSize: 15,),),
-                                Text(
-                                  'Closed',
-                                  style: TextStyle(
-                                      color: Color(0xffa73636),
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                                if (places[index].openingHours != null)
-                                  Text(' | Opens In: '),
-                                if (places[index].openingHours != null)
-                                  places[index].openingHours != 'Open 24 hours'
-                                      ? Text(
-                                    places[index].openingHours
-                                        .substring(0, 2) +
-                                        ':' +
+                                                      .substring(0, 2) +
+                                                      ':' +
+                                                      places[index].openingHours
+                                                          .substring(2, 4),
+                                                  style: TextStyle(
+                                                      color: Color(0xffa73636),
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.bold),
+                                                )
+                                                    : Text(
+                                                  places[index].openingHours,
+                                                  style: TextStyle(
+                                                      color: Color(0xff4a6540),
+                                                      fontSize: 15,
+                                                      fontWeight: FontWeight.bold),
+                                                )
+                                            ],
+                                          ),
+                              )
+                                  : Container(
+                                decoration: BoxDecoration(
+                                    borderRadius:
+                                    BorderRadius.all(Radius.circular(3)),
+                                    shape: BoxShape.rectangle,
+                                    border:
+                                    Border.all(color: Color(0xffdbdbdb))),
+                                height: 30,
+                                padding: EdgeInsets.only(left: 5, right: 5),
+                                child: Row(
+                                  children: [
+                                    Text('Open Now: ',style: TextStyle(fontSize: 15,),),
+                                    Text(
+                                      'Closed',
+                                      style: TextStyle(
+                                          color: Color(0xffa73636),
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    if (places[index].openingHours != null)
+                                      Text(' | Opens In: '),
+                                    if (places[index].openingHours != null)
+                                      places[index].openingHours != 'Open 24 hours'
+                                          ? Text(
                                         places[index].openingHours
-                                            .substring(2, 4),
-                                    style: TextStyle(
-                                        color: Color(0xff4a6540),
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                      : Text(
-                                    places[index].openingHours,
-                                    style: TextStyle(
-                                        color: Color(0xff4a6540),
-                                        fontWeight: FontWeight.bold),
-                                  )
-                              ],
-                            ),
-                          )
-                              : SizedBox.shrink(),
-                          Container(width: 2,),
+                                            .substring(0, 2) +
+                                            ':' +
+                                            places[index].openingHours
+                                                .substring(2, 4),
+                                        style: TextStyle(
+                                            color: Color(0xff4a6540),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                          : Text(
+                                        places[index].openingHours,
+                                        style: TextStyle(
+                                            color: Color(0xff4a6540),
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                  ],
+                                ),
+                              )
+                                  : SizedBox.shrink(),
+                            ],
+                          ),
+                          Container(height: 2,),
                           places[index].priceLevel.isNotEmpty &&
-                                  places[index].priceLevel != "null"
-                              ? Container(
+                              places[index].priceLevel != "null"
+                              ? Row(
+                                children: [
+                                  Container(
                                   decoration: BoxDecoration(
                                       borderRadius:
-                                          BorderRadius.all(Radius.circular(3)),
+                                      BorderRadius.all(Radius.circular(3)),
                                       shape: BoxShape.rectangle,
                                       border:
-                                          Border.all(color: Color(0xffdbdbdb))),
+                                      Border.all(color: Color(0xffdbdbdb))),
                                   height: 30,
                                   padding: EdgeInsets.all(5),
                                   child: Text("Price Level: " +
@@ -289,11 +422,13 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                           .characters
                                           .toString()
                                           .substring(
-                                              11,
-                                              places[index]
-                                                  .priceLevel
-                                                  .characters
-                                                  .length)))
+                                          11,
+                                          places[index]
+                                              .priceLevel
+                                              .characters
+                                              .length))),
+                                ],
+                              )
                               : SizedBox.shrink(),
                         ],
                       ),

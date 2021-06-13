@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:find_hotel/database/photos/photos_db_model.dart';
@@ -70,7 +71,7 @@ class MapRepository {
                 : null
                 : null);
         print(result.result.toJson().toString());
-        addPlaceToDatabase(list,photosUrls,photosReferences);
+        addPlaceToDatabase(list,photosUrls, isRecentlyViewed: true);
         return list;
       }
       else{result.errorMessage != null
@@ -91,38 +92,46 @@ class MapRepository {
         throw Exception;
     }
   }
-  addPlaceToDatabase(PlacesDetail place,List<String> photosUrls,List<String> photosReferences) async {
+  Future<void> addPlaceToDatabase(PlacesDetail place,List<String> photosUrls,{bool isNearest, bool isRecentlyViewed, bool isFavorite}) async {
     bool ifExist;
     await _placesRepository.checkIfExist(place.placeId).then((value) =>
     ifExist = value);
     if (ifExist == true) {
-      _placesRepository.updatePlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+      _placesRepository.updatePlace(await parsePlaceForDatabase(
+          place, photosUrls,
+          isNearest: isNearest,
+          isRecentlyViewed: isRecentlyViewed,
+          isFavorite: isFavorite));
     }
     else
-      _placesRepository.insertPlace(await parseRepoFromDatabase(place,photosUrls,photosReferences));
+      _placesRepository.insertPlace(await parsePlaceForDatabase(
+          place, photosUrls,
+          isNearest: isNearest,
+          isRecentlyViewed: isRecentlyViewed,
+          isFavorite: isFavorite));
   }
 
-  Future<PlacesDbDetail> parseRepoFromDatabase(PlacesDetail place, List<String> photosUrls,List<String> photosReferences) async {
-    var responses = List(photosUrls.length);
-    var i=0;
-    for(var element in photosUrls) {
-      print(photosUrls[i].toString()+' PHOTOS URLS');
-      await NetworkAssetBundle(Uri.parse("")).load(element).then((value) => responses[i]=value);
-      i++;
-    }
-    var j=0;
-    List<Uint8List> listPhotosUint= List<Uint8List>(responses.length);
+  Future<PlacesDbDetail> parsePlaceForDatabase(
+      PlacesDetail place, List<String> photosUrls,
+      {bool isNearest, bool isRecentlyViewed, bool isFavorite}) async {
+
     await _photosRepository.deleteSelectedPhotos(place.placeId);
-    for(var element in responses) {
-      listPhotosUint[j]=(element).buffer.asUint8List();
+    Future.wait(photosUrls
+        .map((e) => NetworkAssetBundle(Uri.parse("")).load(e).then((value) {
+      var responses = List.empty(growable: true);
+      responses.add(value);
+      print('$e PHOTO');
       _photosRepository.insertPhoto(PhotosDbDetail(
         placeId: place.placeId,
-        photo: listPhotosUint[j],
+        photo: value.buffer.asUint8List(),
       ));
-      j++;
-    }
+    })));
+
     return PlacesDbDetail(
       icon:place.icon,
+      isNearest: isNearest.toString(),
+      isRecentlyViewed: isRecentlyViewed.toString(),
+      isFavorite: isFavorite.toString(),
       name:place.name,
       openNow:place.openNow,
       latitude: place.latitude,
@@ -130,6 +139,7 @@ class MapRepository {
       placeId:place.placeId,
       priceLevel:place.priceLevel,
       rating:place.rating,
+      types: jsonEncode(place.types),
       vicinity:place.vicinity,
       formattedAddress:place.formattedAddress,
       openingHours: place.openingHours,
@@ -281,29 +291,26 @@ class MapRepository {
     var currentLocation;
     final location = LocationManager.Location();
     try {
-      print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
       currentLocation = await location.getLocation();
-      print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
       final center = LatLng(currentLocation.latitude, currentLocation.longitude);
       print(center.toString());
       return center;
     } catch (Exception) {
       print (Exception.toString());
-      print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
       var permissionStatus =await location.hasPermission();
       print (permissionStatus.toString());
       if(permissionStatus== LocationManager.PermissionStatus.granted){
-        print("seconds - ${DateTime.now().second}    milisec - ${DateTime.now().microsecond}");
         currentLocation = await location.getLocation();
         return LatLng(currentLocation.latitude, currentLocation.longitude);
       }
       else{
-        currentLocation = null;
-        return null;}
+        throw PlacesMapNotFoundException(
+            'Location permission is not granted, please grant permission to see places near you');
+      }
     }
   }
 
-  Future <List<PlacesDetail>> fetchAllPlacesFromDataBase() async {
+  Future <List<PlacesDetail>> fetchAllMapPlacesFromDataBase() async {
     try{
       List<PlacesDbDetail> placesDatabase = await _placesRepository.getAllPlaces();
       List<List<PhotosDbDetail>> photoDatabase= List<List<PhotosDbDetail>>(placesDatabase.length);
@@ -328,11 +335,13 @@ class MapRepository {
             icon:placesDatabase[j].icon,
             name:placesDatabase[j].name,
             openNow:placesDatabase[j].openNow==null?"null":placesDatabase[j].openNow.toString(),
+            latitude: placesDatabase[j].latitude,
+            longitude: placesDatabase[j].longitude,
             photos:listImages[j],
             placeId:placesDatabase[j].placeId,
             priceLevel:placesDatabase[j].priceLevel.toString(),
             rating:placesDatabase[j].rating,
-            types:null,
+            types: typesFromJson(placesDatabase[j].types),
             vicinity:placesDatabase[j].vicinity,
             formattedAddress:placesDatabase[j].formattedAddress,
             utcOffset:placesDatabase[j].utcOffset,
@@ -341,7 +350,10 @@ class MapRepository {
           );
           j++;
         });
-        return list;
+        if (list.isEmpty) {
+          throw PlacesMapNotFoundException('Places in Database was not found');
+        }else{
+        return list;}
       }
     } catch (Exception) {
       if (Exception is PlacesMapNotFoundException) {
@@ -353,17 +365,14 @@ class MapRepository {
         print(Exception.toString() + 'MY');
       throw PlacesMapNotFoundException(Exception.toString());
     }
-
   }
-  Future <PlacesDetail> fetchPlaceDetailFromDataBase(placeId) async {
+  List<String> typesFromJson(String str) => List<String>.from(json.decode(str).map((x) => x));
+
+  Future <PlacesDetail> fetchMapPlaceDetailFromDataBase(placeId) async {
     try{
       PlacesDbDetail placeDatabase=  await _placesRepository.getPlace(placeId);
       List<PhotosDbDetail> photoDatabase=  await _photosRepository.getSelectedPhotos(placeId);
       List<ImageProvider> listImages=List(photoDatabase.length);
-      /*
-        List<String> listTypes=List(photoDatabase.length);
-        var i=0;
-        photoDatabase.forEach((element) {listTypes[j]=element.type; i++;});*/
       var j=0;
       photoDatabase.forEach((element) {listImages[j]=Image.memory(element.photo).image; j++;});
       if (placeDatabase==null) {
@@ -373,11 +382,13 @@ class MapRepository {
           icon:placeDatabase.icon,
           name:placeDatabase.name,
           openNow:placeDatabase.openNow==null?"null":placeDatabase.openNow.toString(),
+          latitude: placeDatabase.latitude,
+          longitude: placeDatabase.longitude,
           photos:listImages,
           placeId:placeDatabase.placeId,
           priceLevel:placeDatabase.priceLevel.toString(),
           rating:placeDatabase.rating,
-          types:null,
+          types:typesFromJson(placeDatabase.types),
           vicinity:placeDatabase.vicinity,
           formattedAddress:placeDatabase.formattedAddress,
           utcOffset:placeDatabase.utcOffset,

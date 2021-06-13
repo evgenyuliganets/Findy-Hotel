@@ -6,7 +6,9 @@ abstract class HomeState {
 }
 //PlacesList
 class HomeInitial extends HomeState {
-  const HomeInitial();
+  final String googleApiKey;
+  final String textFieldText;
+  const HomeInitial({this.googleApiKey, this.textFieldText});
 }
 
 class HomeLoading extends HomeState {

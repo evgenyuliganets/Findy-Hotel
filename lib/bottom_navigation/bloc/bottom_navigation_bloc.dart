@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:find_hotel/map/repository/map_repository.dart';
+import 'package:find_hotel/map/repository/map_data.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';

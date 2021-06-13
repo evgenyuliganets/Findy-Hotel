@@ -1,9 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
-import 'package:find_hotel/map/repository/map_repository.dart';
+import 'package:find_hotel/map/repository/map_data.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:meta/meta.dart';
 
@@ -31,55 +32,79 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     if (event is GetPlacesOnMap) {                                   //Get nearby SearchPlaces or Places from dataBase
       try {
-        yield (MapLoading());
+        yield (MapLoading(textFieldText: event.textFieldText));
         final places = await mapRepo
             .fetchMapPlacesFromNetwork(_filterModel,
-            latLng: event.latlng ?? null,
-            textFieldText: event.textFieldText,
-            mainSearchMode: event.mainSearchMode)
+                latLng: event.latlng ?? null,
+                textFieldText: event.textFieldText,
+                mainSearchMode: event.mainSearchMode)
             .timeout(Duration(seconds: 2));
         final apiKey = await mapRepo.loadAsset();
         if (places.isNotEmpty) {
           print(places.toString());
           yield (MapLoaded(
-              marker: event.marker,
               places: places,
               googleApiKey: apiKey,
               textFieldText: event.textFieldText,
               filters: event.filters,
               message: (event.textFieldText == null &&
-                      event.mainSearchMode == true &&
-                  event.filters.rankBy==false) ||
-                  (event.textFieldText == '' &&
-                              event.mainSearchMode == true &&
-                              event.filters.rankBy==false)
-                          ? 'Places was loaded from last known location, try change search mode'
-                          : null));
-          print(event.textFieldText==''&&event.mainSearchMode==true);
+                          event.mainSearchMode == true &&
+                          event.filters.rankBy == false) ||
+                      (event.textFieldText == '' &&
+                          event.mainSearchMode == true &&
+                          event.filters.rankBy == false)
+                  ? 'Places was loaded from last known location, try change search mode'
+                  : null));
         } else
           throw PlacesMapNotFoundException('Places not found');
       } on TimeoutException {
-        yield (MapError("No Internet Connection", apiKey,
+        yield (MapError("Timeout was reached. No Internet Connection or GPS is not enabled", apiKey,
             textFieldText: event.textFieldText));
-        if (event is GetMapPlacesFromDB) {
           try {
-            yield (MapLoading());
-            final places = await mapRepo.fetchAllPlacesFromDataBase();
+            yield (MapLoading(textFieldText: event.textFieldText));
+            final places = await mapRepo.fetchAllMapPlacesFromDataBase();
             yield (MapLoaded(
-                places: places, message: "Places was loaded from database"));
+                places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
           } on PlacesMapNotFoundException {
             yield (MapError('No places found in database',apiKey));
           }
+      } catch (error) {
+        if (error is PlacesMapNotFoundException) {
+          yield (MapError(error.error, apiKey, textFieldText: event.textFieldText));
+          try {
+            yield(MapLoading(textFieldText: event.textFieldText));
+            final places = await mapRepo.fetchAllMapPlacesFromDataBase();
+            yield(MapLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
+          } on PlacesMapNotFoundException {
+            yield(MapError('No places found in database',apiKey));
+          }
+          catch (Error) {
+            if (Error is PlacesMapNotFoundException) {
+              print(Error.error.toString());
+              yield(MapError(Error.error,apiKey));}
+            else{
+              yield(MapError('Something went wrong, try change filters', apiKey));}
+          }
         }
-      } catch (Error) {
-        if (Error is PlacesMapNotFoundException) {
-          yield (MapError(Error.error, apiKey,
-              textFieldText: event.textFieldText));
-          print(Error.error.toString());
-        } else {
-          print(Error.toString());
-          yield (MapError('Something went wrong, try change filters', apiKey,
-              textFieldText: event.textFieldText));
+        else {
+          if(error is SocketException){
+            yield(MapError('No Internet Connection',apiKey));}
+          else yield (MapError('Something went wrong, try change filters', apiKey));
+          try {
+            yield(MapLoading(textFieldText: event.textFieldText));
+            final places = await mapRepo.fetchAllMapPlacesFromDataBase();
+            print (places);
+            yield(MapLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, textFieldText: event.textFieldText, filters: event.filters,));
+          } on PlacesMapNotFoundException {
+            yield(MapError('No places found in database',apiKey));
+          }
+          catch (Error) {
+            if (Error is PlacesMapNotFoundException) {
+              print(Error.error.toString());
+              yield(MapError(Error.error.toString(),apiKey));}
+            else{
+              yield(MapError('Something went wong in database, try logout',apiKey));}
+          }
         }
       }
     }
@@ -88,40 +113,78 @@ class MapBloc extends Bloc<MapEvent, MapState> {
 
     if (event is GetMapUserPlaces) {                  //Get nearby UserPlaces or UserPlaces from dataBase
       try {
+        print (1);
         yield (MapLoading());
         if(event.mainSearchMode!=null&&event.mainSearchMode){
           final places = await mapRepo.fetchMapPlacesFromNetwork(_filterModel,mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
           yield (MapLoaded(places:places, googleApiKey: apiKey,message: 'Places was loaded from last known location'));
         }else{
+          print (2);
           final userLocation = await mapRepo.getUserLocation().timeout(Duration(seconds: 7));
           final places = await mapRepo.fetchMapPlacesFromNetwork(_filterModel,latLng: LatLng(userLocation.latitude,userLocation.longitude),mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
           print( places.toString());
-          yield (MapLoaded(places:places, googleApiKey: apiKey,loc: userLocation));
+          yield (MapLoaded(places:places, googleApiKey: apiKey,loc: userLocation, filters: event.filters));
         }
       } on TimeoutException {
-        yield (MapError("No Internet Connection",apiKey,));
-        if(event is GetMapPlacesFromDB) {
-          try {
-            yield (MapLoading());
-            final places = await mapRepo.fetchAllPlacesFromDataBase();
-            yield (MapLoaded(
-                places: places, message: "Places was loaded from database"));
-          }
-          on PlacesMapNotFoundException {
-            yield (MapError(error.error, apiKey));
-          }
+        print (3);
+
+        yield (MapError("Timeout was reached. No Internet Connection or GPS is not enabled",apiKey,));
+        try {
+          yield (MapLoading());
+          final places = await mapRepo.fetchAllMapPlacesFromDataBase();
+          yield (MapLoaded(
+            places: places, message: "All Places was loaded from database", filters: event.filters,googleApiKey: apiKey));
+        } on PlacesMapNotFoundException {
+          yield (MapError('No places found in database',apiKey));
+        }catch (error) {
+          yield(MapError('Something went wong in database, try logout',apiKey));
         }
       }
-      catch (Error){
-        if(Error is PlacesMapNotFoundException) {
-          yield (MapError(
-            Error.error, apiKey,));
-          print(Error.error.toString());
+      catch (error) {
+        print (4);
+
+        if (error is PlacesMapNotFoundException) {
+          yield (MapError(error.error, apiKey,));
+          try {
+            yield(MapLoading());
+            final places = await mapRepo.fetchAllMapPlacesFromDataBase();
+            yield(MapLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, filters: event.filters,));
+          } on PlacesMapNotFoundException {
+            yield(MapError('No places found in database',apiKey));
+          }
+          catch (Error) {
+            print (5);
+
+            if (Error is PlacesMapNotFoundException) {
+              print(Error.error.toString());
+              yield(MapError(Error.error,apiKey));}
+            else{
+              yield(MapError('Something went wrong, try change filters', apiKey));}
+          }
         }
-        else{
-          print(Error.toString());
-          yield (MapError(
-              'Something went wrong, try change filters', apiKey));
+        else {
+          if(error is SocketException){
+            print (6);
+            yield(MapError('No Internet Connection',apiKey));}
+          else yield (MapError('Something went wrong, try change filters', apiKey));
+          try {
+            print (7);
+            yield(MapLoading());
+            final places = await mapRepo.fetchAllMapPlacesFromDataBase();
+            print(places.toString()+"PLACES");
+            yield(MapLoaded(places: places, message: "All Places was loaded from database",googleApiKey: apiKey, filters: event.filters,));
+          } on PlacesMapNotFoundException {
+            print (8);
+            yield(MapError('No places found in database',apiKey));
+          }
+          catch (Error) {
+            print (9);
+            if (Error is PlacesMapNotFoundException) {
+              print(Error.error.toString());
+              yield(MapError(Error.error.toString(),apiKey));}
+            else{
+              yield(MapError('Something went wong in database, try logout',apiKey));}
+          }
         }
       }
     }
@@ -137,23 +200,23 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       }
 
       on TimeoutException {
-        yield (PlaceError("No Internet Connection"));
+        yield (PlaceError("No Internet Connection",apiKey));
         try {
-          yield (MapLoading());
-          final places = await mapRepo.fetchPlaceDetailFromDataBase(LatLng(0,0));
+          yield (PlaceLoading());
+          final places = await mapRepo.fetchMapPlaceDetailFromDataBase(LatLng(0,0));
           yield (PlaceLoaded(placesDetail: places,message: "Place was loaded from database"));
         }
         on PlacesMapNotFoundException{
-          yield (PlaceError(error.error));
+          yield (PlaceError(error.error,apiKey));
         }
       }
       catch (Error) {
         if (Error is PlacesMapNotFoundException) {
-          yield (MapError(Error.error, apiKey,));
+          yield (PlaceError(Error.error, apiKey,));
           print(Error.error.toString());
         } else {
           print(Error.toString());
-          yield (MapError('Unknown Error', apiKey,));
+          yield (PlaceError('Unknown Error', apiKey,));
         }
       }
     }

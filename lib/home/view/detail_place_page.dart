@@ -93,17 +93,59 @@ class _DetailedPlaceState extends State<DetailedPlace> {
     void dispose() {
       homeBloc.close();
     }
-    return buildLoadingState();
+    return Center(
+        child: Scaffold(
+          body: LayoutBuilder(
+              builder: (context, constrains) {
+                return RefreshIndicator(
+                    onRefresh: () async {
+                      var lastEvent = BlocProvider
+                          .of<HomeBloc>(context)
+                          .lastHomeEvent;
+                      return BlocProvider.of<HomeBloc>(context).add(
+                          RefreshPage(event: lastEvent));
+                    },
+                    child: CustomScrollView(
+                        slivers: [
+                          sliverAppBar(),
+                          SliverToBoxAdapter(child: Container(
+                            height: constrains.maxHeight-100,
+                            child: Center(
+                                child: CircularProgressIndicator()),
+                          )),
+                        ]));
+              })
+        ));
   }
 
   Widget buildLoadingState() {
     return Center(
-      child: CircularProgressIndicator(),
-    );
+        child: Scaffold(
+          body: LayoutBuilder(
+              builder: (context, constrains) {
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    var lastEvent = BlocProvider
+                        .of<HomeBloc>(context)
+                        .lastHomeEvent;
+                    return BlocProvider.of<HomeBloc>(context).add(
+                        RefreshPage(event: lastEvent));
+                  },
+            child: CustomScrollView(
+              slivers: [
+                sliverAppBar(),
+                SliverToBoxAdapter(child: Container(
+                  height: constrains.maxHeight-100,
+                  child: Center(
+                      child: CircularProgressIndicator()),
+                )),
+              ]));
+    })));
+
   }
 
 
-  Widget buildErrorState({String apiKey, String textFieldText}) {
+  Widget buildErrorState() {
     return Center(
         child: Scaffold(
           body: RefreshIndicator(
@@ -142,9 +184,10 @@ class _DetailedPlaceState extends State<DetailedPlace> {
 
 
   SliverToBoxAdapter buildPlaceDetail(PlacesDetail place, String googleApiKey) {
+    print(place.photos.toString()+'PHOTO LENGTH');
     return SliverToBoxAdapter(
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        place.photos!=null
+        place.photos.length!=0
             ? Column(
                 children: [
                   Center(
@@ -185,7 +228,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               )
             : Image.asset(
                 'assets/no_image.jpg',
-                height: 250,
+                height: 330,
                 width: 350,
               ),
         ListTile(
@@ -505,11 +548,11 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                             ));
                           },
                         )),
-            if (place.website != null)
+            if (place.website!=null)
               Divider(
                 height: 1,
               ),
-            place.website != null
+            place.website!=null
                 ? Container(
                     padding: EdgeInsets.only(left: 5, top: 5),
                     alignment: Alignment.centerLeft,
@@ -518,7 +561,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       style: TextStyle(fontSize: 17),
                     ))
                 : SizedBox.shrink(),
-            if (place.website != null)
+            if (place.website!=null)
               Container(
                   padding: EdgeInsets.only(left: 10, bottom: 5),
                   alignment: Alignment.centerLeft,
@@ -528,7 +571,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 1,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff5a5a5a), fontSize: 18),
+                                      color: Color(0xff131313), fontSize: 18),
                                   text: place.website)),
                           onTap: () {
                             launch(place.website);
@@ -640,14 +683,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       child: Image(
                         image: item,
                         fit: BoxFit.cover,
-                        height: 400,
+                        height: 500,
                         width: 500,
                         loadingBuilder: (BuildContext context, Widget child,
                             ImageChunkEvent loadingProgress) {
                           if (loadingProgress == null) return child;
                           return Container(
                               color: Colors.black12,
-                              height: 250,
+                              height: 500,
                               width: 350,
                               child: Center(
                                 child: CircularProgressIndicator(

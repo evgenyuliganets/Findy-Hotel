@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
       body: SafeArea( child:BlocConsumer<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeInitial)
-            return buildInitialStart();
+            return buildInitialStart(state.googleApiKey,state.textFieldText);
           else if (state is HomeLoading)
             return buildLoadingState(state.googleApiKey,state.textFieldText,);
           else if (state is HomeLoaded)
@@ -58,6 +58,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget buildWidget(String textFieldText, List<PlacesDetail> places, String googleApiKey,BuildContext context) {
+
      return RefreshIndicator(
        onRefresh: () async {
          var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
@@ -71,15 +72,34 @@ class _HomePageState extends State<HomePage> {
      );
   }
 
-  Widget buildInitialStart() {
+  Widget buildInitialStart(googleApiKey, textFieldText) {
     final homeBloc = context.read<HomeBloc>();
+    print("this");
     homeBloc.add(GetUserPlaces(mainSearchMode: true));
     void dispose() {
       homeBloc.close();
     }
-    return Center(
-      child: CircularProgressIndicator(),
-    );
+    return LayoutBuilder(
+        builder: (context, constrains) {
+          return RefreshIndicator(
+              onRefresh: () async {
+                var lastEvent = BlocProvider
+                    .of<HomeBloc>(context)
+                    .lastHomeEvent;
+                return BlocProvider.of<HomeBloc>(context).add(
+                    RefreshPage(event: lastEvent));
+              },
+              child: CustomScrollView(
+                  slivers: [
+                    searchSliverAppBar(
+                        googleApiKey, context, textFieldText: textFieldText),
+                    SliverToBoxAdapter(child: Container(
+                      height: constrains.maxHeight-100,
+                      child: Center(
+                          child: CircularProgressIndicator()),
+                    )),
+                  ]));
+        });
   }
 
   Widget buildLoadingState(googleApiKey, textFieldText) {
@@ -152,7 +172,6 @@ class _HomePageState extends State<HomePage> {
     }));
   }
   Widget searchSliverAppBar(String googleApiKey,BuildContext context,{String textFieldText}){
-    print("searchMode:"+checkSearchMode.toString());
     return SliverAppBar(
       pinned: true,
       snap: true,
@@ -172,7 +191,7 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('Search by Place'),
+              Text('By Place'),
               Container(
                 height: 37,
                 width:60,
@@ -185,11 +204,11 @@ class _HomePageState extends State<HomePage> {
                       });
                     }),
               ),
-              Text('Search by Name'),
+              Text('By Name'),
               Spacer(),
               Ink(
-                  height: 37,
-                  width: 37,
+                  height: 38,
+                  width: 38,
                   decoration: const ShapeDecoration(
                     color: Color(0xff636e86),
                     shape: RoundedRectangleBorder(

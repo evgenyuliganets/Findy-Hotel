@@ -1,10 +1,11 @@
 import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
+import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/view/home_page.dart';
 import 'package:find_hotel/map/bloc/map_bloc.dart';
 import 'package:find_hotel/map/view/map_page.dart';
-import 'package:find_hotel/map/repository/map_repository.dart';
+import 'package:find_hotel/map/repository/map_data.dart';
 import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:find_hotel/profile/view/profile_page.dart';
@@ -25,6 +26,9 @@ class MainNavbar extends StatelessWidget {
       create: (context) => BottomNavigationBloc()..add(AppStarted()),),
      BlocProvider(
        create: (context) => MapBloc(MapRepository()),
+     ),
+     BlocProvider(
+       create: (context) => SaveToFavoriteCubit(HomeDataRepository()),
      ),
      BlocProvider(
        create: (context) => HomeBloc(HomeDataRepository()),

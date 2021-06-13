@@ -1,6 +1,9 @@
 import 'dart:typed_data';
 class PlacesDbDetail{
    int id;
+   String isNearest;
+   String isRecentlyViewed;
+   String isFavorite;
    String icon;
    String name;
    String openNow;
@@ -21,6 +24,9 @@ class PlacesDbDetail{
 
   PlacesDbDetail({
     this.id,
+    this.isNearest,
+    this.isRecentlyViewed,
+    this.isFavorite,
     this.icon,
     this.name,
     this.openNow,
@@ -40,6 +46,9 @@ class PlacesDbDetail{
   });
   factory PlacesDbDetail.fromDatabaseJson(Map<String, dynamic> data) => PlacesDbDetail(
     id: data['id'],
+    isNearest:data['isNearest'],
+    isRecentlyViewed:data['isRecentlyViewed'],
+    isFavorite:data['isFavorite'],
     icon:data['icon'],
     name:data['name'],
     openNow:data['openNow'],
@@ -59,6 +68,9 @@ class PlacesDbDetail{
   );
   Map<String, dynamic> toDatabaseJson() => {
     "id": this.id,
+    "isNearest":this.isNearest,
+    "isRecentlyViewed":this.isRecentlyViewed,
+    "isFavorite":this.isFavorite,
     "icon": this.icon,
     "name": this.name,
     "openNow": this.openNow,
