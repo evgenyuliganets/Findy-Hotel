@@ -1,6 +1,5 @@
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/view/build_list_of_places.dart';
-import 'package:find_hotel/home/view/place_detail_widget.dart';
 import 'package:find_hotel/home/view/text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,7 +21,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea( child:BlocConsumer<HomeBloc, HomeState>(
+      body: SafeArea(
+        child:BlocConsumer<HomeBloc, HomeState>(
         builder: (context, state) {
           if (state is HomeInitial)
             return buildInitialStart(state.googleApiKey,state.textFieldText);
@@ -74,11 +74,7 @@ class _HomePageState extends State<HomePage> {
 
   Widget buildInitialStart(googleApiKey, textFieldText) {
     final homeBloc = context.read<HomeBloc>();
-    print("this");
     homeBloc.add(GetUserPlaces(mainSearchMode: true));
-    void dispose() {
-      homeBloc.close();
-    }
     return LayoutBuilder(
         builder: (context, constrains) {
           return RefreshIndicator(
@@ -124,7 +120,6 @@ class _HomePageState extends State<HomePage> {
                     )),
                   ]));
         });
-
   }
 
   Widget buildErrorState({String apiKey, String textFieldText}) {

@@ -4,7 +4,7 @@ import 'package:find_hotel/database/places/places_db_model.dart';
 class PlacesDao {
   final dbProvider = DatabaseProvider.dbProvider;
 
-  Future<int> createPlaces(PlacesDbDetail placesDbDetail) async {
+  Future<int> createPlace(PlacesDbDetail placesDbDetail) async {
     final db = await dbProvider.database;
     var result = db.insert(placesTABLE, placesDbDetail.toDatabaseJson());
     return result;
@@ -184,18 +184,18 @@ class PlacesDao {
       return false;
   }
 
-  Future<int> deletePlace(String placeId) async {
-    final db = await dbProvider.database;
-    var result = await db.delete(placesTABLE, where: 'placeId = ?', whereArgs: [placeId]);
-
-    return result;
-  }
-
   Future deleteAllPlaces() async {
     final db = await dbProvider.database;
     var result = await db.delete(
       placesTABLE,
     );
+
+    return result;
+  }
+
+  Future<int> deletePlace(String placeId) async {
+    final db = await dbProvider.database;
+    var result = await db.delete(placesTABLE, where: 'placeId = ?', whereArgs: [placeId]);
 
     return result;
   }

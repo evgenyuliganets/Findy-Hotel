@@ -24,3 +24,4 @@ class GetDetailedPlace extends HomeEvent {
   final String placeId;
   GetDetailedPlace(this.placeId);
 }
+

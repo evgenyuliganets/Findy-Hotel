@@ -68,7 +68,8 @@ class _AppViewState extends State<AppView> {
             try {
               await _authenticationRepository.logIn(
                    username: await _userRepository.getAllUser().then((value) =>
-                      value.first.username.toString()).timeout(Duration(seconds: 2),onTimeout: ()=>throw Error())).timeout(Duration(seconds: 2),onTimeout: ()=>throw Error());
+                      value.first.username.toString()).timeout(
+                       Duration(seconds: 2),onTimeout: ()=>throw Error()));
               User user=User('1');
               state=AuthenticationState.authenticated(user);
             }

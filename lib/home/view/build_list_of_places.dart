@@ -80,7 +80,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                               return Icon(
                                 Icons.star_border,
                                 color: Colors.black26,
-                                size: 15,
+                                size: 20,
                               );
                             }),
                           ),
@@ -181,7 +181,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                         ? Icons.star_border
                                         : Icons.star_half,
                                 color: Colors.amber,
-                                size: 15,
+                                size: 20,
                               );
                             }),
                           ),

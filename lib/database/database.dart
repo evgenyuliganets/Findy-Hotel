@@ -25,7 +25,7 @@ class DatabaseProvider {
     if (newVersion > oldVersion) {}
   }
   void initUserDB(Database database, int version) async {
-    print('DATABASE Creating table');
+    print('DATABASE Creating tables');
      await database.execute("CREATE TABLE $userTABLE ("
         "id INTEGER PRIMARY KEY, "
         "username TEXT"

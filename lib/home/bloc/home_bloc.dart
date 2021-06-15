@@ -27,7 +27,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
       this.add(event.event);
     }
 
-    if (event is GetPlaces) {                                   //Get nearby SearchPlaces or Places from dataBase
+    if (event is GetPlaces) {                       //Get nearby SearchPlaces or Places from dataBase
       try {
         yield (HomeLoading(textFieldText: event.textFieldText));
         final places = await homeRepo
@@ -112,7 +112,12 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         yield (HomeLoading());
         if(event.mainSearchMode!=null&&event.mainSearchMode){
           final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 3));
-          yield (HomeLoaded(places:places, googleApiKey: apiKey,message: 'Places was loaded from last known location', filters: event.filters,));
+          yield (HomeLoaded(
+            places:places,
+            googleApiKey:
+            apiKey,
+            message: 'Places was loaded from last known location',
+            filters: event.filters,));
         }else{
           final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
           final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,latLng: LatLng(userLocation.latitude,userLocation.longitude),mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));

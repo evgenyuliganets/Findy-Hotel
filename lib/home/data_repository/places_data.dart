@@ -122,13 +122,10 @@ class HomeDataRepository {
       throw PlacesNotFoundException(
           'Timeout was reached, try reload later or check connection');
     } catch (Exception) {
-      print(3);
       if (Exception is PlacesNotFoundException) {
-        print(4);
         print(Exception.error + 'MY');
         throw PlacesNotFoundException(Exception.error);
       } else
-        print(5);
       print(Exception);
       throw Exception;
     }
@@ -217,6 +214,7 @@ class HomeDataRepository {
         apiKey: kGoogleApiKey,
       );
       if (searchFilterModel.rankBy) {
+        print('Search by rankBy');
         final location = Location(lat: latLng.latitude, lng: latLng.longitude);
         result = await _places
             .searchNearbyWithRankBy(location, 'distance',
@@ -229,7 +227,6 @@ class HomeDataRepository {
               Duration(seconds: 5),
             );
       } else {
-        print("mainSearchMode " + mainSearchMode.toString());
         if (mainSearchMode != null) {
           if (mainSearchMode == true) {
             print('Search by text');

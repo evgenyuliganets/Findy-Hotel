@@ -12,7 +12,7 @@ class PlacesRepository {
 
   Future<List<PlacesDbDetail>> getRecentlyViewedPlaces({String  query}) => placesDao.getUserRecentlyViewedPlaces();
 
-  Future insertPlace(PlacesDbDetail repo) => placesDao.createPlaces(repo);
+  Future insertPlace(PlacesDbDetail repo) => placesDao.createPlace(repo);
 
   Future updatePlace(PlacesDbDetail place) => placesDao.updatePlace(place);
 
