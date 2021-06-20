@@ -168,8 +168,8 @@ class MapRepository {
             .searchNearbyWithRankBy(location,
             'distance',
             type: "lodging",
-            minprice: getPriceLevel(searchFilterModel.minprice),
-            maxprice: getPriceLevel(searchFilterModel.maxprice),
+            minprice: getPriceLevel(searchFilterModel.minPrice),
+            maxprice: getPriceLevel(searchFilterModel.maxPrice),
             language: defaultLocale,
             keyword: searchFilterModel.keyword)
             .timeout(
@@ -183,8 +183,8 @@ class MapRepository {
             result = await _places
                 .searchByText(
               textFieldText,
-              minprice: getPriceLevel(searchFilterModel.minprice),
-              maxprice: getPriceLevel(searchFilterModel.maxprice),
+              minprice: getPriceLevel(searchFilterModel.minPrice),
+              maxprice: getPriceLevel(searchFilterModel.maxPrice),
               radius: searchFilterModel.radius,
               type: "lodging",
               language: defaultLocale,
@@ -205,8 +205,8 @@ class MapRepository {
                 .searchNearbyWithRadius(
                 location, searchFilterModel.radius,
                 type: "lodging",
-                minprice: getPriceLevel(searchFilterModel.minprice),
-                maxprice: getPriceLevel(searchFilterModel.maxprice),
+                minprice: getPriceLevel(searchFilterModel.minPrice),
+                maxprice: getPriceLevel(searchFilterModel.maxPrice),
                 language: defaultLocale,
                 keyword: searchFilterModel.keyword)
                 .timeout(

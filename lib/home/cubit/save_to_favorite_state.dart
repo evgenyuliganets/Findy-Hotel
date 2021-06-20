@@ -1,21 +1,21 @@
 part of 'save_to_favorite_cubit.dart';
 
 @immutable
-abstract class SaveToFavoriteState {}
+abstract class FavoriteState {}
 
-class SaveToFavoriteInitial extends SaveToFavoriteState {}
+class FavoriteInitial extends FavoriteState {}
 
-class SaveToFavoriteLoading extends SaveToFavoriteState {
-   SaveToFavoriteLoading();
+class FavoriteLoading extends FavoriteState {
+   FavoriteLoading();
 }
 
-class SaveToFavoriteLoaded extends SaveToFavoriteState {
+class FavoriteLoaded extends FavoriteState {
   final bool ifExist;
   final String message;
-  SaveToFavoriteLoaded({this.ifExist,this.message});
+  FavoriteLoaded({this.ifExist,this.message});
 }
 
-class SaveToFavoriteError extends SaveToFavoriteState {
+class FavoriteError extends FavoriteState {
   final String error;
-  SaveToFavoriteError(this.error);
+  FavoriteError(this.error);
 }

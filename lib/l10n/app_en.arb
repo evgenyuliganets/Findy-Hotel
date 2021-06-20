@@ -32,7 +32,131 @@
               "description": ""},
     "homeTab": "Home",
         "@homeTab": {
-                  "description": ""},
+          "description": ""},
+    "homeMainError": "Sorry, places was not found!",
+            "@homeMainError": {
+                      "description": ""},
+    "homeByPlace": "By Place",
+            "@homeByPlace": {
+                      "description": ""},
+    "homeByName": "By Name",
+                "@homeByName": {
+                          "description": ""},
+    "homeSearch": "Search",
+                    "@homeSearch": {
+                              "description": ""},
+    "searchFilterKeyword1": "Restaurant",
+                        "@searchFilterKeyword1": {
+                                  "description": ""},
+    "searchFilterKeyword2": "Bar",
+                            "@searchFilterKeyword2": {
+                                      "description": ""},
+    "searchFilterKeyword3": "Spa",
+                            "@searchFilterKeyword3": {
+                                      "description": ""},
+    "searchFilterKeyword4": "Campground",
+                            "@searchFilterKeyword4": {
+                                      "description": ""},
+    "searchFilterPriceLevel1": "Free",
+                            "@searchFilterPriceLevel1": {
+                                      "description": ""},
+    "searchFilterPriceLevel2": "Inexpensive",
+                            "@searchFilterPriceLevel2": {
+                                          "description": ""},
+    "searchFilterPriceLevel3": "Moderate",
+                            "@searchFilterPriceLevel3": {
+                                          "description": ""},
+    "searchFilterPriceLevel4": "Expensive",
+                            "@searchFilterPriceLevel4": {
+                                          "description": ""},
+    "searchFilterPriceLevel5": "Very Expensive",
+                            "@searchFilterPriceLevel5": {
+                                          "description": ""},
+    "searchFilterHeader": "Select Filters",
+                            "@searchFilterHeader": {
+                                          "description": ""},
+    "searchFilterError": "Cannot change value when distance type is selected",
+                            "@searchFilterError": {
+                                          "description": ""},
+    "searchFilterRadius": "Radius: ",
+                                "@searchFilterRadius": {
+                                           "description": ""},
+    "searchFilterMeters": "meters",
+                                "@searchFilterMeters": {
+                                           "description": ""},
+    "searchFilterKeywordHeader": "Additional type of search",
+                                "@searchFilterKeywordHeader": {
+                                           "description": ""},
+    "searchFilterMinPriceHeader": "Minimum Price",
+                                "@searchFilterMinPriceHeader": {
+                                            "description": ""},
+    "searchFilterMaxPriceHeader": "Maximum Price",
+                                "@searchFilterMaxPriceHeader": {
+                                            "description": ""},
+    "searchOrderHeader": "Search order",
+                                "@searchOrderHeader": {
+                                             "description": ""},
+    "searchOrder1": "Prominence(default)",
+                                "@searchOrder1": {
+                                             "description": ""},
+    "searchOrder2": "Distance",
+                                "@searchOrder2": {
+                                             "description": ""},
+    "searchFilterApplyButton": "Apply",
+                                "@searchFilterApplyButton": {
+                                             "description": ""},
+    "detailedHeader": "Detailed info",
+                                "@detailedHeader": {
+                                             "description": ""},
+    "detailedError": "Sorry, place was not found!",
+                                "@detailedError": {
+                                             "description": ""},
+    "detailedRatingError": " No Rating",
+                                "@detailedRatingError": {
+                                             "description": ""},
+    "detailedOpenText": "Open Now: ",
+                                "@detailedOpenText": {
+                                             "description": ""},
+    "detailedOpenStatus1": "Open",
+                                "@detailedOpenStatus1": {
+                                             "description": ""},
+    "detailedClosesInText": " | Closes In: ",
+                                "@detailedClosesInText": {
+                                             "description": ""},
+    "detailedClosesInStatus1": "Open 24 hours",
+                                "@detailedClosesStatus1": {
+                                             "description": ""},
+    "detailedOpenStatus2": "Closed",
+                                "@detailedOpenStatus2": {
+                                             "description": ""},
+    "detailedOpensInText": " | Opens In: ",
+                                "@detailedOpensInText": {
+                                             "description": ""},
+    "detailedPriceLevelText": "Price Level: ",
+                                "@detailedPriceLevelText": {
+                                             "description": ""},
+    "detailedAddressText": "Full Address: ",
+                                "@detailedAddressText": {
+                                             "description": ""},
+    "detailedPhoneText": "Phone Number: ",
+                                "@detailedPhoneText": {
+                                             "description": ""},
+    "detailedCopiedToClipboard": "Copied to Clipboard",
+                                "@detailedCopiedToClipboard": {
+                                             "description": ""},
+    "detailedWebsiteText": "Website: ",
+                                "@detailedWebsiteText": {
+                                             "description": ""},
+    "detailedUtcText": "UTC: ",
+                                "@detailedUtcText": {
+                                             "description": ""},
+    "detailedHoursUtsText": " hours From UTC",
+                                "@detailedHoursUtsText": {
+                                             "description": ""},
+    "detailedOnMap": "On Map",
+                                "@detailedOnMap": {
+                                             "description": ""},
+
     "mapTab": "Map",
         "@mapTab": {
                   "description": ""},
@@ -51,7 +175,7 @@
     "warningProfile": "You sure you want to logout? All local data will be erased!",
                 "@warningProfile": {
                           "description": ""},
-    "profileError": "Sorry, your nearby places was not found.",
+    "profileError": "Sorry, your recently viewed places not found, try view some.",
                     "@profileError": {
                               "description": ""}
 

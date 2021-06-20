@@ -1,3 +1,4 @@
+import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
@@ -6,14 +7,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'detail_place_page.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
     String googleApiKey, BuildContext context) {
+  var placesRepo = PlacesRepository();
   return SliverList(
       delegate: SliverChildBuilderDelegate(
     (context, index) {
-      BlocProvider.of<SaveToFavoriteCubit>(context)
-          .checkIfExistInFavorite(places[index].placeId);
       return GestureDetector(
           onTap: () {
             Navigator.push(
@@ -85,71 +86,73 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                             }),
                           ),
                           Text(
-                            ' No Rating',
+                            AppLocalizations.of(context).detailedRatingError,
                             style: TextStyle(fontSize: 12),
                           ),
                           Spacer(),
                           Container(
-                            height: 30,
-                            child: BlocConsumer<SaveToFavoriteCubit, SaveToFavoriteState>(
+                            child: BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
-                                  if (state is SaveToFavoriteLoading) {
+                                  if (state is FavoriteLoading) {
                                     return Center(
                                         child: CircularProgressIndicator());
-                                  }else if(state is SaveToFavoriteLoaded)
-                                    return Container(
-                                      padding: EdgeInsets.only(right: 5,bottom: 5),
-                                      child: Ink(
-                                          height: 40,
-                                          width: 45,
-                                          decoration: const ShapeDecoration(
-                                            color: Color(0xff636e86),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () async {
-                                              state.ifExist?
-                                              BlocProvider.of<SaveToFavoriteCubit>(context)
-                                                  .deleteFromFavoriteSubmitted(places[index].placeId)
-                                              :BlocProvider.of<SaveToFavoriteCubit>(context)
-                                                  .addToFavoriteSubmitted (places[index].placeId);
-                                            },
-                                            icon: Icon(
-                                              state.ifExist?
-                                              Icons.favorite :Icons.favorite_border,
-                                              color: Color(0xffd2d2d2),
-                                            ),
-                                            iconSize: 22,
-                                            color: Colors.blueGrey,
-                                          )),
-                                    );
-                                  else
-                                    return Container(
-                                      padding: EdgeInsets.only(right: 5,bottom: 5),
-                                      child: Ink(
-                                          height: 40,
-                                          width: 45,
-                                          decoration: const ShapeDecoration(
-                                            color: Color(0xff636e86),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () async {
-                                              BlocProvider.of<SaveToFavoriteCubit>(context)
-                                                  .addToFavoriteSubmitted(places[index].placeId);
-                                            },
-                                            icon: Icon(
-                                              Icons.favorite_border,
-                                              color: Color(0xffd2d2d2),
-                                            ),
-                                            iconSize: 22,
-                                            color: Colors.blueGrey,
-                                          )),
-                                    );
+                                  }else return Container(
+                                    padding: EdgeInsets.only(right: 5,bottom: 5),
+                                    child: Ink(
+                                        height: 40,
+                                        width: 45,
+                                        decoration: const ShapeDecoration(
+                                          color: Color(0xff636e86),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                        ),
+                                        child: FutureBuilder<Object>(
+                                            future: placesRepo.checkIfExistInFavorite(places[index].placeId),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData){
+                                                return IconButton(
+                                                  onPressed: () async {
+                                                    snapshot.data?
+                                                    BlocProvider.of<FavoriteCubit>(context)
+                                                        .deleteFromFavoriteSubmitted(places[index].placeId)
+                                                        :BlocProvider.of<FavoriteCubit>(context)
+                                                        .addToFavoriteSubmitted (places[index].placeId);
+                                                  },
+                                                  icon: Icon(
+                                                    snapshot.data?
+                                                    Icons.favorite :Icons.favorite_border,
+                                                    color: Color(0xffffffff),
+                                                  ),
+                                                  iconSize: 22,
+                                                  color: Colors.blueGrey,
+                                                );
+                                              }
+                                              if(snapshot.hasError){
+                                                return IconButton(
+                                                  onPressed: () async {
+                                                    snapshot.data?
+                                                    BlocProvider.of<FavoriteCubit>(context)
+                                                        .deleteFromFavoriteSubmitted(places[index].placeId)
+                                                        :BlocProvider.of<FavoriteCubit>(context)
+                                                        .addToFavoriteSubmitted (places[index].placeId);
+                                                  },
+                                                  icon: Icon(
+                                                    snapshot.data?
+                                                    Icons.favorite :Icons.favorite_border,
+                                                    color: Color(0xffd2d2d2),
+                                                  ),
+                                                  iconSize: 22,
+                                                  color: Colors.blueGrey,
+                                                );
+                                              }
+                                              else{
+                                                return CircularProgressIndicator();
+                                              }
+                                            }
+                                        )),
+                                  );
                                 }, listener: (context, state) {
-                              if (state is SaveToFavoriteError) {
+                              if (state is FavoriteError) {
                                 if (state.error!=null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -157,7 +160,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                           content: Text(state.error)));
                                 }
                               }
-                              if (state is SaveToFavoriteLoaded) {
+                              if (state is FavoriteLoaded) {
                                 if (state.message!=null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -189,37 +192,68 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                               style: TextStyle(color: Colors.black54)),
                           Spacer(),
                           Container(
-                            child: BlocConsumer<SaveToFavoriteCubit, SaveToFavoriteState>(
+                            child: BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
-                                  if (state is SaveToFavoriteLoading) {
+                                  if (state is FavoriteLoading) {
                                     return Center(
                                         child: CircularProgressIndicator());
-                                  } else
-                                    return Container(
-                                      padding: EdgeInsets.only(right: 5,bottom: 5),
-                                      child: Ink(
-                                          height: 40,
-                                          width: 45,
-                                          decoration: const ShapeDecoration(
-                                            color: Color(0xff636e86),
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.all(Radius.circular(5.0))),
-                                          ),
-                                          child: IconButton(
-                                            onPressed: () async {
-                                          BlocProvider.of<SaveToFavoriteCubit>(context)
-                                              .addToFavoriteSubmitted(places[index].placeId);
-                                        },
-                                            icon: Icon(
-                                              Icons.favorite_border,
-                                              color: Color(0xffd2d2d2),
-                                            ),
-                                            iconSize: 22,
-                                            color: Colors.blueGrey,
-                                          )),
-                                    );
+                                  }else return Container(
+                                    padding: EdgeInsets.only(right: 5,bottom: 5),
+                                    child: Ink(
+                                        height: 40,
+                                        width: 45,
+                                        decoration: const ShapeDecoration(
+                                          color: Color(0xff636e86),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                        ),
+                                        child: FutureBuilder<Object>(
+                                            future: placesRepo.checkIfExistInFavorite(places[index].placeId),
+                                            builder: (context, snapshot) {
+                                              if (snapshot.hasData){
+                                                return IconButton(
+                                                  onPressed: () async {
+                                                    snapshot.data?
+                                                    BlocProvider.of<FavoriteCubit>(context)
+                                                        .deleteFromFavoriteSubmitted(places[index].placeId)
+                                                        :BlocProvider.of<FavoriteCubit>(context)
+                                                        .addToFavoriteSubmitted (places[index].placeId);
+                                                  },
+                                                  icon: Icon(
+                                                    snapshot.data?
+                                                    Icons.favorite :Icons.favorite_border,
+                                                    color: Color(0xffffffff),
+                                                  ),
+                                                  iconSize: 22,
+                                                  color: Colors.blueGrey,
+                                                );
+                                              }
+                                              if(snapshot.hasError){
+                                                return IconButton(
+                                                  onPressed: () async {
+                                                    snapshot.data?
+                                                    BlocProvider.of<FavoriteCubit>(context)
+                                                        .deleteFromFavoriteSubmitted(places[index].placeId)
+                                                        :BlocProvider.of<FavoriteCubit>(context)
+                                                        .addToFavoriteSubmitted (places[index].placeId);
+                                                  },
+                                                  icon: Icon(
+                                                    snapshot.data?
+                                                    Icons.favorite :Icons.favorite_border,
+                                                    color: Color(0xffd2d2d2),
+                                                  ),
+                                                  iconSize: 22,
+                                                  color: Colors.blueGrey,
+                                                );
+                                              }
+                                              else{
+                                                return CircularProgressIndicator();
+                                              }
+                                            }
+                                        )),
+                                  );
                                 }, listener: (context, state) {
-                              if (state is SaveToFavoriteError) {
+                              if (state is FavoriteError) {
                                 if (state.error!=null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -227,7 +261,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                           content: Text(state.error)));
                                 }
                               }
-                              if (state is SaveToFavoriteLoaded) {
+                              if (state is FavoriteLoaded) {
                                 if (state.message!=null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
@@ -324,18 +358,19 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                               EdgeInsets.only(left: 5, right: 5),
                                           child: Row(
                                             children: [
-                                              Text('Open Now: ',style: TextStyle(fontSize: 15,)),
+                                              Text(AppLocalizations.of(context).detailedOpenText,
+                                                  style: TextStyle(fontSize: 15,)),
                                               Text(
-                                                'Open',
+                                                AppLocalizations.of(context).detailedOpenStatus1,
                                                 style: TextStyle(
                                                     color: Color(0xff4a6540),
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.bold),
                                               ),
                                               if (places[index].openingHours != null)
-                                                Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
+                                                Text(AppLocalizations.of(context).detailedClosesInText,style: TextStyle(fontSize: 15,)),
                                               if (places[index].openingHours != null)
-                                                places[index].openingHours != 'Open 24 hours'
+                                                places[index].openingHours != AppLocalizations.of(context).detailedClosesInStatus1
                                                     ? Text(
                                                   places[index].openingHours
                                                       .substring(0, 2) +
@@ -368,18 +403,18 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Row(
                                   children: [
-                                    Text('Open Now: ',style: TextStyle(fontSize: 15,),),
+                                    Text(AppLocalizations.of(context).detailedOpenText,style: TextStyle(fontSize: 15,),),
                                     Text(
-                                      'Closed',
+                                      AppLocalizations.of(context).detailedOpenStatus2,
                                       style: TextStyle(
                                           color: Color(0xffa73636),
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     if (places[index].openingHours != null)
-                                      Text(' | Opens In: '),
+                                      Text(AppLocalizations.of(context).detailedOpensInText),
                                     if (places[index].openingHours != null)
-                                      places[index].openingHours != 'Open 24 hours'
+                                      places[index].openingHours != AppLocalizations.of(context).detailedClosesInStatus1
                                           ? Text(
                                         places[index].openingHours
                                             .substring(0, 2) +
@@ -416,7 +451,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                       Border.all(color: Color(0xffdbdbdb))),
                                   height: 30,
                                   padding: EdgeInsets.all(5),
-                                  child: Text("Price Level: " +
+                                  child: Text(AppLocalizations.of(context).detailedPriceLevelText +
                                       places[index]
                                           .priceLevel
                                           .characters

@@ -55,6 +55,8 @@ class HomeDataRepository {
             latitude: result.result.geometry.location.lat,
             longitude: result.result.geometry.location.lng,
             photos: photos,
+            website: result.result.website,
+            internationalPhoneNumber: result.result.internationalPhoneNumber,
             placeId: result.result.placeId,
             priceLevel: result.result.priceLevel.toString(),
             rating: result.result.rating,
@@ -86,13 +88,13 @@ class HomeDataRepository {
                                                 ? result
                                                     .result
                                                     .openingHours
-                                                    .periods[weekday.weekday]
+                                                    .periods[weekday.weekday-1]
                                                     .close
                                                     .time
                                                 : result
                                                     .result
                                                     .openingHours
-                                                    .periods[weekday.weekday]
+                                                    .periods[weekday.weekday-1]
                                                     .open
                                                     .time
                                         : null
@@ -156,13 +158,16 @@ class HomeDataRepository {
       {bool isNearest, bool isRecentlyViewed, bool isFavorite}) async {
     await _photosRepository.deleteSelectedPhotos(place.placeId);
     var tempOutput = new List<String>.from(photosUrls,growable: true);
-    var firstImage = await NetworkAssetBundle(Uri.parse("")).load(tempOutput.first);
+    if (tempOutput.isNotEmpty) {
+      var firstImage = await NetworkAssetBundle(Uri.parse("")).load(
+          tempOutput.first);
 
-    await _photosRepository.insertPhoto(PhotosDbDetail(
-      placeId: place.placeId,
-      photo: firstImage.buffer.asUint8List(),
-    ));
-    tempOutput.removeAt(0);
+      await _photosRepository.insertPhoto(PhotosDbDetail(
+        placeId: place.placeId,
+        photo: firstImage.buffer.asUint8List(),
+      ));
+      tempOutput.removeAt(0);
+    }
 
     Future.wait(tempOutput
         .map((e) => NetworkAssetBundle(Uri.parse("")).load(e).then((value) {
@@ -219,8 +224,8 @@ class HomeDataRepository {
         result = await _places
             .searchNearbyWithRankBy(location, 'distance',
                 type: "lodging",
-                minprice: getPriceLevel(searchFilterModel.minprice),
-                maxprice: getPriceLevel(searchFilterModel.maxprice),
+                minprice: getPriceLevel(searchFilterModel.minPrice),
+                maxprice: getPriceLevel(searchFilterModel.maxPrice),
                 language: defaultLocale,
                 keyword: searchFilterModel.keyword)
             .timeout(
@@ -233,8 +238,8 @@ class HomeDataRepository {
             result = await _places
                 .searchByText(
                   textFieldText,
-                  minprice: getPriceLevel(searchFilterModel.minprice),
-                  maxprice: getPriceLevel(searchFilterModel.maxprice),
+                  minprice: getPriceLevel(searchFilterModel.minPrice),
+                  maxprice: getPriceLevel(searchFilterModel.maxPrice),
                   radius: searchFilterModel.radius,
                   type: "lodging",
                   language: defaultLocale,
@@ -254,8 +259,8 @@ class HomeDataRepository {
             result = await _places
                 .searchNearbyWithRadius(location, searchFilterModel.radius,
                     type: "lodging",
-                    minprice: getPriceLevel(searchFilterModel.minprice),
-                    maxprice: getPriceLevel(searchFilterModel.maxprice),
+                    minprice: getPriceLevel(searchFilterModel.minPrice),
+                    maxprice: getPriceLevel(searchFilterModel.maxPrice),
                     language: defaultLocale,
                     keyword: searchFilterModel.keyword)
                 .timeout(

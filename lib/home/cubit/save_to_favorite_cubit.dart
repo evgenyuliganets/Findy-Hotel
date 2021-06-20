@@ -2,77 +2,81 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:find_hotel/database/places/places_repository.dart';
-import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:meta/meta.dart';
-import 'package:rxdart/rxdart.dart';
 
 part 'save_to_favorite_state.dart';
 
-class SaveToFavoriteCubit extends Cubit<SaveToFavoriteState> {
+class FavoriteCubit extends Cubit<FavoriteState> {
   final HomeDataRepository homeRepo;
   final placesRepo = PlacesRepository();
 
-  SaveToFavoriteCubit(this.homeRepo) : super(SaveToFavoriteInitial());
+  FavoriteCubit(this.homeRepo) : super(FavoriteInitial());
 
   Future<void> addToFavoriteSubmitted(String placeId) async {
     try {
-      emit(SaveToFavoriteLoading());
+      emit(FavoriteLoading());
       var place = await homeRepo
           .fetchDetailedPlaceFromNetwork(placeId, saveToFavorite: true)
           .timeout(Duration(seconds: 7));
+      print(1);
       if (place.placeId != null) {
-        var ifExist = await placesRepo.checkIfExist(place.placeId);
+        print(2);
+        var ifExist = await placesRepo.checkIfExistInFavorite(place.placeId);
         if (ifExist) {
-          emit(SaveToFavoriteLoaded(
+          print(3);
+          emit(FavoriteLoaded(
               message: "Successfully saved to favorite", ifExist: ifExist));
         }
         else {
-          emit(SaveToFavoriteLoaded(
+          print(4);
+          emit(FavoriteLoaded(
               message: "Cannot save to favorite", ifExist: ifExist));
         }
       }
       else{
-        emit(SaveToFavoriteLoaded(
+        print(5);
+        emit(FavoriteLoaded(
             message: "Cannot save to favorite", ifExist: false));
       }
     } on TimeoutException {
-      emit(SaveToFavoriteError("No Internet Connection"));
+      emit(FavoriteError("No Internet Connection"));
     }
     on Error {
-      emit(SaveToFavoriteError(
+      print(5);
+      emit(FavoriteError(
           "Something went wrong while adding place in favorite"));
     }
   }
 
   Future<void> deleteFromFavoriteSubmitted(String placeId) async {
     try {
-      emit(SaveToFavoriteLoading());
+      emit(FavoriteLoading());
         await placesRepo.deletePlace(placeId);
-        var ifExist = await placesRepo.checkIfExist(placeId);
+        var ifExist = await placesRepo.checkIfExistInFavorite(placeId);
         if (ifExist) {
-          emit(SaveToFavoriteLoaded(
-              message: "Successfully saved to favorite", ifExist: ifExist));
+          emit(FavoriteLoaded(
+              message: "Successfully deleted from favorite", ifExist: ifExist));
         }
         else {
-          emit(SaveToFavoriteLoaded(
-              message: "Successfully deleted from favorite", ifExist: ifExist));
+          emit(FavoriteLoaded(
+              message: "This place not exist in favorite", ifExist: ifExist));
         }
     }
     on Error {
-      emit(SaveToFavoriteError(
+      emit(FavoriteError(
           "Something went wrong while deleting place from favorite"));
     }
   }
 
 
-  Future checkIfExistInFavorite(String placeId) async {
+   checkIfExistInFavorite(String placeId) async {
     try {
-      emit(SaveToFavoriteLoading());
-      var ifExist = await placesRepo.checkIfExist(placeId);
-      emit(SaveToFavoriteLoaded(ifExist: ifExist));
+      emit(FavoriteLoading());
+      var ifExist = await placesRepo.checkIfExistInFavorite(placeId);
+      emit(FavoriteLoaded(ifExist: ifExist));
     } on Error {
-      emit(SaveToFavoriteError(
+      emit(FavoriteError(
           "Something went wrong while checking if place exist in favorite"));
     }
   }

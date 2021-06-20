@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -154,7 +155,7 @@ class _HomePageState extends State<HomePage> {
                             height: 10,
                           ),
                           Text(
-                            'Sorry, your places was not found!',
+                            AppLocalizations.of(context).homeMainError,
                             style: TextStyle(
                                 color: Color(0xff616161), fontSize: 20),
                           )
@@ -186,7 +187,7 @@ class _HomePageState extends State<HomePage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('By Place'),
+              Text(AppLocalizations.of(context).homeByPlace),
               Container(
                 height: 37,
                 width:60,
@@ -199,7 +200,7 @@ class _HomePageState extends State<HomePage> {
                       });
                     }),
               ),
-              Text('By Name'),
+              Text(AppLocalizations.of(context).homeByName),
               Spacer(),
               Ink(
                   height: 38,

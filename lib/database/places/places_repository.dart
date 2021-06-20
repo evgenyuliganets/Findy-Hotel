@@ -23,4 +23,6 @@ class PlacesRepository {
   Future getPlace(String placeId) => placesDao.getPlace(placeId);
 
   Future checkIfExist(String placeId) => placesDao.checkIfExist(placeId);
+
+  Future checkIfExistInFavorite(String placeId) => placesDao.checkIfExistInFavorite(placeId);
 }

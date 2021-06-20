@@ -6,6 +6,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 
 class HomeTextField extends StatefulWidget{
@@ -67,7 +69,7 @@ class _HomeTextFieldState extends State<HomeTextField> {
                     }
                     else print (null);
                   },
-                  decoration: InputDecoration(hintText: 'Search'),
+                  decoration: InputDecoration(hintText: AppLocalizations.of(context).homeSearch),
                   controller: controller,
                   readOnly: !widget.checkMainSearchMode,
                 )),
@@ -141,7 +143,7 @@ class _HomeTextFieldState extends State<HomeTextField> {
         filters: filters,
       );
     } catch (e) {
-      print('MY'+e);
+      print('MY '+e);
       return null;
     }
   }

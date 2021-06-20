@@ -5,7 +5,10 @@ import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class DetailedPlace extends StatefulWidget {
  final  String placeId;
@@ -83,7 +86,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
       shadowColor: Color(0xff636e86),
       backgroundColor: Color(0xff636e86),
       expandedHeight: 50,
-      title: Text('Detailed info',style: TextStyle(fontSize: 25),),
+      title: Text(AppLocalizations.of(context).detailedHeader,style: TextStyle(fontSize: 25),),
     );
   }
 
@@ -171,7 +174,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               height: 10,
                             ),
                             Text(
-                              'Sorry, your place was not found!',
+                              AppLocalizations.of(context).detailedError,
                               style: TextStyle(color: Color(0xff616161), fontSize: 20),
                             )
                           ]),
@@ -184,7 +187,6 @@ class _DetailedPlaceState extends State<DetailedPlace> {
 
 
   SliverToBoxAdapter buildPlaceDetail(PlacesDetail place, String googleApiKey) {
-    print(place.photos.toString()+'PHOTO LENGTH');
     return SliverToBoxAdapter(
       child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         place.photos.length!=0
@@ -257,7 +259,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       }),
                     ),
                     Text(
-                      ' No Rating',
+                      AppLocalizations.of(context).detailedRatingError,
                       style: TextStyle(fontSize: 18),
                     ),
                   ],
@@ -361,18 +363,18 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Row(
                                   children: [
-                                    Text('Open Now: ',style: TextStyle(fontSize: 15,)),
+                                    Text(AppLocalizations.of(context).detailedOpenText,style: TextStyle(fontSize: 15,)),
                                     Text(
-                                      'Open',
+                                      AppLocalizations.of(context).detailedOpenStatus1,
                                       style: TextStyle(
                                           color: Color(0xff4a6540),
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     if (place.openingHours != null)
-                                      Text(' | Closes In: ',style: TextStyle(fontSize: 15,)),
+                                      Text(AppLocalizations.of(context).detailedClosesInText,style: TextStyle(fontSize: 15,)),
                                     if (place.openingHours != null)
-                                      place.openingHours != 'Open 24 hours'
+                                      place.openingHours != AppLocalizations.of(context).detailedClosesInStatus1
                                           ? Text(
                                               place.openingHours
                                                       .substring(0, 2) +
@@ -406,18 +408,18 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Row(
                                   children: [
-                                    Text('Open Now: ',style: TextStyle(fontSize: 15,),),
+                                    Text(AppLocalizations.of(context).detailedOpenText,style: TextStyle(fontSize: 15,),),
                                     Text(
-                                      'Closed',
+                                      AppLocalizations.of(context).detailedOpenStatus2,
                                       style: TextStyle(
                                           color: Color(0xffa73636),
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold),
                                     ),
                                     if (place.openingHours != null)
-                                      Text(' | Opens In: '),
+                                      Text(AppLocalizations.of(context).detailedOpensInText),
                                     if (place.openingHours != null)
-                                      place.openingHours != 'Open 24 hours'
+                                      place.openingHours != AppLocalizations.of(context).detailedClosesInStatus1
                                           ? Text(
                                               place.openingHours
                                                       .substring(0, 2) +
@@ -448,7 +450,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                             height: 30,
                             margin: EdgeInsets.only(bottom:5),
                             padding: EdgeInsets.only(left: 5, right: 5,top:5,bottom: 5,),
-                            child: Text("Price Level: " +
+                            child: Text(AppLocalizations.of(context).detailedPriceLevelText +
                                 place.priceLevel.characters
                                     .toString()
                                     .substring(11,
@@ -466,9 +468,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                 ? Container(
                     padding: EdgeInsets.only(left: 5, top: 5),
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Full Address: ",
-                      style: TextStyle(fontSize: 17),
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_city,color: Colors.blueGrey,),
+                        Text(
+                          AppLocalizations.of(context).detailedAddressText,
+                          style: TextStyle(fontSize: 17,color: Color(0xff5a5a5a)),
+                        ),
+                      ],
                     ))
                 : SizedBox.shrink(),
             if (place.vicinity.isNotEmpty || place.formattedAddress.isNotEmpty)
@@ -481,14 +488,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                         maxLines: 2,
                         text: TextSpan(
                             style:
-                                TextStyle(color: Color(0xff5a5a5a), fontSize: 15),
+                                TextStyle(color: Color(0xff212121), fontSize: 15),
                             text: place.formattedAddress))
                     : RichText(
                         overflow: TextOverflow.ellipsis,
                         maxLines: 2,
                         text: TextSpan(
                             style:
-                                TextStyle(color: Color(0xff5a5a5a), fontSize: 15),
+                                TextStyle(color: Color(0xff212121), fontSize: 15),
                             text: place.vicinity)),
               ),
             if (place.internationalPhoneNumber != null ||
@@ -501,9 +508,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                 ? Container(
                     padding: EdgeInsets.only(left: 5, top: 5),
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Phone Number: ",
-                      style: TextStyle(fontSize: 15),
+                    child: Row(
+                      children: [
+                        Icon(Icons.phone,color: Colors.green,),
+                        Text(
+                          AppLocalizations.of(context).detailedPhoneText,
+                          style: TextStyle(fontSize: 15,color: Color(0xff5a5a5a)),
+                        ),
+                      ],
                     ))
                 : SizedBox.shrink(),
             if (place.internationalPhoneNumber != null ||
@@ -518,14 +530,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 2,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff5a5a5a), fontSize: 15),
+                                      color: Color(0xff212121), fontSize: 15),
                                   text: place.internationalPhoneNumber)),
                           onLongPress: () {
                             Clipboard.setData(new ClipboardData(
                                 text: place.internationalPhoneNumber));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(new SnackBar(
-                              content: new Text("Copied to Clipboard"),
+                              content: new Text(AppLocalizations.of(context).detailedCopiedToClipboard),
                               duration: Duration(seconds: 2),
                             ));
                           },
@@ -536,14 +548,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 2,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff5a5a5a), fontSize: 15),
+                                      color: Color(0xff212121), fontSize: 15),
                                   text: place.formattedPhoneNumber)),
                           onLongPress: () {
                             Clipboard.setData(new ClipboardData(
                                 text: place.formattedPhoneNumber));
                             ScaffoldMessenger.of(context)
                                 .showSnackBar(new SnackBar(
-                              content: new Text("Copied to Clipboard"),
+                              content: new Text(AppLocalizations.of(context).detailedCopiedToClipboard),
                               duration: Duration(seconds: 2),
                             ));
                           },
@@ -556,9 +568,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                 ? Container(
                     padding: EdgeInsets.only(left: 5, top: 5),
                     alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Website: ",
-                      style: TextStyle(fontSize: 17),
+                    child: Row(
+                      children: [
+                        Icon(Icons.web_sharp,color: Colors.blueAccent,),
+                        Text(
+                          AppLocalizations.of(context).detailedWebsiteText,
+                          style: TextStyle(fontSize: 17,color: Color(0xff5a5a5a)),
+                        ),
+                      ],
                     ))
                 : SizedBox.shrink(),
             if (place.website!=null)
@@ -571,7 +588,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                               maxLines: 1,
                               text: TextSpan(
                                   style: TextStyle(
-                                      color: Color(0xff131313), fontSize: 18),
+                                      color: Color(0xff0354fa), fontSize: 15),
                                   text: place.website)),
                           onTap: () {
                             launch(place.website);
@@ -586,9 +603,14 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               ? Container(
               padding: EdgeInsets.only(left: 5, top: 5),
               alignment: Alignment.centerLeft,
-              child: Text(
-                "UTC: ",
-                style: TextStyle(fontSize: 17),
+              child: Row(
+                children: [
+                  Icon(Icons.av_timer,color: Colors.deepPurple,),
+                  Text(
+                    AppLocalizations.of(context).detailedUtcText,
+                    style: TextStyle(fontSize: 17),
+                  ),
+                ],
               ))
               : SizedBox.shrink(),
         if (place.utcOffset != null)
@@ -601,9 +623,38 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                   text: TextSpan(
                       style: TextStyle(
                           color: Color(0xff5a5a5a), fontSize: 15),
-                      text: (place.utcOffset<0?"":"+")+(place.utcOffset/60).round().toString()+' hours From UTC')),
+                      text: (place.utcOffset<0?"":"+")+(place.utcOffset/60).round().toString()+AppLocalizations.of(context).detailedHoursUtsText)),
 
             ),
+              if (place.longitude != null)
+                Container(
+                  margin: EdgeInsets.only(top: 10, bottom: 10,right: 5,left: 5),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Color(0x70A5A5A5)),
+                    borderRadius: BorderRadius.all(Radius.circular(10),),
+                    color: Color(0x70d9e0f0),
+                  ),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding:
+                        EdgeInsets.only( bottom: 5, top: 5),
+                        child: Row(
+                          children: [
+                            Icon(Icons.map,color: Color(0xff3c5336),),
+                            Text(
+                              AppLocalizations.of(context).detailedOnMap,
+                              style: TextStyle(fontSize: 17,color: Color(0xff5a5a5a)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      buildMap(place),
+                    ],
+                  ),
+                )
+
     ]),
           )],
       ),
@@ -625,7 +676,6 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       onTap: () {
                         showDialog(
                           barrierDismissible: true,
-                          barrierLabel: 'Photo',
                           barrierColor: Color(0x75393939),
                           context: context,
                           builder: (BuildContext context) {
@@ -711,6 +761,27 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               ),
             ))
         .toList();
+  }
+  Widget buildMap(PlacesDetail place) {
+    var markers = List<Marker>();
+    markers.add(Marker(markerId: MarkerId('1'),
+        position: LatLng(place.latitude ?? 0, place.longitude ?? 0),
+        infoWindow: InfoWindow(
+          title: place.name,
+          snippet: place.formattedAddress ?? place.vicinity,
+        )));
+        return Container(
+                height: 400,
+                child: GoogleMap(
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: true,
+                  markers: Set<Marker>.of(markers),
+                  initialCameraPosition: CameraPosition(
+                      target: LatLng(markers.first.position.latitude,
+                          markers.first.position.longitude),
+                      zoom: 14),
+                ),
+              );
   }
 
 }

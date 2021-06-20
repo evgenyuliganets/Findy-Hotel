@@ -92,6 +92,7 @@ class PlacesDao {
           internationalPhoneNumber:res[j].values.elementAt(19),
         );
         j++;});
+      print(list);
       return list;
     }
     else return List<PlacesDbDetail>.empty(growable: true);
@@ -178,6 +179,15 @@ class PlacesDao {
     final db = await dbProvider.database;
 
     var queryResult = await db.rawQuery('SELECT * FROM Places WHERE placeId="$placeId"');
+    if (queryResult.isNotEmpty)
+      return true;
+    else
+      return false;
+  }
+  Future<bool> checkIfExistInFavorite(String placeId) async {
+    final db = await dbProvider.database;
+
+    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE placeId="$placeId" AND isFavorite="true"');
     if (queryResult.isNotEmpty)
       return true;
     else

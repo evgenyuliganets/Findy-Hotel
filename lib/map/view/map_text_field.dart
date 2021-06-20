@@ -1,4 +1,3 @@
-import 'package:find_hotel/home/bloc/home_bloc.dart';
 import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:find_hotel/home/view/filters.dart';
 import 'package:find_hotel/map/bloc/map_bloc.dart';

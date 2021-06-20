@@ -6,8 +6,9 @@ import 'package:find_hotel/home/view/home_page.dart';
 import 'package:find_hotel/map/bloc/map_bloc.dart';
 import 'package:find_hotel/map/view/map_page.dart';
 import 'package:find_hotel/map/repository/map_data.dart';
-import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
+import 'package:find_hotel/profile/favorite_bloc/favorite_bloc.dart';
+import 'package:find_hotel/profile/recently_viewed_bloc/recently_viewed_bloc.dart';
 import 'package:find_hotel/profile/view/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -28,13 +29,16 @@ class MainNavbar extends StatelessWidget {
        create: (context) => MapBloc(MapRepository()),
      ),
      BlocProvider(
-       create: (context) => SaveToFavoriteCubit(HomeDataRepository()),
+       create: (context) => FavoriteCubit(HomeDataRepository()),
      ),
      BlocProvider(
        create: (context) => HomeBloc(HomeDataRepository()),
      ),
      BlocProvider(
-       create: (context) => ProfileBloc(ProfileRepository()),
+       create: (context) => FavoriteBloc(ProfileRepository()),
+     ),
+     BlocProvider(
+       create: (context) => RecentlyViewedBloc(ProfileRepository()),
      ),
    ],
       child:Scaffold(

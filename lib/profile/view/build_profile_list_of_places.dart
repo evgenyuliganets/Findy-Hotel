@@ -12,6 +12,7 @@ ListView buildProfileListOfPlaces(List<PlacesDetail> places) {
     itemCount: places.length,
       itemBuilder: (BuildContext context, int index) {
        return SingleChildScrollView(
+         physics: NeverScrollableScrollPhysics(),
          child: Container(
            width: 300,
            height: 480,

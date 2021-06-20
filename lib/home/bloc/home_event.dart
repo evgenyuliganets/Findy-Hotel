@@ -15,9 +15,10 @@ class GetPlaces extends HomeEvent {
 }
 
 class GetUserPlaces extends HomeEvent {
+  final String textFieldText;
   final bool mainSearchMode;
   final SearchFilterModel filters;
-  GetUserPlaces({this.mainSearchMode,this.filters});
+  GetUserPlaces({this.mainSearchMode,this.filters,this.textFieldText, });
 }
 
 class GetDetailedPlace extends HomeEvent {

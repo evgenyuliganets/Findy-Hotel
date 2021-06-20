@@ -3,8 +3,9 @@ import 'package:find_hotel/database/authentication/users_repository.dart';
 import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/login/view/login_page.dart';
-import 'package:find_hotel/profile/bloc/profile_bloc.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
+import 'package:find_hotel/profile/favorite_bloc/favorite_bloc.dart';
+import 'package:find_hotel/profile/recently_viewed_bloc/recently_viewed_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,20 +40,53 @@ class _ProfilePage extends State<ProfilePage> {
             )),
             SliverToBoxAdapter(
               child: Container(
-                 child: Text('Recently Viewed Places',style: TextStyle(fontSize: 20),),
-            ),),
-            SliverToBoxAdapter(
-              child: Container(
-                  height: 480, child: buildBlocList('Recently Viewed Places')),
-            ),
+                margin: EdgeInsets.only(top: 10, bottom: 10,right: 5,left: 5),
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0x70A5A5A5)),
+                  borderRadius: BorderRadius.all(Radius.circular(10),),
+                  color: Color(0x70d9e0f0),
+                ),
+                height: 520,
+                child: Column(
+                  children: [
+                    Container(
+                      padding:
+                      EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
+                      child: Text(
+                        'Recently Viewed Places',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                 buildRecentlyViewed('Recently Viewed Places'),
+                  ],
+                ),
+              ),),
           SliverToBoxAdapter(
               child: Container(
-                child: Text('Favorite Places',style: TextStyle(fontSize: 20),),
-              ),),
-            SliverToBoxAdapter(
-              child: Container(
-                  height: 480, child: buildBlocList('Favorite Places')),
-            )
+                margin: EdgeInsets.only(top: 10, bottom: 10,right: 5,left: 5),
+                decoration: BoxDecoration(
+                  shape: BoxShape.rectangle,
+                  border: Border.all(color: Color(0x70A5A5A5)),
+                  borderRadius: BorderRadius.all(Radius.circular(10),),
+                  color: Color(0x70d9e0f0),
+                ),
+                height: 520,
+                child: Column(
+                  children: [
+                    Container(
+                      padding:
+                      EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
+                      child: Text(
+                        'Favorite Places',
+                        style: TextStyle(fontSize: 20),
+                      ),
+                    ),
+                    buildFavorite('Favorite Places'),
+                  ],
+                ),
+              ),
+          ),
           ]));
     })));
   }
@@ -73,42 +107,67 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget buildInitialStart() {
-    final profileBloc = context.read<ProfileBloc>();
-    profileBloc.add(GetRecentlyViewedPlaces());
-    void dispose() {
-      profileBloc.close();
-    }
-
-    return Center(
-      child: CircularProgressIndicator(),
-    );
+  Widget buildRecentlyViewed(String listToBuild) {
+    final recentBloc = context.read<RecentlyViewedBloc>();
+      print("first");
+       recentBloc.add(GetRecentlyViewedPlaces());
+      return Container(
+        padding: EdgeInsets.only(left: 2,top:5),
+        child: BlocConsumer<RecentlyViewedBloc, RecentlyViewedState>(
+          builder: (context, state) {
+            if (state is RecentlyViewedLoading)
+              return buildLoadingState();
+            else if (state is RecentlyViewedLoaded)
+              return buildList(state.places);
+            else if (state is RecentlyViewedError)
+              return buildErrorState(listToBuild);
+            else
+              return buildLoadingState();
+          },
+          listener: (context, state) {
+            if (state is RecentlyViewedError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  duration: const Duration(seconds: 1),
+                  content: Text(state.error),
+                ),
+              );
+            }
+            if (state is RecentlyViewedLoaded) {
+              if (state.message != null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 1),
+                    content: Text(state.message),
+                    backgroundColor: Color(0xff779a76),
+                  ),
+                );
+              }
+            }
+          },
+        ),
+      );
   }
 
-  Widget buildBlocList(String listToBuild) {
-    final profileBloc = context.read<ProfileBloc>();
-    if (listToBuild == 'Recently Viewed Places') {
-      print(true);
-      profileBloc.add(GetRecentlyViewedPlaces());
-    } else {
-      print(false);
+  Widget buildFavorite(String listToBuild) {
+    print("second");
+    final profileBloc = context.read<FavoriteBloc>();
       profileBloc.add(GetFavoritePlaces());
-    }
     return Container(
-      padding: EdgeInsets.only(left: 20),
-      child: BlocConsumer<ProfileBloc, ProfileState>(
+      padding: EdgeInsets.only(left: 2,top:5),
+      child: BlocConsumer<FavoriteBloc, FavoriteState>(
         builder: (context, state) {
-          if (state is ProfileLoading)
+          if (state is FavoriteLoading)
             return buildLoadingState();
-          else if (state is ProfileLoaded)
+          else if (state is FavoriteLoaded)
             return buildList(state.places);
-          else if (state is ProfileError)
-            return buildErrorState();
+          else if (state is FavoriteError)
+            return buildErrorState(listToBuild);
           else
             return buildLoadingState();
         },
         listener: (context, state) {
-          if (state is ProfileError) {
+          if (state is FavoriteError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 duration: const Duration(seconds: 1),
@@ -116,7 +175,7 @@ class _ProfilePage extends State<ProfilePage> {
               ),
             );
           }
-          if (state is ProfileLoaded) {
+          if (state is FavoriteLoaded) {
             if (state.message != null) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -178,7 +237,8 @@ class _ProfilePage extends State<ProfilePage> {
     return Container(
       padding: EdgeInsets.only(right: 20),
       child: OutlinedButton(
-        child: Text(AppLocalizations.of(context).logout),
+        child: Text(AppLocalizations.of(context).logout,style: TextStyle(color: Colors.black87),),
+        style: ButtonStyle(),
         onPressed: () {
           _showDialog();
         },
@@ -223,7 +283,7 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget buildErrorState() {
+  Widget buildErrorState(text) {
     return Container(
         child: Center(
       child: Column(
@@ -240,9 +300,10 @@ class _ProfilePage extends State<ProfilePage> {
             Container(
               height: 10,
             ),
-            Text(
-              AppLocalizations.of(context).profileError,
-              style: TextStyle(color: Color(0xff616161), fontSize: 20),
+            Text(text == 'Recently Viewed Places'
+                ?AppLocalizations.of(context).profileError
+                : "Sorry, your favorite places not found, try add some",
+                style: TextStyle(color: Color(0xff616161), fontSize: 20),
             )
           ])
         ],
