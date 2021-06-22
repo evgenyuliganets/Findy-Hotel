@@ -9,7 +9,6 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
-
 class HomeTextField extends StatefulWidget{
   final String apiKey;
   final String textFieldText;

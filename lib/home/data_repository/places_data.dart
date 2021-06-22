@@ -1,9 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:find_hotel/database/photos/photos_db_model.dart';
 import 'package:find_hotel/database/photos/photos_repository.dart';
 import 'package:find_hotel/database/places/places_db_model.dart';
@@ -152,7 +149,6 @@ class HomeDataRepository {
           isRecentlyViewed: isRecentlyViewed,
           isFavorite: isFavorite));
   }
-
   Future<PlacesDbDetail> parsePlaceForDatabase(
       PlacesDetail place, List<String> photosUrls,
       {bool isNearest, bool isRecentlyViewed, bool isFavorite}) async {
@@ -168,7 +164,10 @@ class HomeDataRepository {
       ));
       tempOutput.removeAt(0);
     }
-
+    var isisRecentlyViewedTemp= await _placesRepository.checkIfExistInRecent(place.placeId);
+    var isFavoriteTemp= await _placesRepository.checkIfExistInFavorite(place.placeId);
+    isRecentlyViewed= isisRecentlyViewedTemp==true?isisRecentlyViewedTemp:isRecentlyViewed;
+    isFavorite= isFavoriteTemp==true?isFavoriteTemp:isFavorite;
     Future.wait(tempOutput
         .map((e) => NetworkAssetBundle(Uri.parse("")).load(e).then((value) {
               print('$e PHOTO');
@@ -445,6 +444,8 @@ class HomeDataRepository {
           openNow: placeDatabase.openNow == null
               ? "null"
               : placeDatabase.openNow.toString(),
+          latitude: placeDatabase.latitude,
+          longitude: placeDatabase.longitude,
           photos: listImages,
           placeId: placeDatabase.placeId,
           priceLevel: placeDatabase.priceLevel.toString(),
@@ -455,6 +456,8 @@ class HomeDataRepository {
           utcOffset: placeDatabase.utcOffset,
           formattedPhoneNumber: placeDatabase.formattedPhoneNumber,
           openingHours: placeDatabase.openingHours,
+          website:placeDatabase.website,
+          internationalPhoneNumber:placeDatabase.internationalPhoneNumber,
         );
         return place;
       }
@@ -502,6 +505,7 @@ class HomeDataRepository {
         break;
     }
   }
+
 }
 
 class PlacesNotFoundException implements Exception {

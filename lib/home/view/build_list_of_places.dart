@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'detail_place_page.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
@@ -17,6 +18,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
     (context, index) {
       return GestureDetector(
           onTap: () {
+            ScaffoldMessenger.of(context).removeCurrentSnackBar();
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -91,7 +93,9 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                           ),
                           Spacer(),
                           Container(
-                            child: BlocConsumer<FavoriteCubit, FavoriteState>(
+                            child: BlocProvider(
+                              create: (context) => FavoriteCubit(HomeDataRepository()),
+                              child: BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
                                   if (state is FavoriteLoading) {
                                     return Center(
@@ -169,6 +173,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                 }
                               }
                             }),
+),
                           ),
                         ],
                       )
@@ -192,7 +197,9 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                               style: TextStyle(color: Colors.black54)),
                           Spacer(),
                           Container(
-                            child: BlocConsumer<FavoriteCubit, FavoriteState>(
+                            child: BlocProvider(
+                              create: (context) => FavoriteCubit(HomeDataRepository()),
+                              child:BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
                                   if (state is FavoriteLoading) {
                                     return Center(
@@ -270,6 +277,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                 }
                               }
                             }),
+),
                           ),
                         ],
                       ),
@@ -452,7 +460,7 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                   height: 30,
                                   padding: EdgeInsets.all(5),
                                   child: Text(AppLocalizations.of(context).detailedPriceLevelText +
-                                      places[index]
+                                      transformPriceLevel(places[index]
                                           .priceLevel
                                           .characters
                                           .toString()
@@ -461,7 +469,9 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                           places[index]
                                               .priceLevel
                                               .characters
-                                              .length))),
+                                              .length),context)
+
+                                  )),
                                 ],
                               )
                               : SizedBox.shrink(),
@@ -474,4 +484,27 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
     },
     childCount: places.length,
   ));
+}
+
+String transformPriceLevel(String input, BuildContext context) {
+  switch (input) {
+    case "free":
+      return AppLocalizations.of(context).searchFilterPriceLevel1;
+      break;
+    case "inexpensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel2;
+      break;
+    case "moderate":
+      return AppLocalizations.of(context).searchFilterPriceLevel3;
+      break;
+    case "expensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel4;
+      break;
+    case "veryExpensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel5;
+      break;
+    default:
+      return null;
+      break;
+  }
 }

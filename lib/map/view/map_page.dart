@@ -1,3 +1,4 @@
+import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart' as Home;
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
@@ -8,6 +9,7 @@ import 'package:find_hotel/map/view/map_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MapPage extends StatefulWidget {
   @override
@@ -89,6 +91,10 @@ class _MapPageState extends State<MapPage> {
     });
     return LayoutBuilder(
       builder: (context, constrains) {
+        final mapBloc = context.read<MapBloc>();
+        final homeBloc = context.read<Home.HomeBloc>();
+        final navBloc= context.read<BottomNavigationBloc>();
+        var lastEvent = BlocProvider.of<MapBloc>(context).lastMapEvent;
         return CustomScrollView(
             physics: NeverScrollableScrollPhysics(),
             slivers: [
@@ -96,37 +102,75 @@ class _MapPageState extends State<MapPage> {
                   textFieldText: textFieldText),
               SliverToBoxAdapter(
                   child: Container(
-                height: constrains.maxHeight - 100,
-                child: GoogleMap(
-                  onTap: (LatLng point) {
-                    print(point.toString() + " Map Clicked");
-                    final mapBloc = context.read<MapBloc>();
-                    var finalFilters = mapBloc.getFilterModel();
-                    mapBloc.add(GetPlacesOnMap(
-                        latlng: point,
-                        mainSearchMode: checkSearchMode,
-                        filters: finalFilters ?? SearchFilterModel()));
-                    void dispose() {
-                      mapBloc.close();
-                    }
-                  },
-                  myLocationEnabled: true,
-                  myLocationButtonEnabled: true,
-                  markers: Set<Marker>.of(markers),
-                  initialCameraPosition: CameraPosition(
-                      target: LatLng(markers.first.position.latitude,
-                          markers.first.position.longitude),
-                      zoom: markers.length > 20
-                          ? 5
-                          : markers.length >= 10
-                              ? 12
-                              : markers.length >= 5
-                                  ? 13
-                                  : markers.length < 5
-                                      ? 14
-                                      : null),
-                ),
-              )),
+                    height: constrains.maxHeight - 100,
+                    child: Stack(
+                      children: [
+                        GoogleMap(
+                              onTap: (LatLng point) {
+                                print(point.toString() + " Map Clicked");
+                                final mapBloc = context.read<MapBloc>();
+                                var finalFilters = mapBloc.getFilterModel();
+                                mapBloc.add(GetPlacesOnMap(
+                                    latlng: point,
+                                    mainSearchMode: checkSearchMode,
+                                    filters: finalFilters ?? SearchFilterModel()));
+                                void dispose() {
+                                  mapBloc.close();
+                                }
+                              },
+                              myLocationEnabled: true,
+                              myLocationButtonEnabled: true,
+                              markers: Set<Marker>.of(markers),
+                              initialCameraPosition: CameraPosition(
+                                  target: LatLng(markers.first.position.latitude,
+                                      markers.first.position.longitude),
+                                  zoom: markers.length > 20
+                                      ? 5
+                                      : markers.length >= 10
+                                          ? 12
+                                          : markers.length >= 5
+                                              ? 13
+                                              : markers.length < 5
+                                                  ? 14
+                                                  : null),
+                        ),
+                        Row(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10, top: 5),
+                              child: OutlinedButton(
+                                style: ButtonStyle(backgroundColor: MaterialStateColor.resolveWith((states) => Color(
+                                    0xbcffffff))),
+                                onPressed: (){
+                                  var finalFilters = mapBloc.getFilterModel();
+                                  var filters= finalFilters??SearchFilterModel();
+                                  homeBloc.setFiltersParameters(finalFilters??SearchFilterModel());
+                                if(lastEvent is GetPlacesOnMap){
+                                  homeBloc.add(Home.GetPlaces(latlng: lastEvent.latlng,
+                                      textFieldText: lastEvent.textFieldText,filters: filters,
+                                      mainSearchMode: lastEvent.mainSearchMode));
+                                  navBloc.add(PageTapped(index: 0));
+                                }
+                                if(lastEvent is GetMapUserPlaces){
+                                  homeBloc.add(Home.GetUserPlaces(filters: lastEvent.filters,
+                                      mainSearchMode: lastEvent.mainSearchMode));
+                                  navBloc.add(PageTapped(index: 0));
+                                }
+                              },
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.arrow_back_rounded, color: Color(
+                                        0xff475172),),
+                                    Text(AppLocalizations.of(context).mapResultsOnList,
+                                      style: TextStyle(color: Colors.black87),),
+                                  ],
+                                ),),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  )),
             ]);
       },
     );

@@ -221,10 +221,12 @@ class MapBloc extends Bloc<MapEvent, MapState> {
       }
     }
   }
+
   void setFiltersParameters(SearchFilterModel filterModel){
     this._filterModel=filterModel;
     print(this._filterModel.radius);
   }
+
   SearchFilterModel getFilterModel(){
     return this._filterModel;
   }

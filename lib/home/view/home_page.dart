@@ -1,11 +1,15 @@
+import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
+import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:find_hotel/home/view/build_list_of_places.dart';
 import 'package:find_hotel/home/view/text_field.dart';
+import 'package:find_hotel/map/bloc/map_bloc.dart' as MapBloc;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -30,7 +34,7 @@ class _HomePageState extends State<HomePage> {
           else if (state is HomeLoading)
             return buildLoadingState(state.googleApiKey,state.textFieldText,);
           else if (state is HomeLoaded)
-            return buildWidget(state.textFieldText,state.places,state.googleApiKey, context);
+            return buildWidget(state.textFieldText,state.places,state.googleApiKey, context, state.filters);
           else if (state is HomeError)
             return buildErrorState(apiKey:state.apiKey,textFieldText: state.textFieldText);
           else return null;
@@ -58,7 +62,8 @@ class _HomePageState extends State<HomePage> {
     ));
   }
 
-  Widget buildWidget(String textFieldText, List<PlacesDetail> places, String googleApiKey,BuildContext context) {
+  Widget buildWidget(String textFieldText, List<PlacesDetail> places,
+      String googleApiKey,BuildContext context,SearchFilterModel filters) {
 
      return RefreshIndicator(
        onRefresh: () async {
@@ -68,10 +73,52 @@ class _HomePageState extends State<HomePage> {
        child: CustomScrollView(
            slivers: [
          searchSliverAppBar(googleApiKey,context,textFieldText: textFieldText),
+             showOnMap(),
          buildListOfPlaces(textFieldText, places, googleApiKey, context)
        ]),
      );
   }
+
+   Widget showOnMap() {
+     final homeBloc = context.read<HomeBloc>();
+     final mapBloc = context.read<MapBloc.MapBloc>();
+     final navBloc= context.read<BottomNavigationBloc>();
+     var lastEvent = BlocProvider.of<HomeBloc>(context).lastHomeEvent;
+     return SliverToBoxAdapter(
+       child: Row(
+         children: [
+           Spacer(),
+           Padding(
+             padding: const EdgeInsets.only(right: 10),
+             child: OutlinedButton(onPressed: (){
+               if(lastEvent is GetPlaces){
+                 var finalFilters = homeBloc.getFilterModel();
+                 var filters= finalFilters??SearchFilterModel();
+                 mapBloc.setFiltersParameters(finalFilters??SearchFilterModel());
+                 mapBloc.add(MapBloc.GetPlacesOnMap(
+                     latlng: lastEvent.latlng,
+                     filters: filters,
+                     mainSearchMode: lastEvent.mainSearchMode));
+                 navBloc.add(PageTapped(index: 1));
+               }
+               if(lastEvent is GetUserPlaces){
+                 mapBloc.add(MapBloc.GetMapUserPlaces(filters: lastEvent.filters,
+                     mainSearchMode: lastEvent.mainSearchMode));
+                 navBloc.add(PageTapped(index: 1));
+               }
+             },
+               child: Row(
+                 children: [
+                   Text(AppLocalizations.of(context).homeResultsOnMap,
+                     style: TextStyle(color: Colors.black87),),
+                   Icon(Icons.arrow_forward, color: Color(0xff394768),)
+                 ],
+               ),),
+           ),
+         ],
+       ),
+     );
+   }
 
   Widget buildInitialStart(googleApiKey, textFieldText) {
     final homeBloc = context.read<HomeBloc>();

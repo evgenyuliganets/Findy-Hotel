@@ -24,6 +24,11 @@ class _FiltersWidgetState extends State<FiltersWidget> {
       AppLocalizations.of(context).searchFilterKeyword2,
       AppLocalizations.of(context).searchFilterKeyword3,
       AppLocalizations.of(context).searchFilterKeyword4,]);
+    final chipsMainValues = List<String>.of([
+      "restaurant",
+      "bar",
+      "spa",
+      "campground",]);
     final chipsValuesMinPrice = List<String>.of([
       AppLocalizations.of(context).searchFilterPriceLevel1,
       AppLocalizations.of(context).searchFilterPriceLevel2,
@@ -130,14 +135,14 @@ class _FiltersWidgetState extends State<FiltersWidget> {
                             onSelected: (bool selected) {
                               setState(() {
                                 if (selected) {
-                                  widget.filterModel.keyword = chipsValuesKeywords[index];
+                                  widget.filterModel.keyword = chipsMainValues[index];
 
                                 } else {
                                   widget.filterModel.keyword = null;
                                 }
                               });
                             },
-                            selected: widget.filterModel.keyword==(chipsValuesKeywords[index]),
+                            selected: widget.filterModel.keyword==(chipsMainValues[index]),
                             selectedColor: Color(0xff9baed5),
                           ),
                         );

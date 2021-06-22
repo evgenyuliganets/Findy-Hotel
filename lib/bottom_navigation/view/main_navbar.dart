@@ -29,9 +29,6 @@ class MainNavbar extends StatelessWidget {
        create: (context) => MapBloc(MapRepository()),
      ),
      BlocProvider(
-       create: (context) => FavoriteCubit(HomeDataRepository()),
-     ),
-     BlocProvider(
        create: (context) => HomeBloc(HomeDataRepository()),
      ),
      BlocProvider(
@@ -92,9 +89,11 @@ class MainNavbar extends StatelessWidget {
                   label: AppLocalizations.of(context).profileTab,
                 ),
               ],
-              onTap: (index) => context
+              onTap: (index){
+                ScaffoldMessenger.of(context).removeCurrentSnackBar();
+                context
                   .read<BottomNavigationBloc>()
-                  .add(PageTapped(index: index)),
+                  .add(PageTapped(index: index));}
             );
           }),
       )

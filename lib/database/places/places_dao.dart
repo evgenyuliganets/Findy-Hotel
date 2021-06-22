@@ -193,6 +193,15 @@ class PlacesDao {
     else
       return false;
   }
+  Future<bool> checkIfExistInRecent(String placeId) async {
+    final db = await dbProvider.database;
+
+    var queryResult = await db.rawQuery('SELECT * FROM Places WHERE placeId="$placeId" AND isRecentlyViewed="true"');
+    if (queryResult.isNotEmpty)
+      return true;
+    else
+      return false;
+  }
 
   Future deleteAllPlaces() async {
     final db = await dbProvider.database;

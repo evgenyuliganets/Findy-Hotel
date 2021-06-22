@@ -12,8 +12,7 @@ class GetPlacesOnMap extends MapEvent {
   final String textFieldText;
   final SearchFilterModel filters;
   final bool mainSearchMode;
-  final Marker marker;
-  GetPlacesOnMap({this.marker, this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
+  GetPlacesOnMap({ this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
 }
 class GetMapPlacesFromDB extends MapEvent {
 }

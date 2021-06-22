@@ -156,7 +156,12 @@
     "detailedOnMap": "On Map",
                                 "@detailedOnMap": {
                                              "description": ""},
-
+    "homeResultsOnMap": "Show results on Map ",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+    "mapResultsOnList": " Show results as list",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
     "mapTab": "Map",
         "@mapTab": {
                   "description": ""},

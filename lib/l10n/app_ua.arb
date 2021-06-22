@@ -53,6 +53,8 @@
     "detailedUtcText": "UTC: ",
     "detailedHoursUtsText": " годин від UTC",
     "detailedOnMap": "На Карті",
+    "homeResultsOnMap": "Показати результати на Карті ",
+    "mapResultsOnList": " Показати результати як список",
     "mapTab": "Карта",
     "profileTab": "Профіль",
     "headerProfile": "Привіт,",

@@ -1,5 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
+import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
+import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:flutter/material.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,7 +21,7 @@ class DetailedPlace extends StatefulWidget {
 }
 class _DetailedPlaceState extends State<DetailedPlace> {
   var _current;
-
+  var placesRepo = PlacesRepository();
   @override
   void initState() {
     _current=0;
@@ -262,6 +265,90 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       AppLocalizations.of(context).detailedRatingError,
                       style: TextStyle(fontSize: 18),
                     ),
+                    Spacer(),
+                    Container(
+                      child: BlocProvider(
+                        create: (context) => FavoriteCubit(HomeDataRepository()),
+                        child:BlocConsumer<FavoriteCubit, FavoriteState>(
+                            builder: (context, state) {
+                              if (state is FavoriteLoading) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }else return Container(
+                                padding: EdgeInsets.only(right: 5,bottom: 5),
+                                child: Ink(
+                                    height: 40,
+                                    width: 45,
+                                    decoration: const ShapeDecoration(
+                                      color: Color(0xff636e86),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                    ),
+                                    child: FutureBuilder<Object>(
+                                        future: placesRepo.checkIfExistInFavorite(place.placeId),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData){
+                                            return IconButton(
+                                              onPressed: () async {
+                                                snapshot.data?
+                                                BlocProvider.of<FavoriteCubit>(context)
+                                                    .deleteFromFavoriteSubmitted(place.placeId)
+                                                    :BlocProvider.of<FavoriteCubit>(context)
+                                                    .addToFavoriteSubmitted (place.placeId);
+                                              },
+                                              icon: Icon(
+                                                snapshot.data?
+                                                Icons.favorite :Icons.favorite_border,
+                                                color: Color(0xffffffff),
+                                              ),
+                                              iconSize: 22,
+                                              color: Colors.blueGrey,
+                                            );
+                                          }
+                                          if(snapshot.hasError){
+                                            return IconButton(
+                                              onPressed: () async {
+                                                snapshot.data?
+                                                BlocProvider.of<FavoriteCubit>(context)
+                                                    .deleteFromFavoriteSubmitted(place.placeId)
+                                                    :BlocProvider.of<FavoriteCubit>(context)
+                                                    .addToFavoriteSubmitted (place.placeId);
+                                              },
+                                              icon: Icon(
+                                                snapshot.data?
+                                                Icons.favorite :Icons.favorite_border,
+                                                color: Color(0xffd2d2d2),
+                                              ),
+                                              iconSize: 22,
+                                              color: Colors.blueGrey,
+                                            );
+                                          }
+                                          else{
+                                            return CircularProgressIndicator();
+                                          }
+                                        }
+                                    )),
+                              );
+                            }, listener: (context, state) {
+                          if (state is FavoriteError) {
+                            if (state.error!=null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      duration: const Duration(seconds: 2),
+                                      content: Text(state.error)));
+                            }
+                          }
+                          if (state is FavoriteLoaded) {
+                            if (state.message!=null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      duration: const Duration(seconds: 2),
+                                      content: Text(state.message)));
+                            }
+                          }
+                        }),
+                      ),
+                    ),
                   ],
                 )
               : Row(
@@ -280,8 +367,92 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                       }),
                     ),
                     Center(
-                      child: Text(place.rating.toString(),
+                      child: Text(" "+place.rating.toString(),
                           style: TextStyle(color: Colors.black54,fontSize: 18)),
+                    ),
+                    Spacer(),
+                    Container(
+                      child: BlocProvider(
+                        create: (context) => FavoriteCubit(HomeDataRepository()),
+                        child:BlocConsumer<FavoriteCubit, FavoriteState>(
+                            builder: (context, state) {
+                              if (state is FavoriteLoading) {
+                                return Center(
+                                    child: CircularProgressIndicator());
+                              }else return Container(
+                                padding: EdgeInsets.only(right: 5,bottom: 5),
+                                child: Ink(
+                                    height: 40,
+                                    width: 45,
+                                    decoration: const ShapeDecoration(
+                                      color: Color(0xff636e86),
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(Radius.circular(5.0))),
+                                    ),
+                                    child: FutureBuilder<Object>(
+                                        future: placesRepo.checkIfExistInFavorite(place.placeId),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.hasData){
+                                            return IconButton(
+                                              onPressed: () async {
+                                                snapshot.data?
+                                                BlocProvider.of<FavoriteCubit>(context)
+                                                    .deleteFromFavoriteSubmitted(place.placeId)
+                                                    :BlocProvider.of<FavoriteCubit>(context)
+                                                    .addToFavoriteSubmitted (place.placeId);
+                                              },
+                                              icon: Icon(
+                                                snapshot.data?
+                                                Icons.favorite :Icons.favorite_border,
+                                                color: Color(0xffffffff),
+                                              ),
+                                              iconSize: 22,
+                                              color: Colors.blueGrey,
+                                            );
+                                          }
+                                          if(snapshot.hasError){
+                                            return IconButton(
+                                              onPressed: () async {
+                                                snapshot.data?
+                                                BlocProvider.of<FavoriteCubit>(context)
+                                                    .deleteFromFavoriteSubmitted(place.placeId)
+                                                    :BlocProvider.of<FavoriteCubit>(context)
+                                                    .addToFavoriteSubmitted (place.placeId);
+                                              },
+                                              icon: Icon(
+                                                snapshot.data?
+                                                Icons.favorite :Icons.favorite_border,
+                                                color: Color(0xffd2d2d2),
+                                              ),
+                                              iconSize: 22,
+                                              color: Colors.blueGrey,
+                                            );
+                                          }
+                                          else{
+                                            return CircularProgressIndicator();
+                                          }
+                                        }
+                                    )),
+                              );
+                            }, listener: (context, state) {
+                          if (state is FavoriteError) {
+                            if (state.error!=null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      duration: const Duration(seconds: 2),
+                                      content: Text(state.error)));
+                            }
+                          }
+                          if (state is FavoriteLoaded) {
+                            if (state.message!=null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      duration: const Duration(seconds: 2),
+                                      content: Text(state.message)));
+                            }
+                          }
+                        }),
+                      ),
                     ),
                   ],
                 ),
@@ -451,10 +622,12 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                             margin: EdgeInsets.only(bottom:5),
                             padding: EdgeInsets.only(left: 5, right: 5,top:5,bottom: 5,),
                             child: Text(AppLocalizations.of(context).detailedPriceLevelText +
-                                place.priceLevel.characters
+                                transformPriceLevel(place.priceLevel.characters
                                     .toString()
                                     .substring(11,
-                                        place.priceLevel.characters.length)))
+                                        place.priceLevel.characters.length), context)
+
+                            ))
                         : Container(
                           ),
                   ]),
@@ -784,4 +957,27 @@ class _DetailedPlaceState extends State<DetailedPlace> {
               );
   }
 
+}
+
+String transformPriceLevel(String input, BuildContext context) {
+  switch (input) {
+    case "free":
+      return AppLocalizations.of(context).searchFilterPriceLevel1;
+      break;
+    case "inexpensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel2;
+      break;
+    case "moderate":
+      return AppLocalizations.of(context).searchFilterPriceLevel3;
+      break;
+    case "expensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel4;
+      break;
+    case "veryExpensive":
+      return AppLocalizations.of(context).searchFilterPriceLevel5;
+      break;
+    default:
+      return null;
+      break;
+  }
 }
