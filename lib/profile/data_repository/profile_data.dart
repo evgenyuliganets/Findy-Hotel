@@ -1,6 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:find_hotel/database/authentication/users_repository.dart';
 import 'package:find_hotel/database/photos/photos_db_model.dart';
 import 'package:find_hotel/database/photos/photos_repository.dart';
 import 'package:find_hotel/database/places/places_db_model.dart';
@@ -8,54 +6,13 @@ import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:location/location.dart' as LocationManager;
-final _userRepository = UsersRepository();
+
 class ProfileRepository {
+  final BuildContext context;
   var _placesRepository = PlacesRepository();
   var _photosRepository = PhotosRepository();
 
-
-
-  Future<List<PlacesDetail>> fetchPlacesFromNetwork(LatLng latLng) async {
-    try{
-      String defaultLocale = Platform.localeName;
-      var kGoogleApiKey = await loadAsset();
-      GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey,);
-      final location = Location(lat:latLng.latitude, lng:latLng.longitude);
-      final result = await _places.searchNearbyWithRadius(location, 2500 ,type:"lodging",language: defaultLocale);
-      if (result.status == "OK"&&result.results.isNotEmpty) {
-        var j = 0;
-        List<PlacesDetail> list= new List<PlacesDetail>(result.results.length);
-        list.forEach((element) {
-          var k = 0;
-          List<ImageProvider> photos;
-          if (result.results[j].photos!=null){
-            photos= new List<ImageProvider>(result.results[j].photos.length);
-            photos.forEach((element) {
-              photos[k]=Image.network(buildPhotoURL(result.results[j].photos[k].photoReference, kGoogleApiKey)).image;
-              k++;});}
-          list[j]= PlacesDetail(
-            icon:result.results[j].icon,
-            name:result.results[j].name,
-            openNow:result.results[j].openingHours==null?"null":result.results[j].openingHours.openNow.toString(),
-            photos:photos,
-            placeId:result.results[j].placeId,
-            priceLevel:result.results[j].priceLevel.toString(),
-            rating:result.results[j].rating,
-            types:result.results[j].types,
-            vicinity:result.results[j].vicinity,
-            formattedAddress:result.results[j].formattedAddress,
-          );j++;});
-        return list;
-      }
-      else{throw result.errorMessage;}
-    }
-    catch(Error){
-      throw PlacesNotFoundException(Error.toString());
-    }
-  }
+  ProfileRepository(this.context);
 
   List<String> typesFromJson(String str) => List<String>.from(json.decode(str).map((x) => x));
 
@@ -216,31 +173,6 @@ class ProfileRepository {
     }
   }
 
-  Future<LatLng> getUserLocation() async {
-    var currentLocation;
-    final location = LocationManager.Location();
-    try {
-      currentLocation = await location.getLocation();
-      final center = LatLng(currentLocation.latitude, currentLocation.longitude);
-      print(center.toString());
-      return center;
-    } catch (Exception) {
-      print (Exception.toString());
-      var requestPermission =await location.requestPermission();
-      var permissionStatus =await location.hasPermission();
-      print (permissionStatus.toString());
-      if(permissionStatus== LocationManager.PermissionStatus.granted){
-        currentLocation = await location.getLocation();
-        return LatLng(currentLocation.latitude, currentLocation.longitude);
-      } else {
-        throw PlacesNotFoundException(
-            'Location permission is not granted, please grant permission to see places near you');
-      }
-    }
-  }
-  Future<String> getUsername() async {
-    return await _userRepository.getAllUser().then((value) =>value.first.username.toString());
-  }
 
 
   String buildPhotoURL(String photoReference, String googleApiKey) {

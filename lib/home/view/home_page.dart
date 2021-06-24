@@ -96,6 +96,7 @@ class _HomePageState extends State<HomePage> {
                  var filters= finalFilters??SearchFilterModel();
                  mapBloc.setFiltersParameters(finalFilters??SearchFilterModel());
                  mapBloc.add(MapBloc.GetPlacesOnMap(
+                   textFieldText: lastEvent.textFieldText,
                      latlng: lastEvent.latlng,
                      filters: filters,
                      mainSearchMode: lastEvent.mainSearchMode));
@@ -260,7 +261,7 @@ class _HomePageState extends State<HomePage> {
                   child: IconButton(
                     onPressed: () async {
                       final homeBloc = context.read<HomeBloc>();
-                      homeBloc.add(GetUserPlaces());
+                      homeBloc.add(GetUserPlaces(textFieldText: textFieldText,mainSearchMode: checkSearchMode));
                       void dispose() {
                         homeBloc.close();
                       }

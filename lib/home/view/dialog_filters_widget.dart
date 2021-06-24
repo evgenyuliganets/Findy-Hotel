@@ -37,262 +37,269 @@ class _FiltersWidgetState extends State<FiltersWidget> {
       AppLocalizations.of(context).searchFilterPriceLevel5,]);
     return Container(
         padding: EdgeInsets.only(left: 20, right: 20, bottom: 100, top: 20),
-        height: 200,
         child: Material(
           shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(10.0))),
-          child: Container(
-            padding: EdgeInsets.all(15),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+            return SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Container(
+                height: constraints.maxHeight,
+                padding: EdgeInsets.all(15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                     AppLocalizations.of(context).searchFilterHeader,
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    Row(
+                      children: [
+                        Text(
+                         AppLocalizations.of(context).searchFilterHeader,
+                          style:
+                              TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        Spacer(),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(Icons.close,color: Colors.black38,))
+                          ],
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(widget.filterModel.rankBy?
+                    AppLocalizations.of(context).searchFilterError
+                      :AppLocalizations.of(context).searchFilterRadius+
+                          widget.filterModel.radius.round().toString() +
+                        AppLocalizations.of(context).searchFilterMeters,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top:2),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(5)),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                              color: Color(0xffdbdbdb))),
+                      padding:
+                      EdgeInsets.only(left: 5, right: 5),
+                      child: Slider(
+                        activeColor: Color(0xff636e86),
+                        inactiveColor: Color(0xff9baed5),
+                        value: widget.filterModel.radius.toDouble(),
+                        min: 50,
+                        max: 30000,
+                        label: widget.filterModel.radius.toString(),
+                        onChanged: (double value) {
+                          if(widget.filterModel.rankBy){
+
+                          }else{
+                          setState(() =>
+                          widget.filterModel.radius = value.toInt()
+                          );
+                        }},
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(AppLocalizations.of(context).searchFilterKeywordHeader),
+                    Container(
+                      margin: EdgeInsets.only(top:2),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(5)),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                              color: Color(0xffdbdbdb))),
+                      padding:
+                      EdgeInsets.only(left: 5, right: 5),
+                      height: 50,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: 4,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: FilterChip(
+                                labelStyle: TextStyle(),
+                                label: Text(chipsValuesKeywords[index]),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(5.0))),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      widget.filterModel.keyword = chipsMainValues[index];
+
+                                    } else {
+                                      widget.filterModel.keyword = null;
+                                    }
+                                  });
+                                },
+                                selected: widget.filterModel.keyword==(chipsMainValues[index]),
+                                selectedColor: Color(0xff9baed5),
+                              ),
+                            );
+                          }),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(AppLocalizations.of(context).searchFilterMinPriceHeader),
+                    Container(
+                      margin: EdgeInsets.only(top:2),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(5)),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                              color: Color(0xffdbdbdb))),
+                      padding:
+                      EdgeInsets.only(left: 5, right: 5),
+                      height: 50,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: FilterChip(
+                                labelStyle: TextStyle(),
+                                label: Text(chipsValuesMinPrice[index]),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(5.0))),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      widget.filterModel.minPrice = index;
+                                      print(index);
+                                    }
+                                    else {
+                                        widget.filterModel.minPrice= null;
+                                        print(widget.filterModel.minPrice);
+                                      }
+                                    }
+                                  );
+                                },
+                                selected: widget.filterModel.minPrice==index,
+                                selectedColor: Color(0xff9baed5),
+                              ),
+                            );
+                          }),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(AppLocalizations.of(context).searchFilterMaxPriceHeader),
+                    Container(
+                      margin: EdgeInsets.only(top:2),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(5)),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                              color: Color(0xffdbdbdb))),
+                      padding:
+                      EdgeInsets.only(left: 5, right: 5),
+                      height: 50,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          itemCount: 5,
+                          itemBuilder: (BuildContext context, int index) {
+                            return Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: FilterChip(
+                                labelStyle: TextStyle(),
+                                label: Text(chipsValuesMinPrice[index]),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(5.0))),
+                                onSelected: (bool selected) {
+                                  setState(() {
+                                    if (selected) {
+                                      {
+                                        widget.filterModel.maxPrice= index;
+                                      print(index);}
+                                    }
+                                    else {
+                                      widget.filterModel.maxPrice= null;
+                                      print(widget.filterModel.maxPrice);
+                                    }
+                                  });
+                                },
+                                selected: widget.filterModel.maxPrice==index,
+                                selectedColor: Color(0xff9baed5),
+                              ),
+                            );
+                          }),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Text(AppLocalizations.of(context).searchOrderHeader),
+                    Container(
+                      margin: EdgeInsets.only(top:2),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(5)),
+                          shape: BoxShape.rectangle,
+                          border: Border.all(
+                              color: Color(0xffdbdbdb))),
+                      padding:
+                      EdgeInsets.only(left: 5, right: 5),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                            children: [
+                          Text(AppLocalizations.of(context).searchOrder1),
+                          Container(
+                            height: 37,
+                            width: 60,
+                            child: Switch(
+                                activeColor: Color(0xff636e86),
+                                value: widget.filterModel.rankBy,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    widget.filterModel.rankBy = value;
+                                  });
+                                }),
+                          ),
+                          Text(AppLocalizations.of(context).searchOrder2),
+                        ]),
+                      ),
                     ),
                     Spacer(),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(Icons.close,color: Colors.black38,))
+                        Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10,bottom: 5),
+                          child: OutlinedButton(onPressed: (){
+                            Navigator.of(context).pop(widget.filterModel);
+
+                          },
+                            child: Text(AppLocalizations.of(context).searchFilterApplyButton,
+                              style: TextStyle(color: Colors.black87),),),
+                        ),
                       ],
                     )
                   ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(widget.filterModel.rankBy?
-                AppLocalizations.of(context).searchFilterError
-                  :AppLocalizations.of(context).searchFilterRadius+
-                      widget.filterModel.radius.round().toString() +
-                    AppLocalizations.of(context).searchFilterMeters,
-                  style: TextStyle(fontSize: 15),
-                ),
-                Container(
-                  margin: EdgeInsets.only(top:2),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(5)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                          color: Color(0xffdbdbdb))),
-                  padding:
-                  EdgeInsets.only(left: 5, right: 5),
-                  child: Slider(
-                    activeColor: Color(0xff636e86),
-                    inactiveColor: Color(0xff9baed5),
-                    value: widget.filterModel.radius.toDouble(),
-                    min: 50,
-                    max: 30000,
-                    label: widget.filterModel.radius.toString(),
-                    onChanged: (double value) {
-                      if(widget.filterModel.rankBy){
-
-                      }else{
-                      setState(() =>
-                      widget.filterModel.radius = value.toInt()
-                      );
-                    }},
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(AppLocalizations.of(context).searchFilterKeywordHeader),
-                Container(
-                  margin: EdgeInsets.only(top:2),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(5)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                          color: Color(0xffdbdbdb))),
-                  padding:
-                  EdgeInsets.only(left: 5, right: 5),
-                  height: 50,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: 4,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: FilterChip(
-                            labelStyle: TextStyle(),
-                            label: Text(chipsValuesKeywords[index]),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(5.0))),
-                            onSelected: (bool selected) {
-                              setState(() {
-                                if (selected) {
-                                  widget.filterModel.keyword = chipsMainValues[index];
-
-                                } else {
-                                  widget.filterModel.keyword = null;
-                                }
-                              });
-                            },
-                            selected: widget.filterModel.keyword==(chipsMainValues[index]),
-                            selectedColor: Color(0xff9baed5),
-                          ),
-                        );
-                      }),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(AppLocalizations.of(context).searchFilterMinPriceHeader),
-                Container(
-                  margin: EdgeInsets.only(top:2),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(5)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                          color: Color(0xffdbdbdb))),
-                  padding:
-                  EdgeInsets.only(left: 5, right: 5),
-                  height: 50,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: 5,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: FilterChip(
-                            labelStyle: TextStyle(),
-                            label: Text(chipsValuesMinPrice[index]),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(5.0))),
-                            onSelected: (bool selected) {
-                              setState(() {
-                                if (selected) {
-                                  widget.filterModel.minPrice = index;
-                                  print(index);
-                                }
-                                else {
-                                    widget.filterModel.minPrice= null;
-                                    print(widget.filterModel.minPrice);
-                                  }
-                                }
-                              );
-                            },
-                            selected: widget.filterModel.minPrice==index,
-                            selectedColor: Color(0xff9baed5),
-                          ),
-                        );
-                      }),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(AppLocalizations.of(context).searchFilterMaxPriceHeader),
-                Container(
-                  margin: EdgeInsets.only(top:2),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(5)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                          color: Color(0xffdbdbdb))),
-                  padding:
-                  EdgeInsets.only(left: 5, right: 5),
-                  height: 50,
-                  child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      itemCount: 5,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.all(4.0),
-                          child: FilterChip(
-                            labelStyle: TextStyle(),
-                            label: Text(chipsValuesMinPrice[index]),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(5.0))),
-                            onSelected: (bool selected) {
-                              setState(() {
-                                if (selected) {
-                                  {
-                                    widget.filterModel.maxPrice= index;
-                                  print(index);}
-                                }
-                                else {
-                                  widget.filterModel.maxPrice= null;
-                                  print(widget.filterModel.maxPrice);
-                                }
-                              });
-                            },
-                            selected: widget.filterModel.maxPrice==index,
-                            selectedColor: Color(0xff9baed5),
-                          ),
-                        );
-                      }),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Text(AppLocalizations.of(context).searchOrderHeader),
-                Container(
-                  margin: EdgeInsets.only(top:2),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(5)),
-                      shape: BoxShape.rectangle,
-                      border: Border.all(
-                          color: Color(0xffdbdbdb))),
-                  padding:
-                  EdgeInsets.only(left: 5, right: 5),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                        children: [
-                      Text(AppLocalizations.of(context).searchOrder1),
-                      Container(
-                        height: 37,
-                        width: 60,
-                        child: Switch(
-                            activeColor: Color(0xff636e86),
-                            value: widget.filterModel.rankBy,
-                            onChanged: (bool value) {
-                              setState(() {
-                                widget.filterModel.rankBy = value;
-                              });
-                            }),
-                      ),
-                      Text(AppLocalizations.of(context).searchOrder2),
-                    ]),
-                  ),
-                ),
-                Spacer(),
-                Row(
-                  children: [
-                    Spacer(),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 10,bottom: 5),
-                      child: OutlinedButton(onPressed: (){
-                        Navigator.of(context).pop(widget.filterModel);
-
-                      },
-                        child: Text(AppLocalizations.of(context).searchFilterApplyButton,style: TextStyle(color: Colors.black87),),),
-                    ),
-                  ],
-                )
-              ],
-            ),
+              ),
+            );},
           ),
         ));
   }

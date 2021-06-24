@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:find_hotel/database/places/places_repository.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 part 'save_to_favorite_state.dart';
 
@@ -18,23 +20,26 @@ class FavoriteCubit extends Cubit<FavoriteState> {
       emit(FavoriteLoading());
       var place = await homeRepo.
       fetchDetailedPlaceFromNetwork(placeId, saveToFavorite: true).
-      timeout(Duration(seconds: 7));
+      timeout(Duration(seconds: 5));
+      Future.delayed(Duration(milliseconds: 500));
       if (place.placeId != null) {
           emit(FavoriteLoaded(
-              message: "Successfully saved to favorite"));}
+              message: AppLocalizations.of(homeRepo.context).successFavorite));}
       else{
-        print(5);
         emit(FavoriteLoaded(
-            message: "Cannot save to favorite"));
+            message: AppLocalizations.of(homeRepo.context).errorFavorite));
       }
     } on TimeoutException {
-      emit(FavoriteError("No Internet Connection"));
+      emit(FavoriteError(AppLocalizations.of(homeRepo.context).noInternetConnection));
     }
-    on Error {
-      print(5);
+    catch (Error) {
+      if(Error is SocketException){
+        emit(FavoriteError(AppLocalizations.of(homeRepo.context).noInternetConnection));
+      }
+      else{
       emit(FavoriteError(
-          "Something went wrong while adding place in favorite"));
-    }
+          AppLocalizations.of(homeRepo.context).favDatabaseError));
+    }}
   }
 
   Future<void> deleteFromFavoriteSubmitted(String placeId) async {
@@ -44,12 +49,12 @@ class FavoriteCubit extends Cubit<FavoriteState> {
         var ifExist = await placesRepo.checkIfExistInFavorite(placeId);
         if (ifExist==false) {
           emit(FavoriteLoaded(
-              message: "Successfully deleted from favorite", ifExist: ifExist));
+              message: AppLocalizations.of(homeRepo.context).deletedFavorite, ifExist: ifExist));
         }
     }
     on Error {
       emit(FavoriteError(
-          "Something went wrong while deleting place from favorite"));
+          AppLocalizations.of(homeRepo.context).deletingFavoriteErr));
     }
   }
 

@@ -64,6 +64,7 @@ class _MapPageState extends State<MapPage> {
 
   Widget buildWidget(String textFieldText, String googleApiKey,
       BuildContext context, List<PlacesDetail> places) {
+    print(3);
     var markers = List<Marker>.empty(growable: true);
     var j = 0;
     print(places.toString());
@@ -80,13 +81,12 @@ class _MapPageState extends State<MapPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
-                      create: (context) => Home.HomeBloc(HomeDataRepository()),
+                      create: (context) => Home.HomeBloc(HomeDataRepository(context)),
                       child: DetailedPlace(places.placeId),
                     ),
                   ),
                 );
               }));
-      print(markers[j].position);
       j++;
     });
     return LayoutBuilder(
@@ -177,6 +177,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Widget buildInitialStart(googleApiKey, textFieldText) {
+    print(1);
     final mapBloc = context.read<MapBloc>();
     print("this");
     mapBloc.add(GetMapUserPlaces(mainSearchMode: true));
@@ -199,6 +200,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Widget buildLoadingState(googleApiKey, textFieldText) {
+    print(2);
     return LayoutBuilder(
         builder: (context, constrains) {
           return CustomScrollView(
@@ -215,6 +217,7 @@ class _MapPageState extends State<MapPage> {
   }
 
   Widget buildErrorState({String apiKey, String textFieldText}) {
+    print(4);
     return Center(
         child: Scaffold(
           body:LayoutBuilder(
@@ -253,7 +256,6 @@ class _MapPageState extends State<MapPage> {
     );
   }
   Widget searchSliverAppBar(String googleApiKey,BuildContext context,{String textFieldText}){
-    print("searchMode:"+checkSearchMode.toString());
     return SliverAppBar(
       pinned: true,
       snap: true,
@@ -261,14 +263,10 @@ class _MapPageState extends State<MapPage> {
       shadowColor: Color(0xff9baed5),
       backgroundColor: Color(0xff9baed5),
       expandedHeight: 100,
-      title: Wrap(
-        children: [
-          MapTextField(
-            googleApiKey,
-            textFieldText: textFieldText,
-            checkMainSearchMode: checkSearchMode,
-          ),
-        ],
+      title: MapTextField(
+        googleApiKey,
+        textFieldText: textFieldText,
+        checkMainSearchMode: checkSearchMode,
       ),
       flexibleSpace: Container(
         alignment: Alignment.bottomRight,
@@ -277,7 +275,7 @@ class _MapPageState extends State<MapPage> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text('By Place'),
+              Text(AppLocalizations.of(context).homeByPlace),
               Container(
                 height: 37,
                 width:60,
@@ -290,7 +288,7 @@ class _MapPageState extends State<MapPage> {
                       });
                     }),
               ),
-              Text('By Name'),
+              Text(AppLocalizations.of(context).homeByName),
               Spacer(),
               Ink(
                   height: 38,
@@ -324,7 +322,7 @@ class _MapPageState extends State<MapPage> {
                   child: IconButton(
                     onPressed: () async {
                       final homeBloc = context.read<MapBloc>();
-                      homeBloc.add(GetMapUserPlaces());
+                      homeBloc.add(GetMapUserPlaces(mainSearchMode: checkSearchMode));
                       void dispose() {
                         homeBloc.close();
                       }

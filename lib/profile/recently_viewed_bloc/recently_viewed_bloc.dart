@@ -4,13 +4,14 @@ import 'package:bloc/bloc.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 part 'recently_viewed_event.dart';
 part 'recently_viewed_state.dart';
 
 class RecentlyViewedBloc extends Bloc<RecentlyViewedEvent, RecentlyViewedState> {
-  var profileRepo = ProfileRepository();
-
+  final ProfileRepository profileRepo;
   RecentlyViewedBloc(this.profileRepo) : super(RecentlyViewedInitial());
 
   @override
@@ -25,10 +26,13 @@ class RecentlyViewedBloc extends Bloc<RecentlyViewedEvent, RecentlyViewedState> 
       }
 
       on PlacesNotFoundException{
-        yield (RecentlyViewedError("Something went wrong"));
+        yield (RecentlyViewedError(AppLocalizations.of(profileRepo.context).recentError,
+        ));
       }
-      on TimeoutException {
-        yield (RecentlyViewedError("No Internet Connection"));
+      catch (error){
+        if (!(error is PlacesNotFoundException)){
+          yield (RecentlyViewedError(AppLocalizations.of(profileRepo.context).placesFromDatabaseCriticalErr));
+        }
       }
     }
   }

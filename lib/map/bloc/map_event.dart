@@ -14,22 +14,10 @@ class GetPlacesOnMap extends MapEvent {
   final bool mainSearchMode;
   GetPlacesOnMap({ this.latlng,this.textFieldText, this.mainSearchMode, this.filters});
 }
-class GetMapPlacesFromDB extends MapEvent {
-}
-class MapInitialAndAppBarCreation extends MapEvent {
-  final String textFieldText;
-  final String googleApiKey;
 
-  MapInitialAndAppBarCreation({this.textFieldText, this.googleApiKey});
-}
+
 class GetMapUserPlaces extends MapEvent {
   final bool mainSearchMode;
   final SearchFilterModel filters;
   GetMapUserPlaces({this.mainSearchMode,this.filters});
-}
-
-class GetMapDetailedPlace extends MapEvent {
-
-  final String placeId;
-  GetMapDetailedPlace(this.placeId);
 }

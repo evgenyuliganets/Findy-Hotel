@@ -89,7 +89,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
       shadowColor: Color(0xff636e86),
       backgroundColor: Color(0xff636e86),
       expandedHeight: 50,
-      title: Text(AppLocalizations.of(context).detailedHeader,style: TextStyle(fontSize: 25),),
+      title: Text(AppLocalizations.of(context).detailedHeader,style: TextStyle(fontSize: 23),),
     );
   }
 
@@ -268,7 +268,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                     Spacer(),
                     Container(
                       child: BlocProvider(
-                        create: (context) => FavoriteCubit(HomeDataRepository()),
+                        create: (context) => FavoriteCubit(HomeDataRepository(context)),
                         child:BlocConsumer<FavoriteCubit, FavoriteState>(
                             builder: (context, state) {
                               if (state is FavoriteLoading) {
@@ -285,16 +285,17 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                           borderRadius: BorderRadius.all(Radius.circular(5.0))),
                                     ),
                                     child: FutureBuilder<Object>(
-                                        future: placesRepo.checkIfExistInFavorite(place.placeId),
+                                        future: placesRepo.checkIfExistInFavorite(place.placeId).timeout(Duration(seconds: 5)),
                                         builder: (context, snapshot) {
                                           if (snapshot.hasData){
                                             return IconButton(
-                                              onPressed: () async {
+                                              onPressed: ()  {
+                                                setState(() {
                                                 snapshot.data?
                                                 BlocProvider.of<FavoriteCubit>(context)
                                                     .deleteFromFavoriteSubmitted(place.placeId)
                                                     :BlocProvider.of<FavoriteCubit>(context)
-                                                    .addToFavoriteSubmitted (place.placeId);
+                                                    .addToFavoriteSubmitted (place.placeId);});
                                               },
                                               icon: Icon(
                                                 snapshot.data?
@@ -305,9 +306,12 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                               color: Colors.blueGrey,
                                             );
                                           }
-                                          if(snapshot.hasError){
+                                          if(snapshot.connectionState==ConnectionState.waiting){
+                                            return CircularProgressIndicator();
+                                          }
+                                          else{
                                             return IconButton(
-                                              onPressed: () async {
+                                              onPressed: ()  {
                                                 snapshot.data?
                                                 BlocProvider.of<FavoriteCubit>(context)
                                                     .deleteFromFavoriteSubmitted(place.placeId)
@@ -322,9 +326,6 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                               iconSize: 22,
                                               color: Colors.blueGrey,
                                             );
-                                          }
-                                          else{
-                                            return CircularProgressIndicator();
                                           }
                                         }
                                     )),
@@ -373,7 +374,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                     Spacer(),
                     Container(
                       child: BlocProvider(
-                        create: (context) => FavoriteCubit(HomeDataRepository()),
+                        create: (context) => FavoriteCubit(HomeDataRepository(context)),
                         child:BlocConsumer<FavoriteCubit, FavoriteState>(
                             builder: (context, state) {
                               if (state is FavoriteLoading) {
@@ -390,16 +391,17 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                           borderRadius: BorderRadius.all(Radius.circular(5.0))),
                                     ),
                                     child: FutureBuilder<Object>(
-                                        future: placesRepo.checkIfExistInFavorite(place.placeId),
+                                        future: placesRepo.checkIfExistInFavorite(place.placeId).timeout(Duration(seconds: 5)),
                                         builder: (context, snapshot) {
                                           if (snapshot.hasData){
                                             return IconButton(
-                                              onPressed: () async {
-                                                snapshot.data?
-                                                BlocProvider.of<FavoriteCubit>(context)
-                                                    .deleteFromFavoriteSubmitted(place.placeId)
-                                                    :BlocProvider.of<FavoriteCubit>(context)
-                                                    .addToFavoriteSubmitted (place.placeId);
+                                              onPressed: ()  {
+                                                setState(() {
+                                                  snapshot.data?
+                                                  BlocProvider.of<FavoriteCubit>(context)
+                                                      .deleteFromFavoriteSubmitted(place.placeId)
+                                                      :BlocProvider.of<FavoriteCubit>(context)
+                                                      .addToFavoriteSubmitted (place.placeId);});
                                               },
                                               icon: Icon(
                                                 snapshot.data?
@@ -410,9 +412,12 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                               color: Colors.blueGrey,
                                             );
                                           }
-                                          if(snapshot.hasError){
+                                          if(snapshot.connectionState==ConnectionState.waiting){
+                                            return CircularProgressIndicator();
+                                          }
+                                          else{
                                             return IconButton(
-                                              onPressed: () async {
+                                              onPressed: ()  {
                                                 snapshot.data?
                                                 BlocProvider.of<FavoriteCubit>(context)
                                                     .deleteFromFavoriteSubmitted(place.placeId)
@@ -427,9 +432,6 @@ class _DetailedPlaceState extends State<DetailedPlace> {
                                               iconSize: 22,
                                               color: Colors.blueGrey,
                                             );
-                                          }
-                                          else{
-                                            return CircularProgressIndicator();
                                           }
                                         }
                                     )),

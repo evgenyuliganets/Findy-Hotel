@@ -22,7 +22,7 @@ ListView buildProfileListOfPlaces(List<PlacesDetail> places) {
                   context,
                   MaterialPageRoute(
                     builder: (context) => BlocProvider(
-                      create: (context) => HomeBloc(HomeDataRepository()),
+                      create: (context) => HomeBloc(HomeDataRepository(context)),
                       child: DetailedPlace(places[index].placeId),
                     ),
                   ),

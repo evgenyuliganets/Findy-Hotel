@@ -26,14 +26,20 @@ class _ProfilePage extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Container(child: LayoutBuilder(builder: (context, constrains) {
-      return RefreshIndicator(
-          onRefresh: () async {},
+        body: Container(child:
+        LayoutBuilder(builder: (context, constrains) {
+        return RefreshIndicator(
+          onRefresh: () async {
+            setState(() {
+            FavoriteBloc(ProfileRepository(context)).add(GetFavoritePlaces());
+            RecentlyViewedBloc(ProfileRepository(context)).add(GetRecentlyViewedPlaces());
+          });
+          },
           child: CustomScrollView(slivers: [
             sliverAppBar(),
             SliverToBoxAdapter(
                 child: Container(
-              color: Color(0xffb8c4de),
+              color: Color(0xffeaedef),
               child: Row(
                 children: [buildGreeting(), Spacer(), buildLogout()],
               ),
@@ -54,11 +60,11 @@ class _ProfilePage extends State<ProfilePage> {
                       padding:
                       EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
                       child: Text(
-                        'Recently Viewed Places',
+                        AppLocalizations.of(context).recentHeader,
                         style: TextStyle(fontSize: 20),
                       ),
                     ),
-                 buildRecentlyViewed('Recently Viewed Places'),
+                 buildRecentlyViewed(AppLocalizations.of(context).recentHeader),
                   ],
                 ),
               ),),
@@ -78,11 +84,11 @@ class _ProfilePage extends State<ProfilePage> {
                       padding:
                       EdgeInsets.only(left: 20, right: 20, bottom: 5, top: 5),
                       child: Text(
-                        'Favorite Places',
+                        AppLocalizations.of(context).favoriteHeader,
                         style: TextStyle(fontSize: 20),
                       ),
                     ),
-                    buildFavorite('Favorite Places'),
+                    buildFavorite(AppLocalizations.of(context).favoriteHeader),
                   ],
                 ),
               ),
@@ -101,7 +107,7 @@ class _ProfilePage extends State<ProfilePage> {
       expandedHeight: 50,
       titleSpacing: 20,
       title: Text(
-        'Profile',
+        AppLocalizations.of(context).profileTab,
         style: TextStyle(fontSize: 25),
       ),
     );
@@ -109,7 +115,6 @@ class _ProfilePage extends State<ProfilePage> {
 
   Widget buildRecentlyViewed(String listToBuild) {
     final recentBloc = context.read<RecentlyViewedBloc>();
-      print("first");
        recentBloc.add(GetRecentlyViewedPlaces());
       return Container(
         padding: EdgeInsets.only(left: 2,top:5),
@@ -120,7 +125,7 @@ class _ProfilePage extends State<ProfilePage> {
             else if (state is RecentlyViewedLoaded)
               return buildList(state.places);
             else if (state is RecentlyViewedError)
-              return buildErrorState(listToBuild);
+              return buildRecentErrorState(listToBuild);
             else
               return buildLoadingState();
           },
@@ -150,7 +155,6 @@ class _ProfilePage extends State<ProfilePage> {
   }
 
   Widget buildFavorite(String listToBuild) {
-    print("second");
     final profileBloc = context.read<FavoriteBloc>();
       profileBloc.add(GetFavoritePlaces());
     return Container(
@@ -162,7 +166,7 @@ class _ProfilePage extends State<ProfilePage> {
           else if (state is FavoriteLoaded)
             return buildList(state.places);
           else if (state is FavoriteError)
-            return buildErrorState(listToBuild);
+            return buildFavoriteErrorState(listToBuild);
           else
             return buildLoadingState();
         },
@@ -229,7 +233,9 @@ class _ProfilePage extends State<ProfilePage> {
 
   Widget buildLoadingState() {
     return Center(
-      child: CircularProgressIndicator(),
+      child: Container(
+          padding: EdgeInsets.symmetric(vertical: 200, horizontal: 20),
+          child: CircularProgressIndicator()),
     );
   }
 
@@ -283,8 +289,9 @@ class _ProfilePage extends State<ProfilePage> {
     );
   }
 
-  Widget buildErrorState(text) {
+  Widget buildRecentErrorState(text) {
     return Container(
+      padding: EdgeInsets.symmetric(vertical: 80, horizontal: 20),
         child: Center(
       child: Column(
         children: [
@@ -293,21 +300,45 @@ class _ProfilePage extends State<ProfilePage> {
           ),
           Column(children: [
             Icon(
-              Icons.signal_cellular_connected_no_internet_4_bar,
+              Icons.speaker_notes_off_outlined,
               color: Color(0xff878787),
               size: 150,
             ),
             Container(
               height: 10,
             ),
-            Text(text == 'Recently Viewed Places'
-                ?AppLocalizations.of(context).profileError
-                : "Sorry, your favorite places not found, try add some",
+            Text(AppLocalizations.of(context).recentHeaderError,
                 style: TextStyle(color: Color(0xff616161), fontSize: 20),
             )
           ])
         ],
       ),
     ));
+  }
+  Widget buildFavoriteErrorState(text) {
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 80, horizontal: 20),
+        child: Center(
+          child: Column(
+            children: [
+              Container(
+                height: 30,
+              ),
+              Column(children: [
+                Icon(
+                  Icons.favorite_border,
+                  color: Color(0xff878787),
+                  size: 150,
+                ),
+                Container(
+                  height: 10,
+                ),
+                Text(AppLocalizations.of(context).favErrorHeader,
+                  style: TextStyle(color: Color(0xff616161), fontSize: 20),
+                )
+              ])
+            ],
+          ),
+        ));
   }
 }

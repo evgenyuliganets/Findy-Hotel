@@ -21,13 +21,22 @@ class MapTextField extends StatefulWidget{
 class _MapTextFieldState extends State<MapTextField> {
   TextEditingController controller;
   SearchFilterModel filters;
+
   @override
   void initState() {
     super.initState();
     controller= TextEditingController(text: widget.textFieldText);
     filters = widget.searchFilterModel;
-
   }
+
+  @override
+  void didUpdateWidget(MapTextField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if(controller.text!=widget.textFieldText){
+      controller= TextEditingController(text: widget.textFieldText);
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -67,7 +76,7 @@ class _MapTextFieldState extends State<MapTextField> {
                     }
                     else print (null);
                   },
-                  decoration: InputDecoration(hintText: 'Search'),
+                  decoration: InputDecoration(hintText: AppLocalizations.of(context).homeSearch),
                   controller: controller,
                   readOnly: !widget.checkMainSearchMode,
                 )),

@@ -6,6 +6,7 @@ import 'package:find_hotel/home/model/search_filters_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 part 'home_event.dart';
 part 'home_state.dart';
@@ -15,27 +16,29 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   SearchFilterModel _filterModel = SearchFilterModel();
   final HomeDataRepository homeRepo;
   final PlacesNotFoundException error;
+
   HomeBloc(this.homeRepo, {this.error}) : super(HomeInitial());
 
   @override
   Stream<HomeState> mapEventToState(HomeEvent event) async* {
-    lastHomeEvent=event;
+    lastHomeEvent = event;
     final apiKey = await homeRepo.loadAsset();
 
-    if (event is RefreshPage){
+    if (event is RefreshPage) {
       this.add(event.event);
     }
 
-    if (event is GetPlaces) {                       //Get nearby SearchPlaces or Places from dataBase
+    if (event is GetPlaces) {
+      final apiKey = await homeRepo.loadAsset();
+      //Get nearby SearchPlaces or Places from dataBase
       try {
-        yield (HomeLoading(textFieldText: event.textFieldText));
+        yield (HomeLoading(apiKey,textFieldText: event.textFieldText));
         final places = await homeRepo
             .fetchPlacesFromNetwork(_filterModel,
                 latLng: event.latlng ?? null,
                 textFieldText: event.textFieldText,
                 mainSearchMode: event.mainSearchMode)
             .timeout(Duration(seconds: 4));
-        final apiKey = await homeRepo.loadAsset();
         if (places.isNotEmpty) {
           print(places.toString());
           yield (HomeLoaded(
@@ -49,234 +52,274 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
                       (event.textFieldText == '' &&
                           event.mainSearchMode == true &&
                           event.filters.rankBy == false)
-                  ? 'Places was loaded from last known location'
+                  ? AppLocalizations.of(homeRepo.context).lastLocationNotify
                   : null));
         } else
-          throw PlacesNotFoundException('Places not found');
+          throw PlacesNotFoundException(AppLocalizations.of(homeRepo.context).noResultsErr);
       } on TimeoutException {
-        yield (HomeError("Timeout was reached. No Internet Connection or GPS is not enabled", apiKey,
+        yield (HomeError(
+            AppLocalizations.of(homeRepo.context).placesTimeoutExt,
+            apiKey,
             textFieldText: event.textFieldText));
-          try {
-            yield (HomeLoading(textFieldText: event.textFieldText));
-            final places = await homeRepo.fetchAllPlacesFromDataBase();
-            yield (HomeLoaded(
-                places: places,
-              message: "All Places was loaded from database",
-              googleApiKey: apiKey, textFieldText: event.textFieldText,
-              filters: event.filters,));
-          } on PlacesNotFoundException {
-            yield (HomeError('No places found in database',apiKey));
-          }
+        try {
+          yield (HomeLoading(apiKey,textFieldText: event.textFieldText));
+          final places = await homeRepo.fetchAllPlacesFromDataBase();
+          yield (HomeLoaded(
+            places: places,
+            message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+            googleApiKey: apiKey,
+            textFieldText: event.textFieldText,
+            filters: event.filters,
+          ));
+        } on PlacesNotFoundException {
+          yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+        }
       } catch (error) {
         if (error is PlacesNotFoundException) {
-          yield (HomeError(error.error, apiKey));
+          yield (HomeError(error.error, apiKey,
+              textFieldText: event.textFieldText));
           try {
-            yield(HomeLoading());
+            yield (HomeLoading(apiKey,textFieldText: event.textFieldText));
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield (HomeLoaded(
               places: places,
-              message: "All Places was loaded from database",
-              googleApiKey: apiKey, textFieldText: event.textFieldText,
-              filters: event.filters,));
+              message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+              googleApiKey: apiKey,
+              textFieldText: event.textFieldText,
+              filters: event.filters,
+            ));
           } on PlacesNotFoundException {
-            yield(HomeError('No places found in database',apiKey));
-          }
-          catch (error) {
+            yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+          } catch (error) {
             if (error is PlacesNotFoundException) {
               print(error.error.toString());
-              yield(HomeError(error.error.toString(),apiKey));}
-            else{
-              yield(HomeError('Something went wrong in database, try logout',apiKey));}
+              yield (HomeError(error.error.toString(), apiKey));
+            } else {
+              yield (HomeError(
+                  AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
+            }
           }
-        }
-        else {
-          if(error is SocketException){
-            yield(HomeError('No Internet Connection',apiKey));}
-          else yield (HomeError('Something went wrong, try change filters', apiKey));
+        } else {
+          if (error is SocketException) {
+            yield (HomeError(AppLocalizations.of(homeRepo.context).noInternetConnection, apiKey));
+          } else
+            yield (HomeError(
+                AppLocalizations.of(homeRepo.context).unknownErrorExt, apiKey));
           try {
-            yield(HomeLoading());
+            yield (HomeLoading(apiKey,textFieldText: event.textFieldText));
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield (HomeLoaded(
               places: places,
-              message: "All Places was loaded from database",
-              googleApiKey: apiKey, textFieldText: event.textFieldText,
-              filters: event.filters,));
+              message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+              googleApiKey: apiKey,
+              textFieldText: event.textFieldText,
+              filters: event.filters,
+            ));
           } on PlacesNotFoundException {
-            yield(HomeError('No places found in database',apiKey));
-          }
-          catch (error) {
+            yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+          } catch (error) {
             if (error is PlacesNotFoundException) {
               print(error.error.toString());
-              yield(HomeError(error.error.toString(),apiKey));}
-            else{
-              yield(HomeError('Something went wrong in database, try logout',apiKey));}
+              yield (HomeError(error.error.toString(), apiKey));
+            } else {
+              yield (HomeError(
+                  AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
+            }
           }
         }
       }
     }
 
-
-
-    if (event is GetUserPlaces) {                  //Get nearby UserPlaces or UserPlaces from dataBase
+    if (event is GetUserPlaces) {
+      //Get nearby UserPlaces or UserPlaces from dataBase
       try {
-        yield (HomeLoading());
-        if(event.mainSearchMode!=null&&event.mainSearchMode){
-          final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 4));
+        yield (HomeLoading(apiKey));
+        if (event.mainSearchMode != null && event.mainSearchMode) {
+          final places = await homeRepo
+              .fetchPlacesFromNetwork(
+                _filterModel,
+                mainSearchMode: event.mainSearchMode ?? null,
+              )
+              .timeout(Duration(seconds: 4));
           yield (HomeLoaded(
-            places:places,
-            googleApiKey:
-            apiKey,
-            message: 'Places was loaded from last known location',
-            filters: event.filters,));
-        }else{
-          final userLocation = await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
-          final places = await homeRepo.fetchPlacesFromNetwork(_filterModel,latLng: LatLng(userLocation.latitude,userLocation.longitude),mainSearchMode: event.mainSearchMode??null,).timeout(Duration(seconds: 2));
-          print( places.toString());
-          yield (HomeLoaded(places:places,
+            places: places,
+            googleApiKey: apiKey,
+            message: AppLocalizations.of(homeRepo.context).lastLocationNotify,
+            filters: event.filters,
+          ));
+        } else {
+          final userLocation =
+              await homeRepo.getUserLocation().timeout(Duration(seconds: 7));
+          final places = await homeRepo
+              .fetchPlacesFromNetwork(
+                _filterModel,
+                latLng: LatLng(userLocation.latitude, userLocation.longitude),
+                mainSearchMode: event.mainSearchMode ?? null,
+              )
+              .timeout(Duration(seconds: 2));
+          print(places.toString());
+          yield (HomeLoaded(
+              places: places,
               googleApiKey: apiKey,
               loc: userLocation,
               filters: event.filters));
         }
       } on TimeoutException {
-        yield (HomeError("Timeout was reached. No Internet Connection or GPS is not enabled", apiKey));
+        yield (HomeError(
+            AppLocalizations.of(homeRepo.context).placesTimeoutExt,
+            apiKey));
         try {
-          yield (HomeLoading());
+          yield (HomeLoading(apiKey,));
           final places = await homeRepo.fetchAllPlacesFromDataBase();
           yield (HomeLoaded(
             places: places,
-            message: "All Places was loaded from database",
-            googleApiKey: apiKey, textFieldText: event.textFieldText,
-            filters: event.filters,));
+            message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+            googleApiKey: apiKey,
+            textFieldText: event.textFieldText,
+            filters: event.filters,
+          ));
         } on PlacesNotFoundException {
-          yield (HomeError('No places found in database',apiKey));
-        }catch (error) {
-          yield(HomeError('Something went wong in database, try logout',apiKey));
+          yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+        } catch (error) {
+          yield (HomeError(
+              AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
         }
       } catch (error) {
         if (error is PlacesNotFoundException) {
           yield (HomeError(error.error, apiKey));
           try {
-            yield(HomeLoading());
+            yield (HomeLoading(apiKey,));
             final places = await homeRepo.fetchAllPlacesFromDataBase();
             yield (HomeLoaded(
               places: places,
-              message: "All Places was loaded from database",
-              googleApiKey: apiKey, textFieldText: event.textFieldText,
-              filters: event.filters,));
+              message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+              googleApiKey: apiKey,
+              textFieldText: event.textFieldText,
+              filters: event.filters,
+            ));
           } on PlacesNotFoundException {
-            yield(HomeError('No places found in database',apiKey));
-          }
-          catch (error) {
+            yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+          } catch (error) {
             if (error is PlacesNotFoundException) {
               print(error.error.toString());
-              yield(HomeError(error.error.toString(),apiKey));}
-            else{
-              yield(HomeError('Something went wrong in database, try logout',apiKey));}
-          }
-        }
-        else {
-          if(error is SocketException){
-            yield(HomeError('No Internet Connection',apiKey));}
-          else yield (HomeError('Something went wrong, try change filters', apiKey));
-          try {
-            yield(HomeLoading());
-            final places = await homeRepo.fetchAllPlacesFromDataBase();
-            yield (HomeLoaded(
-              places: places,
-              message: "All Places was loaded from database",
-              googleApiKey: apiKey, textFieldText: event.textFieldText,
-              filters: event.filters,));
-          } on PlacesNotFoundException {
-            yield(HomeError('No places found in database',apiKey));
-          }
-          catch (error) {
-            if (error is PlacesNotFoundException) {
-              print(error.error.toString());
-              yield(HomeError(error.error.toString(),apiKey));}
-            else{
-              yield(HomeError('Something went wrong in database, try logout',apiKey));}
-          }
-        }
-      }
-    }
-
-
-    if (event is GetDetailedPlace) {          //Get DetailedPlace or DetailedPlace from database
-      try {
-        yield (PlaceLoading());
-        final place = await homeRepo.fetchDetailedPlaceFromNetwork(event.placeId,isRecentlyViewed: true).timeout(Duration(seconds: 4));
-        yield (PlaceLoaded(placesDetail:place, googleApiKey: apiKey));
-      }
-
-      on TimeoutException {
-        yield PlaceError("Timeout was reached. No Internet Connection");
-          try {
-            yield(PlaceLoading());
-            final places = await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
-            yield(PlaceLoaded(
-                placesDetail: places, message: "Place was loaded from database"));
-          } on PlacesNotFoundException {
-            yield(PlaceError('This place was not found in database'));
-          }
-          catch (Error) {
-            if (Error is PlacesNotFoundException) {
-              print(Error.error.toString());
-              yield(PlaceError(Error.error));}
-            else{
-              yield(PlaceError(Error.toString()));}
-          }
-        }
-      catch (error) {
-        if (error is PlacesNotFoundException) {
-          yield(PlaceError(error.error));
-          try {
-            yield(PlaceLoading());
-            final places = await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
-            yield(PlaceLoaded(
-                placesDetail: places, message: "Place was loaded from database"));
-          } on PlacesNotFoundException {
-            yield(PlaceError('This place was not found in database'));
-          }
-          catch (Error) {
-            if (Error is PlacesNotFoundException) {
-              print(Error.error.toString());
-              yield(PlaceError(Error.error));}
-            else{
-              yield(PlaceError(Error.toString()));}
+              yield (HomeError(error.error.toString(), apiKey));
+            } else {
+              yield (HomeError(
+                  AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
+            }
           }
         } else {
-          if(error is SocketException){
-          yield(PlaceError('No Internet Connection'));}
+          if (error is SocketException) {
+            yield (HomeError(AppLocalizations.of(homeRepo.context).noInternetConnection, apiKey));
+          } else
+            yield (HomeError(
+                AppLocalizations.of(homeRepo.context).unknownErrorExt, apiKey));
           try {
-            yield(PlaceLoading());
-            final places = await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
-            yield(PlaceLoaded(
-                placesDetail: places, message: "Place was loaded from database"));
+            yield (HomeLoading(apiKey,));
+            final places = await homeRepo.fetchAllPlacesFromDataBase();
+            yield (HomeLoaded(
+              places: places,
+              message: AppLocalizations.of(homeRepo.context).placesFromDatabase,
+              googleApiKey: apiKey,
+              textFieldText: event.textFieldText,
+              filters: event.filters,
+            ));
           } on PlacesNotFoundException {
-            yield(PlaceError('This place was not found in database'));
-          }
-          catch (Error) {
-            if (Error is PlacesNotFoundException) {
-              print(Error.error.toString());
-              yield(PlaceError(Error.error));}
-            else{
-              print(Error.toString()+" MY");
-              yield(PlaceError('Something went wrong, try again later'));}
+            yield (HomeError(AppLocalizations.of(homeRepo.context).placesFromDatabaseErr, apiKey));
+          } catch (error) {
+            if (error is PlacesNotFoundException) {
+              print(error.error.toString());
+              yield (HomeError(error.error.toString(), apiKey));
+            } else {
+              yield (HomeError(
+                  AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
+            }
           }
         }
       }
-
     }
 
+    if (event is GetDetailedPlace) {
+      //Get DetailedPlace or DetailedPlace from database
+      try {
+        yield (PlaceLoading());
+        final place = await homeRepo
+            .fetchDetailedPlaceFromNetwork(event.placeId,
+                isRecentlyViewed: true)
+            .timeout(Duration(seconds: 4));
+        yield (PlaceLoaded(placesDetail: place, googleApiKey: apiKey));
+      } on TimeoutException {
+        yield PlaceError(AppLocalizations.of(homeRepo.context).placesTimeoutNetwork, apiKey);
+        try {
+          yield (PlaceLoading());
+          final places =
+              await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
+          yield (PlaceLoaded(
+              placesDetail: places, message: AppLocalizations.of(homeRepo.context).placeFromDatabase));
+        } on PlacesNotFoundException {
+          yield (PlaceError(AppLocalizations.of(homeRepo.context).placeDatabaseErr, apiKey));
+        } catch (Error) {
+          if (Error is PlacesNotFoundException) {
+            print(Error.error.toString());
+            yield (PlaceError(Error.error, apiKey));
+          } else {
+            yield (PlaceError(Error.toString(), apiKey));
+          }
+        }
+      } catch (error) {
+        if (error is PlacesNotFoundException) {
+          yield (PlaceError(error.error, apiKey));
+          try {
+            yield (PlaceLoading());
+            final places =
+                await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
+            yield (PlaceLoaded(
+                placesDetail: places,
+                message: AppLocalizations.of(homeRepo.context).placeFromDatabase));
+          } on PlacesNotFoundException {
+            yield (PlaceError(AppLocalizations.of(homeRepo.context).placeDatabaseErr, apiKey));
+          } catch (Error) {
+            if (Error is PlacesNotFoundException) {
+              print(Error.error.toString());
+              yield (PlaceError(Error.error, apiKey));
+            } else {
+              yield (PlaceError(Error.toString(), apiKey));
+            }
+          }
+        } else {
+          if (error is SocketException) {
+            yield (PlaceError(AppLocalizations.of(homeRepo.context).placesTimeoutNetwork, apiKey));
+          }
+          try {
+            yield (PlaceLoading());
+            final places =
+                await homeRepo.fetchPlaceDetailFromDataBase(event.placeId);
+            yield (PlaceLoaded(
+                placesDetail: places,
+                message: AppLocalizations.of(homeRepo.context).placeFromDatabase));
+          } on PlacesNotFoundException {
+            yield (PlaceError(AppLocalizations.of(homeRepo.context).placeDatabaseErr, apiKey));
+          } catch (Error) {
+            if (Error is PlacesNotFoundException) {
+              print(Error.error.toString());
+              yield (PlaceError(Error.error, apiKey));
+            } else {
+              print(Error.toString() + " MY");
+              yield (PlaceError(
+                  AppLocalizations.of(homeRepo.context).placesFromDatabaseCriticalErr, apiKey));
+            }
+          }
+        }
+      }
+    }
   }
 
-
-
-  void setFiltersParameters(SearchFilterModel filterModel){
-    this._filterModel=filterModel;
+  void setFiltersParameters(SearchFilterModel filterModel) {
+    this._filterModel = filterModel;
     print(this._filterModel.radius);
   }
-  SearchFilterModel getFilterModel(){
+
+  SearchFilterModel getFilterModel() {
     return this._filterModel;
   }
 }

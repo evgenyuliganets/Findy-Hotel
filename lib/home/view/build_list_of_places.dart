@@ -7,7 +7,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'detail_place_page.dart';
-import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
@@ -23,45 +22,58 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
               context,
               MaterialPageRoute(
                 builder: (context) => BlocProvider(
-                  create: (context) => HomeBloc(HomeDataRepository()),
+                  create: (context) => HomeBloc(HomeDataRepository(context)),
                   child: DetailedPlace(places[index].placeId),
                 ),
               ),
             );
           },
           child: Card(
-            margin: EdgeInsets.only(bottom: 10, left: 5, right: 5),
+            margin: EdgeInsets.only(bottom: 10, left: 10, right: 10),
             borderOnForeground: true,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
             child: Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
               places[index].photos.isNotEmpty
-                  ? Image(
-                      image: places[index].photos.first,
-                      fit: BoxFit.contain,
-                      height: 250,
-                      loadingBuilder: (BuildContext context, Widget child,
-                          ImageChunkEvent loadingProgress) {
-                        if (loadingProgress == null) return child;
-                        return Container(
-                            color: Colors.black12,
-                            height: 250,
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.black26),
-                                value: loadingProgress.expectedTotalBytes !=
-                                        null
-                                    ? loadingProgress.cumulativeBytesLoaded /
-                                        loadingProgress.expectedTotalBytes
-                                    : null,
-                              ),
-                            ));
-                      },
-                    )
-                  : Image.asset(
-                      'assets/no_image.jpg',
-                      height: 250,
-
-                    ),
+                  ? ClipRRect(borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10)),
+                    child: Image(
+                        image: places[index].photos.first,
+                        fit: BoxFit.fitWidth,
+                        height: 250,
+                        width: 400,
+                        loadingBuilder: (BuildContext context, Widget child,
+                            ImageChunkEvent loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return Container(
+                              color: Colors.black12,
+                              height: 250,
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.black26),
+                                  value: loadingProgress.expectedTotalBytes !=
+                                          null
+                                      ? loadingProgress.cumulativeBytesLoaded /
+                                          loadingProgress.expectedTotalBytes
+                                      : null,
+                                ),
+                              ));
+                        },
+                      ),
+                  )
+                  : ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10)),
+                    child: Image.asset(
+                        'assets/no_image.jpg',
+                        height: 250,
+                        width: 400,fit: BoxFit.fitWidth,
+                      ),
+                  ),
               ListTile(
                 visualDensity: VisualDensity.compact,
                 title: places[index].name == null
@@ -83,18 +95,18 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                               return Icon(
                                 Icons.star_border,
                                 color: Colors.black26,
-                                size: 20,
+                                size: 22,
                               );
                             }),
                           ),
                           Text(
                             AppLocalizations.of(context).detailedRatingError,
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 14),
                           ),
                           Spacer(),
                           Container(
                             child: BlocProvider(
-                              create: (context) => FavoriteCubit(HomeDataRepository()),
+                              create: (context) => FavoriteCubit(HomeDataRepository(context)),
                               child: BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
                                   if (state is FavoriteLoading) {
@@ -189,16 +201,16 @@ SliverList buildListOfPlaces(String textFieldText, List<PlacesDetail> places,
                                         ? Icons.star_border
                                         : Icons.star_half,
                                 color: Colors.amber,
-                                size: 20,
+                                size: 22,
                               );
                             }),
                           ),
-                          Text(places[index].rating.toString(),
-                              style: TextStyle(color: Colors.black54)),
+                          Text(" "+places[index].rating.toString(),
+                              style: TextStyle(color: Colors.black54,fontSize: 15)),
                           Spacer(),
                           Container(
                             child: BlocProvider(
-                              create: (context) => FavoriteCubit(HomeDataRepository()),
+                              create: (context) => FavoriteCubit(HomeDataRepository(context)),
                               child:BlocConsumer<FavoriteCubit, FavoriteState>(
                                 builder: (context, state) {
                                   if (state is FavoriteLoading) {

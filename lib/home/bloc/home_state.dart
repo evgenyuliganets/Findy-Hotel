@@ -15,7 +15,7 @@ class HomeLoading extends HomeState {
   final String googleApiKey;
   final LatLng loc;
   final String textFieldText;
-  const HomeLoading({this.googleApiKey, this.loc, this.textFieldText});
+  const HomeLoading(this.googleApiKey,{ this.loc, this.textFieldText});
 }
 
 class HomeLoaded extends HomeState {
@@ -52,6 +52,7 @@ class PlaceLoaded extends HomeState {
 }
 
 class PlaceError extends HomeState {
+  final String apiKey;
   final String error;
-  const PlaceError(this.error);
+  const PlaceError(this.error,this.apiKey);
 }

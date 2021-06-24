@@ -162,6 +162,91 @@
     "mapResultsOnList": " Show results as list",
                                 "@homeResultsOnMap": {
                                              "description": ""},
+    "placeNetworkError": "Place not found, try again later",
+                                "@placeNetworkError": {
+                                             "description": ""},
+    "unknownError": "Unknown Error",
+                                "@unknownError": {
+                                             "description": ""},
+    "timeoutRepoError": "Timeout was reached, try reload later or check connection",
+                                "@timeoutRepoError": {
+                                             "description": ""},
+    "noResultsErr": "No results found, try change filters",
+                                "@noResultsErr": {
+                                             "description": ""},
+    "locPermissionErr": "Location permission is not granted, please grant permission to see places near you",
+                                "@locPermissionErr": {
+                                             "description": ""},
+    "placesDatabaseErr": "Places in Database was not found",
+                                "@placesDatabaseErr": {
+                                             "description": ""},
+    "placeDatabaseErr": "This place was not found in database",
+                                "@placeDatabaseErr": {
+                                             "description": ""},
+    "lastLocationNotify": "Places was loaded from last known location",
+                                "@lastLocationNotify": {
+                                             "description": ""},
+    "placesTimeoutExt": "Timeout was reached. No Internet Connection or GPS is not enabled",
+                                "@placesTimeoutExt": {
+                                             "description": ""},
+    "placesFromDatabase": "All Places was loaded from database",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "placesFromDatabaseErr": "No places found in database",
+                                "@placesFromDatabaseErr": {
+                                             "description": ""},
+    "placesFromDatabaseCriticalErr": "Something went wrong in database, try logout",
+                                "@placesFromDatabaseCriticalErr": {
+                                             "description": ""},
+    "noInternetConnection": "No Internet Connection",
+                                "@noInternetConnection": {
+                                             "description": ""},
+    "unknownErrorExt": "Something went wrong, try change filters",
+                                "@placesFromDatabaseCriticalErr": {
+                                             "description": ""},
+    "placesTimeoutNetwork": "Timeout was reached. No Internet Connection",
+                                "@placesTimeoutNetwork": {
+                                             "description": ""},
+    "placeFromDatabase": "Place was loaded from database",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "favoriteError": "Favorite places was not found in database",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "recentError": "Recently Viewed places was not found in database",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "recentHeader": "Recently Viewed Places",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "favoriteHeader": "Favorite Places",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+    "favErrorHeader": "Sorry, your favorite places not found, try add some",
+                                "@placesFromDatabase": {
+                                             "description": ""},
+
+    "lastLocationExtNotify": "Places was loaded from last known location, try change filters",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+
+    "favDatabaseError": "Something went wrong while adding place in favorite",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+    "errorFavorite": "Cannot save to favorite",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+
+    "successFavorite": "Successfully saved to favorite",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+    "deletedFavorite": "Successfully deleted from favorite",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+    "deletingFavoriteErr": "Something went wrong while deleting place from favorite",
+                                "@homeResultsOnMap": {
+                                             "description": ""},
+
     "mapTab": "Map",
         "@mapTab": {
                   "description": ""},
@@ -180,8 +265,8 @@
     "warningProfile": "You sure you want to logout? All local data will be erased!",
                 "@warningProfile": {
                           "description": ""},
-    "profileError": "Sorry, your recently viewed places not found, try view some.",
-                    "@profileError": {
+    "recentHeaderError": "Sorry, your recently viewed places not found, try view some",
+                    "@recentHeaderError": {
                               "description": ""}
 
 }

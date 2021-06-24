@@ -3,9 +3,11 @@ import 'package:find_hotel/home/model/places_detail_model.dart';
 import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-part 'profile_event.dart';
-part 'profile_state.dart';
+
+part 'favorite_event.dart';
+part 'favorite_state.dart';
 class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
   FavoriteEvent lastProfileEvent;
   final ProfileRepository profileRepo;
@@ -25,14 +27,17 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
     if (event is GetFavoritePlaces) {           //Get Favorite Places or Places from dataBase
       try {
         yield (FavoriteLoading());
-        final places = await profileRepo.fetchFavoritePlacesFromDataBase().timeout(Duration(seconds: 2));
+        final places = await profileRepo.fetchFavoritePlacesFromDataBase().timeout(Duration(seconds: 10));
         yield (FavoriteLoaded(places:places,));
       }
       on PlacesNotFoundException{
-        yield (FavoriteError("Something went wrong"));
+        yield (FavoriteError(AppLocalizations.of(profileRepo.context).favoriteError,
+        ));
       }
-      on TimeoutException {
-        yield (FavoriteError("No Internet Connection"));
+      catch (error){
+        if (!(error is PlacesNotFoundException)){
+          yield (FavoriteError(AppLocalizations.of(profileRepo.context).placesFromDatabaseCriticalErr));
+        }
       }
     }
 
@@ -45,11 +50,12 @@ class FavoriteBloc extends Bloc<FavoriteEvent, FavoriteState> {
       }
 
       on PlacesNotFoundException{
-        yield (FavoriteError("Something went wrong"));
+        yield (FavoriteError("Something went wrong in database"));
       }
-      on TimeoutException {
-
-        yield (FavoriteError("No Internet Connection"));
+      catch (error){
+        if (!(error is PlacesNotFoundException)){
+          yield (FavoriteError("Something went wrong"));
+        }
       }
     }
 

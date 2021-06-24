@@ -1,6 +1,5 @@
 import 'package:find_hotel/bottom_navigation/bloc/bottom_navigation_bloc.dart';
 import 'package:find_hotel/home/bloc/home_bloc.dart';
-import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:find_hotel/home/view/home_page.dart';
 import 'package:find_hotel/map/bloc/map_bloc.dart';
@@ -26,16 +25,16 @@ class MainNavbar extends StatelessWidget {
      BlocProvider<BottomNavigationBloc>(
       create: (context) => BottomNavigationBloc()..add(AppStarted()),),
      BlocProvider(
-       create: (context) => MapBloc(MapRepository()),
+       create: (context) => MapBloc(MapRepository(context)),
      ),
      BlocProvider(
-       create: (context) => HomeBloc(HomeDataRepository()),
+       create: (context) => HomeBloc(HomeDataRepository(context)),
      ),
      BlocProvider(
-       create: (context) => FavoriteBloc(ProfileRepository()),
+       create: (context) => FavoriteBloc(ProfileRepository(context)),
      ),
      BlocProvider(
-       create: (context) => RecentlyViewedBloc(ProfileRepository()),
+       create: (context) => RecentlyViewedBloc(ProfileRepository(context)),
      ),
    ],
       child:Scaffold(

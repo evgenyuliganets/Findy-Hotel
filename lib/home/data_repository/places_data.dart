@@ -12,10 +12,14 @@ import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class HomeDataRepository {
+  final BuildContext context;
   var _placesRepository = PlacesRepository();
   var _photosRepository = PhotosRepository();
+  HomeDataRepository(this.context);
 
   Future<PlacesDetail> fetchDetailedPlaceFromNetwork(String placeId,
       {bool saveToFavorite,
@@ -112,14 +116,12 @@ class HomeDataRepository {
             ? throw result.errorMessage
             : result.status == 'ZERO_RESULTS'
                 ? throw PlacesNotFoundException(
-                    "Place not found, try again later")
-                : throw 'Unknown Error';
+            AppLocalizations.of(context).placeNetworkError)
+                : throw AppLocalizations.of(context).unknownError;
       }
     } on TimeoutException {
-      print(2);
-
       throw PlacesNotFoundException(
-          'Timeout was reached, try reload later or check connection');
+          AppLocalizations.of(context).timeoutRepoError);
     } catch (Exception) {
       if (Exception is PlacesNotFoundException) {
         print(Exception.error + 'MY');
@@ -324,12 +326,12 @@ class HomeDataRepository {
             ? throw result.errorMessage
             : result.status == 'ZERO_RESULTS'
                 ? throw PlacesNotFoundException(
-                    "No results found, try change filters")
-                : throw 'UnknownError';
+            AppLocalizations.of(context).noResultsErr)
+                : throw AppLocalizations.of(context).unknownError;
       }
     } on TimeoutException {
       throw PlacesNotFoundException(
-          'Timeout was reached, try change filters or check connection');
+          AppLocalizations.of(context).timeoutRepoError);
     } catch (Exception) {
       if (Exception is PlacesNotFoundException) {
         print(Exception.error + 'MY');
@@ -359,7 +361,7 @@ class HomeDataRepository {
         return LatLng(currentLocation.latitude, currentLocation.longitude);
       } else {
         throw PlacesNotFoundException(
-            'Location permission is not granted, please grant permission to see places near you');
+            AppLocalizations.of(context).locPermissionErr);
       }
     }
   }
@@ -383,7 +385,7 @@ class HomeDataRepository {
       }
 
       if (placesDatabase.isEmpty) {
-        throw PlacesNotFoundException('Places in Database was not found');
+        throw PlacesNotFoundException(AppLocalizations.of(context).placesDatabaseErr);
       } else {
         var j = 0;
         List<PlacesDetail> list = new List<PlacesDetail>(placesDatabase.length);
@@ -407,7 +409,10 @@ class HomeDataRepository {
           );
           j++;
         });
-        return list;
+        if (list.isEmpty) {
+          throw PlacesNotFoundException(AppLocalizations.of(context).placesDatabaseErr);
+        }else{
+          return list;}
       }
     } catch (Exception) {
       if (Exception is PlacesNotFoundException) {
@@ -436,7 +441,7 @@ class HomeDataRepository {
         j++;
       });
       if (placeDatabase == null) {
-        throw PlacesNotFoundException('This place was not found in Database');
+        throw PlacesNotFoundException(AppLocalizations.of(context).placeDatabaseErr);
       } else {
         final place = PlacesDetail(
           icon: placeDatabase.icon,
@@ -474,7 +479,7 @@ class HomeDataRepository {
   }
 
   String buildPhotoURL(String photoReference, String googleApiKey) {
-    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=1000&photoreference=$photoReference&key=$googleApiKey";
+    return "https://maps.googleapis.com/maps/api/place/photo?maxwidth=800&photoreference=$photoReference&key=$googleApiKey";
   }
 
 /*If you are using this app u should create your own asset file with text instance of ApiKey for GooglePlaces
