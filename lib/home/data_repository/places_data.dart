@@ -14,11 +14,11 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:location/location.dart' as LocationManager;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-
 class HomeDataRepository {
   final BuildContext context;
   var _placesRepository = PlacesRepository();
   var _photosRepository = PhotosRepository();
+
   HomeDataRepository(this.context);
 
   Future<PlacesDetail> fetchDetailedPlaceFromNetwork(String placeId,
@@ -36,15 +36,15 @@ class HomeDataRepository {
           .getDetailsByPlaceId(placeId, language: defaultLocale)
           .timeout(Duration(seconds: 5));
       if (result.status == "OK" && !result.hasNoResults) {
-
-        List<ImageProvider> photos = List<ImageProvider>(result.result.photos.length);
-        List<String> photosUrls = List<String>(result.result.photos.length);
+        List<ImageProvider> photos = List<ImageProvider>.empty(growable: true);
+        List<String> photosUrls = List<String>.empty(growable: true);
 
         if (result.result.photos.isNotEmpty) {
-
-          photos.asMap().forEach((index, value){
-            photosUrls[index] = buildPhotoURL(result.result.photos[index].photoReference, kGoogleApiKey);
-            photos[index] = Image.network(buildPhotoURL(result.result.photos[index].photoReference, kGoogleApiKey)).image;
+          result.result.photos.asMap().forEach((index, value) {
+            photosUrls.add(buildPhotoURL(value.photoReference, kGoogleApiKey));
+            photos.add(Image.network(
+                    buildPhotoURL(value.photoReference, kGoogleApiKey))
+                .image);
           });
         }
         final list = PlacesDetail(
@@ -89,13 +89,15 @@ class HomeDataRepository {
                                                 ? result
                                                     .result
                                                     .openingHours
-                                                    .periods[weekday.weekday-1]
+                                                    .periods[
+                                                        weekday.weekday - 1]
                                                     .close
                                                     .time
                                                 : result
                                                     .result
                                                     .openingHours
-                                                    .periods[weekday.weekday-1]
+                                                    .periods[
+                                                        weekday.weekday - 1]
                                                     .open
                                                     .time
                                         : null
@@ -116,7 +118,7 @@ class HomeDataRepository {
             ? throw result.errorMessage
             : result.status == 'ZERO_RESULTS'
                 ? throw PlacesNotFoundException(
-            AppLocalizations.of(context).placeNetworkError)
+                    AppLocalizations.of(context).placeNetworkError)
                 : throw AppLocalizations.of(context).unknownError;
       }
     } on TimeoutException {
@@ -127,7 +129,7 @@ class HomeDataRepository {
         print(Exception.error + 'MY');
         throw PlacesNotFoundException(Exception.error);
       } else
-      print(Exception);
+        print(Exception);
       throw Exception;
     }
   }
@@ -151,14 +153,15 @@ class HomeDataRepository {
           isRecentlyViewed: isRecentlyViewed,
           isFavorite: isFavorite));
   }
+
   Future<PlacesDbDetail> parsePlaceForDatabase(
       PlacesDetail place, List<String> photosUrls,
       {bool isNearest, bool isRecentlyViewed, bool isFavorite}) async {
     await _photosRepository.deleteSelectedPhotos(place.placeId);
-    var tempOutput = new List<String>.from(photosUrls,growable: true);
+    var tempOutput = new List<String>.from(photosUrls, growable: true);
     if (tempOutput.isNotEmpty) {
-      var firstImage = await NetworkAssetBundle(Uri.parse("")).load(
-          tempOutput.first);
+      var firstImage =
+          await NetworkAssetBundle(Uri.parse("")).load(tempOutput.first);
 
       await _photosRepository.insertPhoto(PhotosDbDetail(
         placeId: place.placeId,
@@ -166,10 +169,14 @@ class HomeDataRepository {
       ));
       tempOutput.removeAt(0);
     }
-    var isisRecentlyViewedTemp= await _placesRepository.checkIfExistInRecent(place.placeId);
-    var isFavoriteTemp= await _placesRepository.checkIfExistInFavorite(place.placeId);
-    isRecentlyViewed= isisRecentlyViewedTemp==true?isisRecentlyViewedTemp:isRecentlyViewed;
-    isFavorite= isFavoriteTemp==true?isFavoriteTemp:isFavorite;
+    var isisRecentlyViewedTemp =
+        await _placesRepository.checkIfExistInRecent(place.placeId);
+    var isFavoriteTemp =
+        await _placesRepository.checkIfExistInFavorite(place.placeId);
+    isRecentlyViewed = isisRecentlyViewedTemp == true
+        ? isisRecentlyViewedTemp
+        : isRecentlyViewed;
+    isFavorite = isFavoriteTemp == true ? isFavoriteTemp : isFavorite;
     Future.wait(tempOutput
         .map((e) => NetworkAssetBundle(Uri.parse("")).load(e).then((value) {
               print('$e PHOTO');
@@ -287,38 +294,33 @@ class HomeDataRepository {
           result.hasNoResults != true &&
           result.isNotFound != true) {
         print(result.results.first.toJson());
-        var j = 0;
-        List<PlacesDetail> list = new List<PlacesDetail>(result.results.length);
-        list.forEach((element) {
-          var k = 0;
-          List<ImageProvider> photos;
-          if (result.results[j].photos != null) {
-            photos = new List<ImageProvider>(result.results[j].photos.length);
-            photos.forEach((element) {
-              photos[k] = Image.network(buildPhotoURL(
-                      result.results[j].photos[k].photoReference,
-                      kGoogleApiKey))
-                  .image;
-              k++;
+        List<PlacesDetail> list = new List<PlacesDetail>.empty(growable: true);
+        result.results.forEach((element) {
+          List<ImageProvider> photos =
+              List<ImageProvider>.empty(growable: true);
+          if (element.photos != null) {
+            element.photos.forEach((photo) {
+              photos.add(Image.network(
+                      buildPhotoURL(photo.photoReference, kGoogleApiKey))
+                  .image);
             });
           }
-          list[j] = PlacesDetail(
-            icon: result.results[j].icon,
-            name: result.results[j].name,
-            openNow: result.results[j].openingHours == null
+          list.add(PlacesDetail(
+            icon: element.icon,
+            name: element.name,
+            openNow: element.openingHours == null
                 ? "null"
-                : result.results[j].openingHours.openNow.toString(),
-            latitude: result.results[j].geometry.location.lat,
-            longitude: result.results[j].geometry.location.lng,
+                : element.openingHours.openNow.toString(),
+            latitude: element.geometry.location.lat,
+            longitude: element.geometry.location.lng,
             photos: photos,
-            placeId: result.results[j].placeId,
-            priceLevel: result.results[j].priceLevel.toString(),
-            rating: result.results[j].rating,
-            types: result.results[j].types,
-            vicinity: result.results[j].vicinity,
-            formattedAddress: result.results[j].formattedAddress,
-          );
-          j++;
+            placeId: element.placeId,
+            priceLevel: element.priceLevel.toString(),
+            rating: element.rating,
+            types: element.types,
+            vicinity: element.vicinity,
+            formattedAddress: element.formattedAddress,
+          ));
         });
         return list;
       } else {
@@ -326,7 +328,7 @@ class HomeDataRepository {
             ? throw result.errorMessage
             : result.status == 'ZERO_RESULTS'
                 ? throw PlacesNotFoundException(
-            AppLocalizations.of(context).noResultsErr)
+                    AppLocalizations.of(context).noResultsErr)
                 : throw AppLocalizations.of(context).unknownError;
       }
     } on TimeoutException {
@@ -370,49 +372,46 @@ class HomeDataRepository {
     try {
       List<PlacesDbDetail> placesDatabase =
           await _placesRepository.getAllPlaces();
-      List<List<PhotosDbDetail>> photoDatabase =
-          List<List<PhotosDbDetail>>(placesDatabase.length);
+      var photoDatabase = List<List<PhotosDbDetail>>.empty(growable: true);
       List<List<ImageProvider>> listImages =
-          List<List<ImageProvider>>(placesDatabase.length);
-
-      for (int i = 0; i < photoDatabase.length; i++) {
-        photoDatabase[i] = await _photosRepository
-            .getSelectedPhotos(placesDatabase[i].placeId);
-        listImages[i] = List<ImageProvider>(photoDatabase[i].length);
-        for (int j = 0; j < photoDatabase[i].length; j++) {
-          listImages[i][j] = Image.memory(photoDatabase[i][j].photo).image;
-        }
-      }
-
+          List<List<ImageProvider>>.empty(growable: true);
+      placesDatabase.forEach((places) async {
+        photoDatabase
+            .add(await _photosRepository.getSelectedPhotos(places.placeId));
+        photoDatabase.forEach((photos) {
+          listImages.add(photos.map((e) => Image.memory(e.photo).image));
+        });
+      });
       if (placesDatabase.isEmpty) {
-        throw PlacesNotFoundException(AppLocalizations.of(context).placesDatabaseErr);
+        throw PlacesNotFoundException(
+            AppLocalizations.of(context).placesDatabaseErr);
       } else {
-        var j = 0;
-        List<PlacesDetail> list = new List<PlacesDetail>(placesDatabase.length);
-        list.forEach((element) {
-          list[j] = PlacesDetail(
-            icon: placesDatabase[j].icon,
-            name: placesDatabase[j].name,
-            openNow: placesDatabase[j].openNow == null
+        List<PlacesDetail> list = new List<PlacesDetail>.empty(growable: true);
+        placesDatabase.asMap().forEach((index, element) {
+          list.add(PlacesDetail(
+            icon: element.icon,
+            name: element.name,
+            openNow: element.openNow == null
                 ? "null"
-                : placesDatabase[j].openNow.toString(),
-            photos: listImages[j],
-            placeId: placesDatabase[j].placeId,
-            priceLevel: placesDatabase[j].priceLevel.toString(),
-            rating: placesDatabase[j].rating,
-            types: typesFromJson(placesDatabase[j].types),
-            vicinity: placesDatabase[j].vicinity,
-            formattedAddress: placesDatabase[j].formattedAddress,
-            utcOffset: placesDatabase[j].utcOffset,
-            formattedPhoneNumber: placesDatabase[j].formattedPhoneNumber,
-            openingHours: placesDatabase[j].openingHours,
-          );
-          j++;
+                : element.openNow.toString(),
+            photos: listImages[index],
+            placeId: element.placeId,
+            priceLevel: element.priceLevel.toString(),
+            rating: element.rating,
+            types: typesFromJson(element.types),
+            vicinity: element.vicinity,
+            formattedAddress: element.formattedAddress,
+            utcOffset: element.utcOffset,
+            formattedPhoneNumber: element.formattedPhoneNumber,
+            openingHours: element.openingHours,
+          ));
         });
         if (list.isEmpty) {
-          throw PlacesNotFoundException(AppLocalizations.of(context).placesDatabaseErr);
-        }else{
-          return list;}
+          throw PlacesNotFoundException(
+              AppLocalizations.of(context).placesDatabaseErr);
+        } else {
+          return list;
+        }
       }
     } catch (Exception) {
       if (Exception is PlacesNotFoundException) {
@@ -434,14 +433,13 @@ class HomeDataRepository {
       PlacesDbDetail placeDatabase = await _placesRepository.getPlace(placeId);
       List<PhotosDbDetail> photoDatabase =
           await _photosRepository.getSelectedPhotos(placeId);
-      List<ImageProvider> listImages = List(photoDatabase.length);
-      var j = 0;
+      var listImages = List<ImageProvider>.empty(growable: true);
       photoDatabase.forEach((element) {
-        listImages[j] = Image.memory(element.photo).image;
-        j++;
+        listImages.add(Image.memory(element.photo).image);
       });
       if (placeDatabase == null) {
-        throw PlacesNotFoundException(AppLocalizations.of(context).placeDatabaseErr);
+        throw PlacesNotFoundException(
+            AppLocalizations.of(context).placeDatabaseErr);
       } else {
         final place = PlacesDetail(
           icon: placeDatabase.icon,
@@ -461,8 +459,8 @@ class HomeDataRepository {
           utcOffset: placeDatabase.utcOffset,
           formattedPhoneNumber: placeDatabase.formattedPhoneNumber,
           openingHours: placeDatabase.openingHours,
-          website:placeDatabase.website,
-          internationalPhoneNumber:placeDatabase.internationalPhoneNumber,
+          website: placeDatabase.website,
+          internationalPhoneNumber: placeDatabase.internationalPhoneNumber,
         );
         return place;
       }
@@ -510,7 +508,6 @@ class HomeDataRepository {
         break;
     }
   }
-
 }
 
 class PlacesNotFoundException implements Exception {

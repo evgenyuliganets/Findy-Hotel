@@ -1,7 +1,5 @@
 import 'package:find_hotel/home/model/search_filters_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FiltersWidget extends StatefulWidget {

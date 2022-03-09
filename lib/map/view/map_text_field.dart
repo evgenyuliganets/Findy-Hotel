@@ -158,15 +158,9 @@ class _MapTextFieldState extends State<MapTextField> {
   void submitPlaceSearch({LatLng latLng, String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
     final mapBloc = context.read<MapBloc>();
     mapBloc.add(GetPlacesOnMap(latlng:latLng,textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
-    void dispose() {
-      mapBloc.close();
-    }
   }
   void submitNameSearch({String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
     final mapBloc = context.read<MapBloc>();
     mapBloc.add(GetPlacesOnMap(textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
-    void dispose() {
-      mapBloc.close();
-    }
   }
 }

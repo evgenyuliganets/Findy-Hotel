@@ -157,15 +157,9 @@ class _HomeTextFieldState extends State<HomeTextField> {
   void submitPlaceSearch({LatLng latLng, String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
     final homeBloc = context.read<HomeBloc>();
     homeBloc.add(GetPlaces(latlng:latLng,textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
-    void dispose() {
-      homeBloc.close();
-    }
   }
   void submitNameSearch({String textFieldText, SearchFilterModel filters,bool mainSearchMode}) {
     final homeBloc = context.read<HomeBloc>();
     homeBloc.add(GetPlaces(textFieldText:textFieldText, mainSearchMode: mainSearchMode,filters: filters));
-    void dispose() {
-      homeBloc.close();
-    }
   }
 }

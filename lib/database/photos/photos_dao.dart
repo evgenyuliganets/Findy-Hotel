@@ -1,5 +1,4 @@
-  import 'dart:async';
-import 'dart:typed_data';
+import 'dart:async';
 import 'package:find_hotel/database/database.dart';
 import 'package:find_hotel/database/photos/photos_db_model.dart';
 
@@ -12,7 +11,8 @@ class PhotosDao {
     return result;
   }
 
-  Future<List<PhotosDbDetail>> getPhotos({List<String> columns, String query}) async {
+  Future<List<PhotosDbDetail>> getPhotos(
+      {List<String> columns, String query}) async {
     final db = await dbProvider.database;
 
     List<Map<String, dynamic>> result;
@@ -31,39 +31,41 @@ class PhotosDao {
 
   Future <List<PhotosDbDetail>> getSelectedPhotos(String placeId) async {
     final db = await dbProvider.database;
-    var queryResult = await db.rawQuery('SELECT * FROM Photos WHERE placeId="$placeId"') ;
+    var queryResult = await db.rawQuery(
+        'SELECT * FROM Photos WHERE placeId="$placeId"');
     var res = queryResult.toList();
-    if (queryResult!=null) {
-      var j = 0;
-      List<PhotosDbDetail> list = new List<PhotosDbDetail>(res.length);
-      list.forEach((element) {
-        list[j] = PhotosDbDetail(
-          placeId:res[j].values.elementAt(1),
-          photo: res[j].values.elementAt(2),
-        );
-        j++;});
+    if (queryResult != null) {
+      var list = List<PhotosDbDetail>.empty(growable: true);
+      res.forEach((element) {
+        list.add(PhotosDbDetail(
+          placeId: element.values.elementAt(1),
+          photo: element.values.elementAt(2),
+        ));});
       return list;
     }
-    else return List<PhotosDbDetail>.empty(growable: true);
+    else
+      return List<PhotosDbDetail>.empty(growable: true);
   }
 
   Future<PhotosDbDetail> getPhoto(String placeId) async {
     final db = await dbProvider.database;
-    var queryResult = await db.rawQuery('SELECT * FROM Photos WHERE placeId="$placeId"') ;
+    var queryResult = await db.rawQuery(
+        'SELECT * FROM Photos WHERE placeId="$placeId"');
     var res = queryResult.toList();
-    if (queryResult!=null){
+    if (queryResult != null) {
       return PhotosDbDetail(
-        placeId:res.first.values.elementAt(1),
+        placeId: res.first.values.elementAt(1),
         photo: res.first.values.elementAt(2),
       );
-
     }
-    else return PhotosDbDetail();
+    else
+      return PhotosDbDetail();
   }
 
   Future<int> deleteSelected(String placeId) async {
     final db = await dbProvider.database;
-    var result = await db.delete(photosTABLE, where: 'placeId = ?', whereArgs: [placeId]);
+    var result = await db.delete(
+        photosTABLE, where: 'placeId = ?', whereArgs: [placeId]);
 
     return result;
   }

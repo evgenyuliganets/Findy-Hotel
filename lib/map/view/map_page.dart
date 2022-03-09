@@ -114,9 +114,7 @@ class _MapPageState extends State<MapPage> {
                                     latlng: point,
                                     mainSearchMode: checkSearchMode,
                                     filters: finalFilters ?? SearchFilterModel()));
-                                void dispose() {
                                   mapBloc.close();
-                                }
                               },
                               myLocationEnabled: true,
                               myLocationButtonEnabled: true,
@@ -181,9 +179,7 @@ class _MapPageState extends State<MapPage> {
     final mapBloc = context.read<MapBloc>();
     print("this");
     mapBloc.add(GetMapUserPlaces(mainSearchMode: true));
-    void dispose() {
-      mapBloc.close();
-    }
+
     return LayoutBuilder(
         builder: (context, constrains) {
           return CustomScrollView(
@@ -240,9 +236,6 @@ class _MapPageState extends State<MapPage> {
                           final mapBloc = context.read<MapBloc>();
                           var finalFilters = mapBloc.getFilterModel();
                           mapBloc.add(GetPlacesOnMap(latlng: point,mainSearchMode: checkSearchMode,filters:finalFilters??SearchFilterModel()));
-                          void dispose() {
-                            mapBloc.close();
-                          }
                         },
                         myLocationEnabled: true,
                         myLocationButtonEnabled: true,
@@ -323,9 +316,6 @@ class _MapPageState extends State<MapPage> {
                     onPressed: () async {
                       final homeBloc = context.read<MapBloc>();
                       homeBloc.add(GetMapUserPlaces(mainSearchMode: checkSearchMode));
-                      void dispose() {
-                        homeBloc.close();
-                      }
                     },
                     icon: Icon(
                       Icons.location_on_outlined,

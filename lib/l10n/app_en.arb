@@ -160,7 +160,7 @@
                                 "@homeResultsOnMap": {
                                              "description": ""},
     "mapResultsOnList": " Show results as list",
-                                "@homeResultsOnMap": {
+                                "@mapResultsOnList": {
                                              "description": ""},
     "placeNetworkError": "Place not found, try again later",
                                 "@placeNetworkError": {
@@ -202,49 +202,49 @@
                                 "@noInternetConnection": {
                                              "description": ""},
     "unknownErrorExt": "Something went wrong, try change filters",
-                                "@placesFromDatabaseCriticalErr": {
+                                "@unknownErrorExt": {
                                              "description": ""},
     "placesTimeoutNetwork": "Timeout was reached. No Internet Connection",
                                 "@placesTimeoutNetwork": {
                                              "description": ""},
     "placeFromDatabase": "Place was loaded from database",
-                                "@placesFromDatabase": {
+                                "@placeFromDatabase": {
                                              "description": ""},
     "favoriteError": "Favorite places was not found in database",
-                                "@placesFromDatabase": {
+                                "@favoriteError": {
                                              "description": ""},
     "recentError": "Recently Viewed places was not found in database",
-                                "@placesFromDatabase": {
+                                "@recentError": {
                                              "description": ""},
     "recentHeader": "Recently Viewed Places",
-                                "@placesFromDatabase": {
+                                "@recentHeader": {
                                              "description": ""},
     "favoriteHeader": "Favorite Places",
-                                "@placesFromDatabase": {
+                                "@favoriteHeader": {
                                              "description": ""},
     "favErrorHeader": "Sorry, your favorite places not found, try add some",
-                                "@placesFromDatabase": {
+                                "@favErrorHeader": {
                                              "description": ""},
 
     "lastLocationExtNotify": "Places was loaded from last known location, try change filters",
-                                "@homeResultsOnMap": {
+                                "@lastLocationExtNotify": {
                                              "description": ""},
 
     "favDatabaseError": "Something went wrong while adding place in favorite",
-                                "@homeResultsOnMap": {
+                                "@favDatabaseError": {
                                              "description": ""},
     "errorFavorite": "Cannot save to favorite",
-                                "@homeResultsOnMap": {
+                                "@errorFavorite": {
                                              "description": ""},
 
     "successFavorite": "Successfully saved to favorite",
-                                "@homeResultsOnMap": {
+                                "@successFavorite": {
                                              "description": ""},
     "deletedFavorite": "Successfully deleted from favorite",
-                                "@homeResultsOnMap": {
+                                "@deletedFavorite": {
                                              "description": ""},
     "deletingFavoriteErr": "Something went wrong while deleting place from favorite",
-                                "@homeResultsOnMap": {
+                                "@deletingFavoriteErr": {
                                              "description": ""},
 
     "mapTab": "Map",

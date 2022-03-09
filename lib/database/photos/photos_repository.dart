@@ -1,5 +1,3 @@
-import 'dart:typed_data';
-
 import 'package:find_hotel/database/photos/photos_dao.dart';
 import 'package:find_hotel/database/photos/photos_db_model.dart';
 

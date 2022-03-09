@@ -1,20 +1,18 @@
 import 'dart:async';
-import 'package:find_hotel/map/repository/map_data.dart';
-import 'package:find_hotel/profile/data_repository/profile_data.dart';
 import 'package:meta/meta.dart';
 import 'package:equatable/equatable.dart';
 import 'package:bloc/bloc.dart';
-
 part 'bottom_navigation_event.dart';
 part 'bottom_navigation_state.dart';
 
 class BottomNavigationBloc
     extends Bloc<BottomNavigationEvent, BottomNavigationState> {
-  BottomNavigationBloc():super(PageLoading());
+  BottomNavigationBloc() : super(PageLoading());
   int currentIndex = 0;
 
   @override
-  Stream<BottomNavigationState> mapEventToState(BottomNavigationEvent event) async* {
+  Stream<BottomNavigationState> mapEventToState(
+      BottomNavigationEvent event) async* {
     if (event is AppStarted) {
       this.add(PageTapped(index: this.currentIndex));
     }
@@ -29,13 +27,9 @@ class BottomNavigationBloc
       }
       if (this.currentIndex == 2) {
         yield ProfilePageStarted();
-      }
-      else if(this.currentIndex==null){
+      } else if (this.currentIndex == null) {
         yield PageError('Unknown error');
       }
     }
-
   }
-
-
 }

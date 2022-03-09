@@ -7,7 +7,6 @@ import 'package:find_hotel/map/bloc/map_bloc.dart' as MapBloc;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 
@@ -262,9 +261,6 @@ class _HomePageState extends State<HomePage> {
                     onPressed: () async {
                       final homeBloc = context.read<HomeBloc>();
                       homeBloc.add(GetUserPlaces(textFieldText: textFieldText,mainSearchMode: checkSearchMode));
-                      void dispose() {
-                        homeBloc.close();
-                      }
                     },
                     icon: Icon(
                       Icons.location_on_outlined,

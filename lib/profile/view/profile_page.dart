@@ -53,7 +53,6 @@ class _ProfilePage extends State<ProfilePage> {
                   borderRadius: BorderRadius.all(Radius.circular(10),),
                   color: Color(0x70d9e0f0),
                 ),
-                height: 520,
                 child: Column(
                   children: [
                     Container(
@@ -77,7 +76,6 @@ class _ProfilePage extends State<ProfilePage> {
                   borderRadius: BorderRadius.all(Radius.circular(10),),
                   color: Color(0x70d9e0f0),
                 ),
-                height: 520,
                 child: Column(
                   children: [
                     Container(

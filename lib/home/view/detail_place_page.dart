@@ -5,7 +5,6 @@ import 'package:find_hotel/home/cubit/save_to_favorite_cubit.dart';
 import 'package:find_hotel/home/data_repository/places_data.dart';
 import 'package:flutter/material.dart';
 import 'package:find_hotel/home/model/places_detail_model.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -96,9 +95,6 @@ class _DetailedPlaceState extends State<DetailedPlace> {
   Widget buildInitialStart() {
     final homeBloc = context.read<HomeBloc>();
     homeBloc.add(GetDetailedPlace(widget.placeId));
-    void dispose() {
-      homeBloc.close();
-    }
     return Center(
         child: Scaffold(
           body: LayoutBuilder(
@@ -938,7 +934,7 @@ class _DetailedPlaceState extends State<DetailedPlace> {
         .toList();
   }
   Widget buildMap(PlacesDetail place) {
-    var markers = List<Marker>();
+    var markers = List<Marker>.empty(growable: true);
     markers.add(Marker(markerId: MarkerId('1'),
         position: LatLng(place.latitude ?? 0, place.longitude ?? 0),
         infoWindow: InfoWindow(
